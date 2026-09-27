@@ -26,11 +26,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Phục vụ ảnh tĩnh tải lên từ thiết bị qua URL: http://localhost:8080/uploads/...
+        // Phục vụ ảnh tĩnh tải lên từ thiết bị qua URL: /uploads/...
         Path uploadPath = Paths.get(uploadDir);
         String uploadAbsolutePath = uploadPath.toFile().getAbsolutePath();
 
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadAbsolutePath + "/");
+
+        // Phục vụ toàn bộ giao diện web (HTML, CSS, JS) từ thư mục static
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/static/");
     }
 }

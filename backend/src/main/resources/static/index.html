@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gợi Ý Quán Ăn & Quán Cafe | Hôm Nay Ăn Gì?</title>
+  <meta name="description" content="Khám phá và chia sẻ các quán ăn ngon, quán cafe đẹp tại Hà Nội, TP.HCM, Đà Nẵng, Đà Lạt. Tìm kiếm, lọc theo giá, thành phố và quay ngẫu nhiên hôm nay ăn gì!">
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+
+
+  <!-- Main Navigation Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-logo" id="brandLogo" role="button" tabindex="0" title="Về trang chủ">
+        <div class="logo-icon-wrapper">
+          <i data-lucide="utensils" class="logo-icon food"></i>
+          <i data-lucide="coffee" class="logo-icon cafe"></i>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Gợi Ý Quán</span>
+          <span class="logo-subtitle">Ăn Ngon & Cafe Chill</span>
+        </div>
+      </div>
+
+      <!-- User Profile / Auth Area -->
+      <div class="auth-section" id="authSection">
+        <!-- Will be populated dynamically by JavaScript -->
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Banner -->
+  <section class="hero-section">
+    <div class="container hero-content">
+      <h1 class="hero-title">Khám Phá Địa Điểm <span>Ăn Uống & Cà Phê</span> Tuyệt Vời</h1>
+      <p class="hero-desc">
+        Hàng trăm quán ăn ngon và góc cafe chill được chọn lọc kỹ lưỡng, kèm thông tin người gợi ý thật và đánh giá chi tiết.
+      </p>
+
+      <!-- 3 Navigation Tabs (Tab 1: Quán ăn, Tab 2: Quán cafe, Tab 3: Thêm quán) -->
+      <nav class="main-tabs-wrapper" aria-label="Danh mục chính">
+        <div class="main-tabs">
+          <button class="tab-btn active" id="tabFood" data-tab="food">
+            <span class="tab-icon"><i data-lucide="utensils"></i></span>
+            <span class="tab-label">Quán Ăn</span>
+            <span class="tab-counter" id="foodCount">0</span>
+          </button>
+
+          <button class="tab-btn" id="tabCafe" data-tab="cafe">
+            <span class="tab-icon"><i data-lucide="coffee"></i></span>
+            <span class="tab-label">Quán Cafe</span>
+            <span class="tab-counter" id="cafeCount">0</span>
+          </button>
+
+          <button class="tab-btn" id="tabAdd" data-tab="add">
+            <span class="tab-icon"><i data-lucide="plus-circle"></i></span>
+            <span class="tab-label">Thêm Quán</span>
+            <span class="tab-auth-lock" id="tabLockBadge" title="Yêu cầu đăng nhập">
+              <i data-lucide="lock"></i>
+            </span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  </section>
+
+  <!-- Main App Container -->
+  <main class="main-content container">
+
+    <!-- Filter & Sort Control Toolbar (Visible on Tab 1 & Tab 2) -->
+    <section class="filter-toolbar" id="filterToolbar" aria-label="Bộ lọc và sắp xếp">
+      <div class="search-box-wrapper">
+        <i data-lucide="search" class="search-icon"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Tìm tên quán, món ngon, địa chỉ..." 
+          aria-label="Tìm kiếm địa điểm"
+          autocomplete="off"
+        >
+        <button class="clear-search-btn" id="clearSearchBtn" title="Xóa tìm kiếm" style="display: none;">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="filter-controls-group">
+        <!-- City Filter -->
+        <div class="control-select-wrapper">
+          <i data-lucide="map-pin" class="control-icon"></i>
+          <select id="cityFilter" aria-label="Lọc theo thành phố">
+            <option value="all">Tất cả thành phố</option>
+            <!-- Injected by JS -->
+          </select>
+        </div>
+
+
+        <!-- Quick Randomizer in current category -->
+        <button class="btn btn-random-picker" id="filterRandomBtn" title="Quay ngẫu nhiên quán theo danh mục hiện tại">
+          <i data-lucide="dice-5"></i>
+          <span>Quay ngẫu nhiên</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Active Filters Summary Tag -->
+    <div class="active-filter-summary" id="activeFilterSummary" style="display: none;">
+      <span class="summary-text" id="summaryText">Đang lọc: ...</span>
+      <button class="btn-reset-filters" id="resetFiltersBtn">
+        <i data-lucide="rotate-ccw"></i> Xóa bộ lọc
+      </button>
+    </div>
+
+    <!-- TAB 1 & 2: LISTING VIEW -->
+    <section class="places-section" id="placesSection">
+      <!-- Section Header -->
+      <div class="section-heading-row">
+        <div>
+          <h2 class="section-title" id="sectionTitle">Danh Sách Quán Ăn</h2>
+          <p class="section-desc" id="sectionDesc">Các địa điểm ẩm thực hấp dẫn được cộng đồng gợi ý.</p>
+        </div>
+        <div class="result-count-badge" id="resultCountBadge">
+          Hiển thị: <strong>0</strong> quán
+        </div>
+      </div>
+
+      <!-- Places Grid -->
+      <div class="places-grid" id="placesGrid">
+        <!-- Place cards dynamically rendered by app.js -->
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" id="emptyState" style="display: none;">
+        <div class="empty-icon-wrap">
+          <i data-lucide="compass"></i>
+        </div>
+        <h3 class="empty-title">Không tìm thấy quán nào phù hợp</h3>
+        <p class="empty-desc">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh lại bộ lọc thành phố và mức giá.</p>
+        <button class="btn btn-primary" id="emptyResetBtn">
+          <i data-lucide="rotate-ccw"></i> Đặt lại bộ lọc
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 3: ADD PLACE VIEW -->
+    <section class="add-place-section" id="addPlaceSection" style="display: none;">
+      
+      <!-- STATE 1: GUEST RESTRICTION (Requires Login) -->
+      <div class="guest-gate-card" id="guestGateCard">
+        <div class="lock-illustration">
+          <div class="lock-circle">
+            <i data-lucide="shield-alert"></i>
+          </div>
+        </div>
+        <h2 class="gate-title">Chức Năng Thêm Quán Yêu Cầu Đăng Nhập</h2>
+        <p class="gate-desc">
+          Bạn đang ở chế độ <strong>Khách tham quan</strong> (chỉ xem được danh mục Quán ăn và Quán cafe). 
+          Để đóng góp quán ngon mới và gắn tên bạn vào mục <em>"Gợi ý từ: ..."</em>, vui lòng đăng nhập tài khoản.
+        </p>
+        <div class="gate-actions">
+          <button class="btn btn-primary btn-lg" id="gateLoginBtn">
+            <i data-lucide="log-in"></i> Đăng Nhập Ngay
+          </button>
+          <button class="btn btn-secondary btn-lg" id="gateDemoBtn">
+            <i data-lucide="zap"></i> Đăng nhập 1-click (Phạm Quốc Huy)
+          </button>
+        </div>
+      </div>
+
+      <!-- STATE 2: LOGGED-IN FORM -->
+      <div class="add-form-container" id="addFormContainer" style="display: none;">
+        <div class="form-header">
+          <div>
+            <h2 class="form-title">Gợi Ý Quán Ngon Mới</h2>
+          </div>
+          <div class="user-preview-badge">
+            <div class="user-avatar-sm" id="formUserAvatar">HQ</div>
+            <div>
+              <div class="user-role-label">Gợi ý dưới tên:</div>
+              <strong class="user-name-label" id="formUserName">Phạm Quốc Huy</strong>
+            </div>
+          </div>
+        </div>
+
+        <form id="addPlaceForm" class="add-place-form" novalidate>
+          <div class="form-grid">
+            
+            <!-- Category Selection -->
+            <div class="form-group full-width">
+              <label class="form-label">Loại Hình Địa Điểm <span class="required">*</span></label>
+              <div class="category-radio-group">
+                <label class="category-radio active">
+                  <input type="radio" name="placeCategory" value="food" checked>
+                  <span class="radio-card">
+                    <i data-lucide="utensils"></i>
+                    <span class="radio-title">Quán Ăn</span>
+                    <span class="radio-desc">Món ngon, nhà hàng, ẩm thực</span>
+                  </span>
+                </label>
+
+                <label class="category-radio">
+                  <input type="radio" name="placeCategory" value="cafe">
+                  <span class="radio-card">
+                    <i data-lucide="coffee"></i>
+                    <span class="radio-title">Quán Cafe</span>
+                    <span class="radio-desc">Cà phê, trà sữa, view chill</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Place Name -->
+            <div class="form-group">
+              <label for="newPlaceName" class="form-label">Tên Quán / Cửa Hàng <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="store"></i>
+                <input type="text" id="newPlaceName" placeholder="Ví dụ: Phở Thìn Lò Đúc, Cộng Cà Phê..." required>
+              </div>
+              <span class="error-feedback" id="errPlaceName">Vui lòng nhập tên quán</span>
+            </div>
+
+            <!-- City -->
+            <div class="form-group">
+              <label for="newPlaceCity" class="form-label">Thành Phố <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="map-pin"></i>
+                <select id="newPlaceCity" required>
+                  <!-- Injected by JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Full Address -->
+            <div class="form-group full-width">
+              <label for="newPlaceAddress" class="form-label">Địa Chỉ Chi Tiết <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="map"></i>
+                <input type="text" id="newPlaceAddress" placeholder="Ví dụ: 13 Lò Đúc, Ngô Thì Nhậm" required>
+              </div>
+              <span class="error-feedback" id="errPlaceAddress">Vui lòng nhập địa chỉ cụ thể</span>
+            </div>
+
+            <!-- Recommended Dish / Note -->
+            <div class="form-group full-width">
+              <label for="newPlaceDish" class="form-label">Món Ngon / Điểm Đặc Sắc Nên Thử <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="heart"></i>
+                <input type="text" id="newPlaceDish" placeholder="Ví dụ: Bò xào tái lăn nhiều hành, Cà phê cốt dừa béo mịn..." required>
+              </div>
+            </div>
+
+            <!-- Image Upload from Device (iOS, Windows, Mac, Android) -->
+            <div class="form-group full-width">
+              <label class="form-label">Hình Ảnh Món Ăn / Quán</label>
+              <div class="image-upload-wrapper" id="imageUploadWrapper">
+                <!-- Native file input supporting iOS camera/photos, Android gallery/camera, Mac/Win file chooser -->
+                <input 
+                  type="file" 
+                  id="newPlaceFileInput" 
+                  accept="image/*" 
+                  class="file-input-hidden"
+                >
+                
+                <!-- Upload drop zone / click to upload -->
+                <div class="upload-dropzone" id="uploadDropZone" role="button" tabindex="0">
+                  <div class="upload-icon-circle">
+                    <i data-lucide="cloud-upload"></i>
+                  </div>
+                  <div class="upload-text-content">
+                    <strong class="upload-title">Tải ảnh lên từ thiết bị</strong>
+                    <span class="upload-hint">Chạm để chọn từ thư viện ảnh hoặc chụp trực tiếp (iPhone, Android, Mac, Windows)</span>
+                  </div>
+                </div>
+
+                <!-- Preview box when image is chosen -->
+                <div class="upload-preview-box" id="uploadPreviewBox" style="display: none;">
+                  <img id="uploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb">
+                  <div class="upload-preview-meta">
+                    <div class="preview-filename" id="previewFileName">anh_quan.jpg</div>
+                    <div class="preview-filesize" id="previewFileSize">Đã sẵn sàng tải lên</div>
+                  </div>
+                  <div class="upload-preview-btns">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btnChangeUpload">
+                      <i data-lucide="refresh-cw"></i> Đổi ảnh khác
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" id="btnRemoveUpload">
+                      <i data-lucide="trash-2"></i> Xóa ảnh
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Hoặc dán link ảnh từ web (URL) hiển thị trực tiếp -->
+                <div class="upload-url-input-wrap" id="uploadUrlInputWrap" style="margin-top: 10px;">
+                  <label for="newPlaceImage" class="url-input-label">
+                    <i data-lucide="link"></i> Hoặc dán link ảnh từ web (URL):
+                  </label>
+                  <div class="input-with-icon">
+                    <i data-lucide="globe"></i>
+                    <input type="url" id="newPlaceImage" placeholder="https://example.com/anh-mon-an.jpg">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Thông Tin Tài Khoản Người Gợi Ý -->
+            <div class="form-group full-width author-confirm-box">
+              <div class="author-confirm-info">
+                <div class="author-avatar-sm" id="formAuthorAvatar">HQ</div>
+                <div class="author-details">
+                  <div class="author-label">Thông tin tài khoản người gợi ý:</div>
+                  <div class="author-name-row">
+                    <strong class="suggested-highlight" id="formSuggestedByPreview">Phạm Quốc Huy</strong>
+                    <span class="author-role-tag" id="formAuthorRole">Food Reviewer</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm btn-profile-view" id="btnFormViewAccount" title="Xem & chỉnh sửa tài khoản">
+                  <i data-lucide="user-cog"></i> Thông tin tài khoản
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Submit Button -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg" id="submitPlaceBtn">
+              <i data-lucide="check-circle-2"></i> Đăng Gợi Ý Ngay
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" id="resetFormBtn">
+              <i data-lucide="rotate-ccw"></i> Làm lại
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- MODAL 1: AUTH (LOGIN / REGISTER / QUICK DEMO) -->
+  <div class="modal-overlay" id="authModal" aria-hidden="true" style="display: none;">
+    <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="authModalTitle">
+      <button class="modal-close-btn" id="authModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="user"></i>
+        </div>
+        <h3 class="modal-title" id="authModalTitle">Tài Khoản Thành Viên</h3>
+        <p class="modal-desc">Đăng nhập để thêm quán mới và chia sẻ gợi ý của bạn đến mọi người.</p>
+      </div>
+
+      <!-- Quick 1-Click Demo Login Banner -->
+      <div class="demo-login-box">
+        <div class="demo-info">
+          <span class="demo-badge">Trải nghiệm nhanh</span>
+          <p class="demo-name">Đăng nhập với: <strong>Phạm Quốc Huy</strong></p>
+        </div>
+        <button class="btn btn-demo-quick" id="btnQuickLoginHuy">
+          <i data-lucide="zap"></i> Đăng Nhập 1-Click
+        </button>
+      </div>
+
+      <div class="divider-text">
+        <span>Hoặc nhập thông tin</span>
+      </div>
+
+      <!-- Form: Login / Register Toggle -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="authTabLogin">Đăng Nhập</button>
+        <button class="auth-tab" id="authTabRegister">Đăng Ký Mới</button>
+      </div>
+
+      <form id="authForm" class="auth-form">
+        <div class="form-group">
+          <label for="authFullName" class="form-label" id="authNameLabel">Họ và Tên (Tên hiển thị gợi ý)</label>
+          <div class="input-with-icon">
+            <i data-lucide="user"></i>
+            <input type="text" id="authFullName" placeholder="Ví dụ: Phạm Quốc Huy" required>
+          </div>
+        </div>
+
+        <div class="form-group" id="authRoleGroup">
+          <label for="authRole" class="form-label">Danh xưng / Sở thích (Tùy chọn)</label>
+          <div class="input-with-icon">
+            <i data-lucide="award"></i>
+            <input type="text" id="authRole" placeholder="Ví dụ: Food Reviewer, Coffee Lover...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="authPassword" class="form-label">Mật khẩu</label>
+          <div class="input-with-icon">
+            <i data-lucide="lock"></i>
+            <input type="password" id="authPassword" placeholder="Nhập mật khẩu bất kỳ (demo)">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
+          <i data-lucide="log-in"></i> Đăng Nhập
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCOUNT INFORMATION (THÔNG TIN TÀI KHOẢN) -->
+  <div class="modal-overlay" id="accountModal" aria-hidden="true" style="display: none;">
+    <div class="modal-card account-modal-card" role="dialog" aria-labelledby="accountModalTitle">
+      <button class="modal-close-btn" id="accountModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="user-check"></i>
+        </div>
+        <h3 class="modal-title" id="accountModalTitle">Thông Tin Tài Khoản</h3>
+        <p class="modal-desc">Hồ sơ cá nhân và quản lý thông tin hiển thị của bạn</p>
+      </div>
+
+      <!-- Account Profile Header -->
+      <div class="account-card-view">
+        <div class="account-avatar-large" id="accAvatarLarge">HQ</div>
+        <div class="account-identity">
+          <h4 class="acc-name" id="accNameDisplay">Phạm Quốc Huy</h4>
+          <span class="acc-role" id="accRoleDisplay">Food Reviewer</span>
+        </div>
+      </div>
+
+      <!-- Account Activity Stats -->
+      <div class="account-stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="accPlacesCount">0</div>
+          <div class="stat-lbl">Quán đã gợi ý</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="accFavsCount">0</div>
+          <div class="stat-lbl">Quán đã lưu</div>
+        </div>
+      </div>
+
+      <!-- Account Navigation Tabs (Thông tin / Quán đã thêm) -->
+      <div class="auth-tabs" style="margin-top: 10px; margin-bottom: 16px;">
+        <button type="button" class="auth-tab active" id="accTabProfile">Hồ sơ cá nhân</button>
+        <button type="button" class="auth-tab" id="accTabMyPlaces">Quán đã thêm (<span id="accPlacesCountTab">0</span>)</button>
+      </div>
+
+      <!-- Tab 1: Edit profile form -->
+      <form id="accountUpdateForm" class="account-edit-form">
+        <div class="form-group">
+          <label for="accEditName" class="form-label">Họ và Tên</label>
+          <div class="input-with-icon">
+            <i data-lucide="user"></i>
+            <input type="text" id="accEditName" placeholder="Nhập họ và tên..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="accEditRole" class="form-label">Danh xưng / Sở thích</label>
+          <div class="input-with-icon">
+            <i data-lucide="award"></i>
+            <input type="text" id="accEditRole" placeholder="Ví dụ: Food Reviewer, Coffee Lover...">
+          </div>
+        </div>
+
+        <div class="account-modal-actions">
+          <button type="submit" class="btn btn-primary" id="btnSaveAccount">
+            <i data-lucide="check"></i> Lưu thay đổi
+          </button>
+          <button type="button" class="btn btn-danger-soft" id="btnModalLogout">
+            <i data-lucide="log-out"></i> Đăng xuất
+          </button>
+        </div>
+      </form>
+
+      <!-- Tab 2: Quán đã thêm (Danh sách có nút Sửa / Xoá) -->
+      <div id="accountMyPlacesSection" class="account-my-places-section" style="display: none;">
+        <div class="my-places-list" id="accountMyPlacesList">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 3: SỬA THÔNG TIN QUÁN (EDIT PLACE MODAL) -->
+  <div class="modal-overlay" id="editPlaceModal" aria-hidden="true" style="display: none;">
+    <div class="modal-card edit-place-modal-card" role="dialog" aria-labelledby="editPlaceModalTitle">
+      <button class="modal-close-btn" id="editPlaceModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="edit-3"></i>
+        </div>
+        <h3 class="modal-title" id="editPlaceModalTitle">Chỉnh Sửa Địa Điểm</h3>
+        <p class="modal-desc">Cập nhật thông tin quán bạn đã đóng góp</p>
+      </div>
+
+      <form id="editPlaceForm" class="edit-place-form">
+        <input type="hidden" id="editPlaceId">
+
+        <div class="form-group">
+          <label class="form-label">Danh mục quán</label>
+          <div class="category-radio-group">
+            <label class="category-radio">
+              <input type="radio" name="editPlaceCategory" value="food" id="editCategoryFood" checked>
+              <div class="radio-card">
+                <i data-lucide="utensils"></i>
+                <span class="radio-title">Quán Ăn</span>
+              </div>
+            </label>
+            <label class="category-radio">
+              <input type="radio" name="editPlaceCategory" value="cafe" id="editCategoryCafe">
+              <div class="radio-card">
+                <i data-lucide="coffee"></i>
+                <span class="radio-title">Quán Cafe</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editPlaceName" class="form-label">Tên quán <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="store"></i>
+            <input type="text" id="editPlaceName" placeholder="Tên quán..." required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="editPlaceCity" class="form-label">Thành phố <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="map"></i>
+              <select id="editPlaceCity" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editPlaceAddress" class="form-label">Địa chỉ chi tiết <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="map-pin"></i>
+            <input type="text" id="editPlaceAddress" placeholder="Số nhà, tên đường..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editPlaceDish" class="form-label">Món nên thử nhất <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="sparkles"></i>
+            <input type="text" id="editPlaceDish" placeholder="Ví dụ: Phở bò đặc biệt, Cà phê trứng..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editPlaceImage" class="form-label">Link ảnh (URL)</label>
+          <div class="input-with-icon">
+            <i data-lucide="image"></i>
+            <input type="url" id="editPlaceImage" placeholder="https://example.com/anh.jpg">
+          </div>
+        </div>
+
+        <div class="account-modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnCancelEditPlace">Hủy bỏ</button>
+          <button type="submit" class="btn btn-primary" id="btnSaveEditPlace">
+            <i data-lucide="check"></i> Lưu cập nhật
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: RANDOM WHEEL / MYSTERY PICKER ("Hôm nay ăn/uống gì?") -->
+  <div class="modal-overlay" id="randomModal" aria-hidden="true" style="display: none;">
+    <div class="modal-card random-modal-card" role="dialog" aria-labelledby="randomModalTitle">
+      <button class="modal-close-btn" id="randomModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge dice-spin">
+          <i data-lucide="dice-5"></i>
+        </div>
+        <h3 class="modal-title" id="randomModalTitle">Hôm Nay Bạn Sẽ Thưởng Thức?</h3>
+        <p class="modal-desc" id="randomModalSubtitle">Hệ thống đang lựa chọn ngẫu nhiên một địa điểm hoàn hảo...</p>
+      </div>
+
+      <!-- Shuffle / Animation Visual Box -->
+      <div class="random-wheel-box">
+        <div class="slot-container" id="slotContainer">
+          <div class="slot-card-preview" id="slotPreview">
+            <div class="slot-spinner">
+              <i data-lucide="loader-2" class="spin-icon"></i>
+              <span>Đang quay chọn...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Winner Place Reveal Card -->
+      <div class="winner-reveal-card" id="winnerCard" style="display: none;">
+        <div class="winner-badge">
+          <i data-lucide="crown"></i> Gợi Ý May Mắn Hôm Nay
+        </div>
+        <img src="" alt="Winner place" class="winner-image" id="winnerImage">
+        <div class="winner-info">
+          <span class="winner-category" id="winnerCategory">Quán Ăn</span>
+          <h4 class="winner-name" id="winnerName">Tên Quán</h4>
+          <p class="winner-address"><i data-lucide="map-pin"></i> <span id="winnerAddress">Địa chỉ</span></p>
+          <div class="winner-dish">
+            <i data-lucide="sparkles"></i> <strong>Nên thử:</strong> <span id="winnerDish">Món</span>
+          </div>
+          <div class="winner-suggested">
+            <span class="badge-suggested" id="winnerSuggested">Gợi ý từ: Phạm Quốc Huy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="random-modal-actions">
+        <button class="btn btn-secondary" id="reRollBtn">
+          <i data-lucide="rotate-cw"></i> Quay Lại Quán Khác
+        </button>
+        <button class="btn btn-primary" id="acceptPickBtn">
+          <i data-lucide="check"></i> Ghé Quán Này!
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <div class="brand-logo footer-logo">
+          <i data-lucide="utensils" class="logo-icon food"></i>
+          <span class="logo-title">Gợi Ý Quán</span>
+        </div>
+        <p class="footer-tagline">Nền tảng chia sẻ địa điểm quán ăn & cafe từ cộng đồng người sành ăn Việt Nam.</p>
+      </div>
+      <div class="footer-links">
+        <p class="copyright">© 2026 Gợi Ý Quán. Phát triển với đam mê ẩm thực và cà phê.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MVC Architecture Scripts -->
+  <script src="js/models/state.js"></script>
+  <script src="js/services/apiService.js"></script>
+  <script src="js/views/view.js"></script>
+  <script src="js/controllers/appController.js"></script>
+</body>
+</html>
