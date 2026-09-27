@@ -1,0 +1,31 @@
+services:
+  # 1. Java Spring Boot Backend Service on Render
+  - type: web
+    name: food-coffee-backend
+    env: java
+    rootDir: backend
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/food-coffee-api-1.0.0.jar
+    plan: free
+    healthCheckPath: /api/places
+    envVars:
+      # Render sẽ tự gán cổng PORT
+      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
+        value: org.postgresql.Driver
+      - key: SPRING_JPA_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
+      # Cấu hình chuỗi kết nối Supabase (Lấy từ Supabase Project Settings -> Database)
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+
+  # 2. Frontend Static Site on Render
+  - type: web
+    name: food-coffee-frontend
+    env: static
+    rootDir: frontend
+    staticPublishPath: .
+    plan: free
