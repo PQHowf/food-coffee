@@ -123,12 +123,18 @@ const appController = {
     if (view.dom.randomModalTitle) view.dom.randomModalTitle.textContent = categoryTitle;
     if (view.dom.randomModalSubtitle) view.dom.randomModalSubtitle.textContent = categorySub;
 
+    if (view.dom.randomWheelBox) view.dom.randomWheelBox.style.display = 'block';
+    if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
+
     view.dom.randomModal.style.display = 'flex';
     this.spinRandomWheel(places);
   },
 
   spinRandomWheel(places) {
     if (!places || !places.length) return;
+
+    if (view.dom.randomWheelBox) view.dom.randomWheelBox.style.display = 'block';
+    if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
 
     if (view.dom.slotPreview) {
       view.dom.slotPreview.parentElement.style.display = 'flex';
@@ -139,7 +145,6 @@ const appController = {
         </div>
       `;
     }
-    if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
     view.refreshIcons();
 
     // Hiệu ứng quay số nhanh rồi dừng ở quán chiến thắng
@@ -169,6 +174,9 @@ const appController = {
   displayRandomWinner(winner) {
     if (!winner || !view.dom.winnerCard) return;
 
+    if (view.dom.randomWheelBox) {
+      view.dom.randomWheelBox.style.display = 'none';
+    }
     if (view.dom.slotPreview) {
       view.dom.slotPreview.parentElement.style.display = 'none';
     }
@@ -179,7 +187,7 @@ const appController = {
 
     if (view.dom.winnerImage) view.dom.winnerImage.src = winner.image || defaultImg;
     if (view.dom.winnerCategory) {
-      view.dom.winnerCategory.textContent = winner.category === 'cafe' ? '☕ Quán Cafe Chill' : '🍲 Quán Ăn Ngon';
+      view.dom.winnerCategory.textContent = winner.category === 'cafe' ? '☕ QUÁN CAFE CHILL' : '🍲 QUÁN ĂN NGON';
     }
     if (view.dom.winnerName) view.dom.winnerName.textContent = winner.name;
     if (view.dom.winnerAddress) view.dom.winnerAddress.textContent = `${winner.address} (${winner.city})`;

@@ -115,6 +115,7 @@ const view = {
       randomModalClose: document.getElementById('randomModalClose'),
       randomModalTitle: document.getElementById('randomModalTitle'),
       randomModalSubtitle: document.getElementById('randomModalSubtitle'),
+      randomWheelBox: document.getElementById('randomWheelBox'),
       slotPreview: document.getElementById('slotPreview'),
       winnerCard: document.getElementById('winnerCard'),
       winnerImage: document.getElementById('winnerImage'),
