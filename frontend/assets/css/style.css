@@ -2444,21 +2444,34 @@ button {
   }
 
   .main-tabs-wrapper {
-    padding: 0 4px;
+    width: 100%;
+    padding: 0 8px;
+    box-sizing: border-box;
   }
 
   .main-tabs {
     width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 4px;
     padding: 4px;
+    box-sizing: border-box;
+    border-radius: var(--radius-lg);
   }
 
   .tab-btn {
-    padding: 9px 8px;
-    font-size: 0.8rem;
-    gap: 6px;
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    gap: 3px;
+    padding: 8px 4px;
+    border-radius: var(--radius-md);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
   }
 
   .tab-icon {
@@ -2468,13 +2481,43 @@ button {
 
   .tab-icon i,
   .tab-icon svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .tab-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    white-space: nowrap;
+    text-align: center;
   }
 
   .tab-counter {
+    position: absolute;
+    top: 4px;
+    right: 4px;
     padding: 1px 5px;
-    font-size: 0.65rem;
+    font-size: 0.625rem;
+    line-height: 1;
+    min-width: 14px;
+    text-align: center;
+    border-radius: var(--radius-full);
+  }
+
+  .tab-auth-lock {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 16px;
+    height: 16px;
+    margin-left: 0;
+  }
+
+  .tab-auth-lock i,
+  .tab-auth-lock svg {
+    width: 9px;
+    height: 9px;
   }
 
   /* Filter toolbar */
