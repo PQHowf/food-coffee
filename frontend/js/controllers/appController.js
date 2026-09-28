@@ -86,7 +86,7 @@ const appController = {
   // Quay ngẫu nhiên chuẩn theo tab hiện tại (Quán ăn hoặc Quán cafe)
   handleRandomPicker() {
     const targetCategory = (model.currentTab === 'cafe') ? 'cafe' : 'food';
-    const targetCategoryName = targetCategory === 'cafe' ? 'Quán Cafe' : 'Quán Ăn';
+    const targetCategoryName = targetCategory === 'cafe' ? 'QUÁN CAFE' : 'QUÁN ĂN';
 
     // Lọc danh sách theo đúng tab danh mục hiện tại (kèm theo bộ lọc thành phố nếu có)
     let candidatePlaces = model.places.filter(p => p.category === targetCategory);
@@ -115,7 +115,7 @@ const appController = {
     this.currentRandomCategory = category;
 
     const isCafe = category === 'cafe';
-    const categoryTitle = isCafe ? 'Hôm Nay Đi Cafe Ở Đâu?' : 'Hôm Nay Bạn Sẽ Ăn Gì?';
+    const categoryTitle = isCafe ? 'HÔM NAY ĐI CAFE Ở ĐÂU?' : 'HÔM NAY BẠN SẼ ĂN GÌ?';
     const categorySub = isCafe 
       ? `Hệ thống đang quay ngẫu nhiên 1 trong ${places.length} quán cafe chill...`
       : `Hệ thống đang quay ngẫu nhiên 1 trong ${places.length} quán ăn ngon...`;
@@ -209,7 +209,7 @@ const appController = {
       view.dom.placesSection.style.display = 'block';
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
-      view.dom.sectionTitle.textContent = 'Danh Sách Quán Ăn';
+      view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN ĂN';
       view.dom.sectionDesc.textContent = 'Các địa điểm ẩm thực hấp dẫn được cộng đồng gợi ý.';
       this.renderCurrentPlaces();
     } else if (tab === 'cafe') {
@@ -217,7 +217,7 @@ const appController = {
       view.dom.placesSection.style.display = 'block';
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
-      view.dom.sectionTitle.textContent = 'Danh Sách Quán Cafe';
+      view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN CAFE';
       view.dom.sectionDesc.textContent = 'Những góc cà phê đẹp, không gian chill và làm việc lý tưởng.';
       this.renderCurrentPlaces();
     } else if (tab === 'add') {
@@ -262,17 +262,17 @@ const appController = {
     if (mode === 'login') {
       view.dom.authTabLogin.classList.add('active');
       view.dom.authTabRegister.classList.remove('active');
-      view.dom.authModalTitle.textContent = 'Đăng Nhập Thành Viên';
+      view.dom.authModalTitle.textContent = 'ĐĂNG NHẬP THÀNH VIÊN';
       view.dom.authNameLabel.textContent = 'Họ và Tên (Tên hiển thị gợi ý)';
       view.dom.authRoleGroup.style.display = 'none';
-      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="log-in"></i> Đăng Nhập';
+      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="log-in"></i> ĐĂNG NHẬP';
     } else {
       view.dom.authTabRegister.classList.add('active');
       view.dom.authTabLogin.classList.remove('active');
-      view.dom.authModalTitle.textContent = 'Đăng Ký Tài Khoản Mới';
+      view.dom.authModalTitle.textContent = 'ĐĂNG KÝ TÀI KHOẢN MỚI';
       view.dom.authNameLabel.textContent = 'Họ và Tên của bạn';
       view.dom.authRoleGroup.style.display = 'block';
-      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> Hoàn Tất Đăng Ký';
+      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> HOÀN TẤT ĐĂNG KÝ';
     }
     view.refreshIcons();
   },

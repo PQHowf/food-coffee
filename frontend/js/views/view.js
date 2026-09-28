@@ -168,7 +168,7 @@ const view = {
     const html = places.map(place => {
       const isFav = favorites.includes(place.id);
       const catBadgeClass = place.category === 'food' ? 'badge-food' : 'badge-cafe';
-      const catLabel = place.category === 'food' ? 'Quán Ăn' : 'Quán Cafe';
+      const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
       const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
       const initials = this.getInitials(place.suggestedBy);
       const imgSrc = place.image || (place.category === 'food'
@@ -262,8 +262,8 @@ const view = {
     const html = places.map(p => {
       const isFood = p.category === 'food';
       const typeBadge = isFood 
-        ? `<span class="my-place-badge-type food">Quán Ăn</span>` 
-        : `<span class="my-place-badge-type cafe">Quán Cafe</span>`;
+        ? `<span class="my-place-badge-type food">QUÁN ĂN</span>` 
+        : `<span class="my-place-badge-type cafe">QUÁN CAFE</span>`;
       const fallbackImg = isFood
         ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=200&q=80'
         : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=200&q=80';
@@ -355,7 +355,7 @@ const view = {
         <div class="guest-auth-group">
           <button class="btn btn-secondary btn-sm" id="btnHeaderLogin">
             <i data-lucide="log-in"></i>
-            <span>Đăng nhập</span>
+            <span>ĐĂNG NHẬP</span>
           </button>
         </div>
       `;
