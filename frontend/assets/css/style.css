@@ -778,17 +778,11 @@ button {
 }
 
 .section-desc {
-  font-size: 0.9rem;
-  color: var(--text-muted);
+  display: none !important;
 }
 
 .result-count-badge {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
+  display: none !important;
 }
 
 /* Responsive Places Grid */

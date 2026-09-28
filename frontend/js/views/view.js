@@ -155,15 +155,17 @@ const view = {
   },
 
   renderPlaces(places, favorites) {
+    if (this.dom.resultCountBadge) {
+      this.dom.resultCountBadge.style.display = 'none';
+    }
+
     if (!places || places.length === 0) {
       this.dom.placesGrid.innerHTML = '';
       this.dom.emptyState.style.display = 'flex';
-      this.dom.resultCountBadge.innerHTML = 'Hiển thị: <strong>0</strong> quán';
       return;
     }
 
     this.dom.emptyState.style.display = 'none';
-    this.dom.resultCountBadge.innerHTML = `Hiển thị: <strong>${places.length}</strong> quán`;
 
     const html = places.map(place => {
       const isFav = favorites.includes(place.id);

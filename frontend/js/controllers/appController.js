@@ -210,7 +210,7 @@ const appController = {
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
       view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN ĂN';
-      view.dom.sectionDesc.textContent = 'Các địa điểm ẩm thực hấp dẫn được cộng đồng gợi ý.';
+      if (view.dom.sectionDesc) view.dom.sectionDesc.textContent = '';
       this.renderCurrentPlaces();
     } else if (tab === 'cafe') {
       view.dom.tabCafe?.classList.add('active');
@@ -218,7 +218,7 @@ const appController = {
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
       view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN CAFE';
-      view.dom.sectionDesc.textContent = 'Những góc cà phê đẹp, không gian chill và làm việc lý tưởng.';
+      if (view.dom.sectionDesc) view.dom.sectionDesc.textContent = '';
       this.renderCurrentPlaces();
     } else if (tab === 'add') {
       view.dom.tabAdd?.classList.add('active');
