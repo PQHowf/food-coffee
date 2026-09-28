@@ -41,7 +41,6 @@ const view = {
       addPlaceSection: document.getElementById('addPlaceSection'),
       guestGateCard: document.getElementById('guestGateCard'),
       gateLoginBtn: document.getElementById('gateLoginBtn'),
-      gateDemoBtn: document.getElementById('gateDemoBtn'),
       addFormContainer: document.getElementById('addFormContainer'),
       addPlaceForm: document.getElementById('addPlaceForm'),
       formUserAvatar: document.getElementById('formUserAvatar'),
@@ -67,7 +66,6 @@ const view = {
       // Auth Modal
       authModal: document.getElementById('authModal'),
       authModalClose: document.getElementById('authModalClose'),
-      btnQuickLoginHuy: document.getElementById('btnQuickLoginHuy'),
       authTabLogin: document.getElementById('authTabLogin'),
       authTabRegister: document.getElementById('authTabRegister'),
       authForm: document.getElementById('authForm'),

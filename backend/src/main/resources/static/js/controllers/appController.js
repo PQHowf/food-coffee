@@ -644,9 +644,6 @@ const appController = {
 
     // Guest Gate Buttons
     view.dom.gateLoginBtn?.addEventListener('click', () => this.openAuthModal('login'));
-    view.dom.gateDemoBtn?.addEventListener('click', () => {
-      this.handleLogin("Phạm Quốc Huy", "Food Reviewer & Coffee Lover");
-    });
 
     // Form Add Place
     view.dom.addPlaceForm?.addEventListener('submit', (e) => this.handleAddPlaceSubmit(e));
@@ -692,9 +689,6 @@ const appController = {
 
     // Auth Modal
     view.dom.authModalClose?.addEventListener('click', () => this.closeAuthModal());
-    view.dom.btnQuickLoginHuy?.addEventListener('click', () => {
-      this.handleLogin("Phạm Quốc Huy", "Food Reviewer & Coffee Lover");
-    });
     view.dom.authTabLogin?.addEventListener('click', () => this.setAuthMode('login'));
     view.dom.authTabRegister?.addEventListener('click', () => this.setAuthMode('register'));
     view.dom.authForm?.addEventListener('submit', (e) => {
