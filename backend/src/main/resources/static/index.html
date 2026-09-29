@@ -362,29 +362,45 @@
         <button class="auth-tab" id="authTabRegister">ĐĂNG KÝ MỚI</button>
       </div>
 
-      <form id="authForm" class="auth-form">
-        <div class="form-group">
-          <label for="authFullName" class="form-label" id="authNameLabel">Họ và Tên (Tên hiển thị gợi ý)</label>
+      <form id="authForm" class="auth-form" novalidate>
+        <!-- Email (Chỉ hiển thị khi Đăng Ký) -->
+        <div class="form-group" id="authEmailGroup" style="display: none;">
+          <label for="authEmail" class="form-label">Email <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="mail"></i>
+            <input type="email" id="authEmail" autocomplete="email">
+          </div>
+          <span class="error-feedback" id="errAuthEmail">Vui lòng nhập email hợp lệ</span>
+        </div>
+
+        <!-- Tên đăng nhập (Hiện ở cả Đăng Nhập & Đăng Ký) -->
+        <div class="form-group" id="authUsernameGroup">
+          <label for="authUsername" class="form-label" id="authUsernameLabel">Tên đăng nhập hoặc Email <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="at-sign"></i>
+            <input type="text" id="authUsername" autocomplete="username" required>
+          </div>
+          <span class="error-feedback" id="errAuthUsername">Vui lòng nhập tên đăng nhập</span>
+        </div>
+
+        <!-- Tên hiển thị (Chỉ hiển thị khi Đăng Ký) -->
+        <div class="form-group" id="authFullNameGroup" style="display: none;">
+          <label for="authFullName" class="form-label">Tên hiển thị <span class="required">*</span></label>
           <div class="input-with-icon">
             <i data-lucide="user"></i>
-            <input type="text" id="authFullName" placeholder="Ví dụ: Phạm Quốc Huy" required>
+            <input type="text" id="authFullName" autocomplete="name">
           </div>
+          <span class="error-feedback" id="errAuthFullName">Vui lòng nhập tên hiển thị</span>
         </div>
 
-        <div class="form-group" id="authRoleGroup">
-          <label for="authRole" class="form-label">Danh xưng / Sở thích (Tùy chọn)</label>
-          <div class="input-with-icon">
-            <i data-lucide="award"></i>
-            <input type="text" id="authRole" placeholder="Ví dụ: Food Reviewer, Coffee Lover...">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="authPassword" class="form-label">Mật khẩu</label>
+        <!-- Mật khẩu (Hiện ở cả Đăng Nhập & Đăng Ký) -->
+        <div class="form-group" id="authPasswordGroup">
+          <label for="authPassword" class="form-label">Mật khẩu <span class="required">*</span></label>
           <div class="input-with-icon">
             <i data-lucide="lock"></i>
-            <input type="password" id="authPassword" placeholder="Nhập mật khẩu bất kỳ (demo)">
+            <input type="password" id="authPassword" autocomplete="current-password" required>
           </div>
+          <span class="error-feedback" id="errAuthPassword">Vui lòng nhập mật khẩu</span>
         </div>
 
         <button type="submit" class="btn btn-primary btn-full" id="authSubmitBtn">
@@ -442,7 +458,7 @@
           <label for="accEditName" class="form-label">Họ và Tên</label>
           <div class="input-with-icon">
             <i data-lucide="user"></i>
-            <input type="text" id="accEditName" placeholder="Nhập họ và tên..." required>
+            <input type="text" id="accEditName" required>
           </div>
         </div>
 
@@ -450,7 +466,7 @@
           <label for="accEditRole" class="form-label">Danh xưng / Sở thích</label>
           <div class="input-with-icon">
             <i data-lucide="award"></i>
-            <input type="text" id="accEditRole" placeholder="Ví dụ: Food Reviewer, Coffee Lover...">
+            <input type="text" id="accEditRole">
           </div>
         </div>
 

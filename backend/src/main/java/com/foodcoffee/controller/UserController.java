@@ -16,16 +16,37 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<User> loginOrRegister(@RequestBody Map<String, String> payload) {
+    @PostMapping("/register")
+    public ResponseEntity<User> register(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
         String name = payload.get("name");
+        String email = payload.get("email");
+        String password = payload.get("password");
         String role = payload.get("role");
 
-        if (name == null || name.trim().isEmpty()) {
+        if ((username == null || username.trim().isEmpty()) && (name == null || name.trim().isEmpty()) && (email == null || email.trim().isEmpty())) {
             return ResponseEntity.badRequest().build();
         }
 
-        User user = userService.registerOrLogin(name.trim(), role);
+        User user = userService.registerUser(username, name, email, password, role);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<User> loginOrRegister(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String name = payload.get("name");
+        String email = payload.get("email");
+        String password = payload.get("password");
+        String role = payload.get("role");
+
+        String identifier = username != null && !username.trim().isEmpty() ? username.trim() : (name != null ? name.trim() : email);
+
+        if (identifier == null || identifier.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        User user = userService.loginOrRegister(username, name, email, password, role);
         return ResponseEntity.ok(user);
     }
 

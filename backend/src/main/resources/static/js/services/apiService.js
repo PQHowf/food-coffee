@@ -114,12 +114,48 @@ const apiService = {
     return null;
   },
 
-  async loginOrRegister(name, role) {
+  async registerUser({ username, name, email, password, role }) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, name, email, password, role }),
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.error('Lỗi gọi API đăng ký user:', err);
+    }
+    return null;
+  },
+
+  async loginUser({ username, password }) {
     try {
       const res = await fetch(`${API_BASE_URL}/users/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, role }),
+        body: JSON.stringify({ username, password }),
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.error('Lỗi gọi API đăng nhập user:', err);
+    }
+    return null;
+  },
+
+  async loginOrRegister(payloadOrName, role) {
+    try {
+      let body;
+      if (typeof payloadOrName === 'object' && payloadOrName !== null) {
+        body = payloadOrName;
+      } else {
+        body = { name: payloadOrName, username: payloadOrName, role };
+      }
+      const res = await fetch(`${API_BASE_URL}/users/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
         signal: AbortSignal.timeout(10000)
       });
       if (res.ok) return await res.json();

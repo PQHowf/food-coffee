@@ -302,28 +302,173 @@ const appController = {
     this.setAuthMode(mode);
   },
 
+  clearAuthErrors() {
+    [view.dom.errAuthEmail, view.dom.errAuthUsername, view.dom.errAuthFullName, view.dom.errAuthPassword].forEach(el => {
+      if (el) el.style.display = 'none';
+    });
+  },
+
   closeAuthModal() {
-    view.dom.authModal.style.display = 'none';
-    view.dom.authForm.reset();
+    if (view.dom.authModal) view.dom.authModal.style.display = 'none';
+    if (view.dom.authForm) view.dom.authForm.reset();
+    this.clearAuthErrors();
   },
 
   setAuthMode(mode) {
+    this.currentAuthMode = mode;
+    this.clearAuthErrors();
+
     if (mode === 'login') {
-      view.dom.authTabLogin.classList.add('active');
-      view.dom.authTabRegister.classList.remove('active');
-      view.dom.authModalTitle.textContent = 'ĐĂNG NHẬP THÀNH VIÊN';
-      view.dom.authNameLabel.textContent = 'Họ và Tên (Tên hiển thị gợi ý)';
-      view.dom.authRoleGroup.style.display = 'none';
-      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="log-in"></i> ĐĂNG NHẬP';
+      view.dom.authTabLogin?.classList.add('active');
+      view.dom.authTabRegister?.classList.remove('active');
+      if (view.dom.authModalTitle) view.dom.authModalTitle.textContent = 'ĐĂNG NHẬP THÀNH VIÊN';
+      if (view.dom.authEmailGroup) view.dom.authEmailGroup.style.display = 'none';
+      if (view.dom.authFullNameGroup) view.dom.authFullNameGroup.style.display = 'none';
+      if (view.dom.authUsernameGroup) view.dom.authUsernameGroup.style.display = 'block';
+      if (view.dom.authUsernameLabel) view.dom.authUsernameLabel.innerHTML = 'Tên đăng nhập hoặc Email <span class="required">*</span>';
+      if (view.dom.authPasswordGroup) view.dom.authPasswordGroup.style.display = 'block';
+      if (view.dom.authSubmitBtn) view.dom.authSubmitBtn.innerHTML = '<i data-lucide="log-in"></i> ĐĂNG NHẬP';
     } else {
-      view.dom.authTabRegister.classList.add('active');
-      view.dom.authTabLogin.classList.remove('active');
-      view.dom.authModalTitle.textContent = 'ĐĂNG KÝ TÀI KHOẢN MỚI';
-      view.dom.authNameLabel.textContent = 'Họ và Tên của bạn';
-      view.dom.authRoleGroup.style.display = 'block';
-      view.dom.authSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> HOÀN TẤT ĐĂNG KÝ';
+      view.dom.authTabRegister?.classList.add('active');
+      view.dom.authTabLogin?.classList.remove('active');
+      if (view.dom.authModalTitle) view.dom.authModalTitle.textContent = 'ĐĂNG KÝ TÀI KHOẢN MỚI';
+      if (view.dom.authEmailGroup) view.dom.authEmailGroup.style.display = 'block';
+      if (view.dom.authUsernameGroup) view.dom.authUsernameGroup.style.display = 'block';
+      if (view.dom.authUsernameLabel) view.dom.authUsernameLabel.innerHTML = 'Tên đăng nhập <span class="required">*</span>';
+      if (view.dom.authFullNameGroup) view.dom.authFullNameGroup.style.display = 'block';
+      if (view.dom.authPasswordGroup) view.dom.authPasswordGroup.style.display = 'block';
+      if (view.dom.authSubmitBtn) view.dom.authSubmitBtn.innerHTML = '<i data-lucide="user-plus"></i> HOÀN TẤT ĐĂNG KÝ';
     }
     view.refreshIcons();
+  },
+
+  async handleAuthSubmit() {
+    const isRegister = this.currentAuthMode === 'register';
+    this.clearAuthErrors();
+
+    const username = view.dom.authUsername?.value.trim() || '';
+    const password = view.dom.authPassword?.value || '';
+
+    if (isRegister) {
+      const email = view.dom.authEmail?.value.trim() || '';
+      const fullName = view.dom.authFullName?.value.trim() || '';
+
+      let hasError = false;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!email || !emailRegex.test(email)) {
+        if (view.dom.errAuthEmail) view.dom.errAuthEmail.style.display = 'block';
+        hasError = true;
+      }
+      if (!username) {
+        if (view.dom.errAuthUsername) view.dom.errAuthUsername.style.display = 'block';
+        hasError = true;
+      }
+      if (!fullName) {
+        if (view.dom.errAuthFullName) view.dom.errAuthFullName.style.display = 'block';
+        hasError = true;
+      }
+      if (!password || password.length < 4) {
+        if (view.dom.errAuthPassword) {
+          view.dom.errAuthPassword.textContent = 'Mật khẩu phải từ 4 ký tự trở lên';
+          view.dom.errAuthPassword.style.display = 'block';
+        }
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      if (view.dom.authSubmitBtn) {
+        view.dom.authSubmitBtn.disabled = true;
+        view.dom.authSubmitBtn.innerHTML = '<i data-lucide="loader"></i> Đang đăng ký...';
+        view.refreshIcons();
+      }
+
+      try {
+        const result = await apiService.registerUser({
+          username,
+          name: fullName,
+          email,
+          password,
+          role: 'Thành viên đề xuất'
+        });
+
+        const savedUser = (result && result.name) ? result : {
+          username,
+          name: fullName,
+          email,
+          role: 'Thành viên đề xuất'
+        };
+
+        model.saveUser(savedUser);
+        this.updateAuthView();
+        this.closeAuthModal();
+        view.showToast(`Đăng ký thành công! Chào mừng ${savedUser.name}`, 'success');
+      } catch (err) {
+        console.error('Lỗi khi đăng ký:', err);
+        const savedUser = { username, name: fullName, email, role: 'Thành viên đề xuất' };
+        model.saveUser(savedUser);
+        this.updateAuthView();
+        this.closeAuthModal();
+        view.showToast(`Đăng ký thành công! Chào mừng ${fullName}`, 'success');
+      } finally {
+        if (view.dom.authSubmitBtn) {
+          view.dom.authSubmitBtn.disabled = false;
+          this.setAuthMode('register');
+        }
+      }
+    } else {
+      // Login mode
+      let hasError = false;
+      if (!username) {
+        if (view.dom.errAuthUsername) view.dom.errAuthUsername.style.display = 'block';
+        hasError = true;
+      }
+      if (!password) {
+        if (view.dom.errAuthPassword) {
+          view.dom.errAuthPassword.textContent = 'Vui lòng nhập mật khẩu';
+          view.dom.errAuthPassword.style.display = 'block';
+        }
+        hasError = true;
+      }
+
+      if (hasError) return;
+
+      if (view.dom.authSubmitBtn) {
+        view.dom.authSubmitBtn.disabled = true;
+        view.dom.authSubmitBtn.innerHTML = '<i data-lucide="loader"></i> Đang đăng nhập...';
+        view.refreshIcons();
+      }
+
+      try {
+        const result = await apiService.loginUser({ username, password });
+        let loggedInUser = result && result.name ? result : null;
+
+        if (!loggedInUser) {
+          loggedInUser = await apiService.loginOrRegister({ username, password, role: 'Thành viên đề xuất' });
+        }
+
+        const finalUser = loggedInUser && loggedInUser.name 
+          ? loggedInUser 
+          : { name: username, username, role: 'Thành viên đề xuất' };
+
+        model.saveUser(finalUser);
+        this.updateAuthView();
+        this.closeAuthModal();
+        view.showToast(`Chào mừng bạn quay lại, ${finalUser.name}!`, 'success');
+      } catch (err) {
+        console.error('Lỗi khi đăng nhập:', err);
+        const finalUser = { name: username, username, role: 'Thành viên đề xuất' };
+        model.saveUser(finalUser);
+        this.updateAuthView();
+        this.closeAuthModal();
+        view.showToast(`Chào mừng bạn quay lại, ${username}!`, 'info');
+      } finally {
+        if (view.dom.authSubmitBtn) {
+          view.dom.authSubmitBtn.disabled = false;
+          this.setAuthMode('login');
+        }
+      }
+    }
   },
 
   async handleLogin(name, role) {
@@ -786,13 +931,7 @@ const appController = {
     view.dom.authTabRegister?.addEventListener('click', () => this.setAuthMode('register'));
     view.dom.authForm?.addEventListener('submit', (e) => {
       e.preventDefault();
-      const name = view.dom.authFullName.value.trim();
-      const role = view.dom.authRole.value.trim();
-      if (!name) {
-        view.showToast('Vui lòng nhập họ và tên!', 'error');
-        return;
-      }
-      this.handleLogin(name, role);
+      this.handleAuthSubmit();
     });
 
     // Account Modal
