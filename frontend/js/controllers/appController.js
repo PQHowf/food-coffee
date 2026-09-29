@@ -919,9 +919,20 @@ const appController = {
     view.dom.btnFormViewAccount?.addEventListener('click', () => this.openAccountModal());
 
     // Auth Modal
-    view.dom.authModalClose?.addEventListener('click', () => this.closeAuthModal());
-    view.dom.authTabLogin?.addEventListener('click', () => this.setAuthMode('login'));
-    view.dom.authTabRegister?.addEventListener('click', () => this.setAuthMode('register'));
+    view.dom.authModalClose?.addEventListener('click', (e) => {
+      e?.preventDefault();
+      this.closeAuthModal();
+    });
+    view.dom.authTabLogin?.addEventListener('click', (e) => {
+      e?.preventDefault();
+      e?.stopPropagation();
+      this.setAuthMode('login');
+    });
+    view.dom.authTabRegister?.addEventListener('click', (e) => {
+      e?.preventDefault();
+      e?.stopPropagation();
+      this.setAuthMode('register');
+    });
     view.dom.authForm?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleAuthSubmit();

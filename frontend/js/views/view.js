@@ -81,9 +81,12 @@ const view = {
       errAuthFullName: document.getElementById('errAuthFullName'),
       authPasswordGroup: document.getElementById('authPasswordGroup'),
       authPassword: document.getElementById('authPassword'),
-      errAuthPassword: document.getElementById('errAuthPassword'),
       authSubmitBtn: document.getElementById('authSubmitBtn'),
       authModalTitle: document.getElementById('authModalTitle'),
+      // Fallback an toàn cho client còn lưu cache script cũ
+      authNameLabel: document.getElementById('authUsernameLabel') || document.getElementById('authNameLabel') || { textContent: '' },
+      authRoleGroup: document.getElementById('authRoleGroup') || { style: {} },
+      authRole: document.getElementById('authRole') || { value: '' },
 
       // Account Info Modal
       accountModal: document.getElementById('accountModal'),
