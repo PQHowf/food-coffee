@@ -781,17 +781,10 @@ const appController = {
         name,
         category,
         city,
-        district: city,
         address,
-        price: 50000,
-        priceDisplay: '',
-        rating: 5.0,
-        reviewCount: 1,
         image: finalImage,
-        tags: [category === 'food' ? 'Quán ăn' : 'Cafe'],
         recommendedDish,
         suggestedBy: model.currentUser.name,
-        suggestedByRole: model.currentUser.role || 'Thành viên đề xuất',
         createdAt: new Date().toISOString().split('T')[0]
       };
 
