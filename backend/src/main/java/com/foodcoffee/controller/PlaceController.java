@@ -35,6 +35,7 @@ public class PlaceController {
 
     @PostMapping
     public ResponseEntity<Place> createPlace(@RequestBody Place place) {
+        place.setId(null);
         Place saved = placeService.createPlace(place);
         return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }

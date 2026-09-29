@@ -31,11 +31,41 @@ const appController = {
     try {
       const backendPlaces = await apiService.getPlaces();
       if (backendPlaces && Array.isArray(backendPlaces) && backendPlaces.length > 0) {
-        model.places = backendPlaces;
+        // Lấy tập hợp ID quán từ server
+        const backendIds = new Set(backendPlaces.map(p => String(p.id)));
+
+        // Tìm các quán local người dùng đã tự thêm trước đó mà chưa kịp lưu lên server
+        const pendingLocalPlaces = model.places.filter(p => 
+          p && (String(p.id).startsWith('custom_') || (!backendIds.has(String(p.id)) && p.suggestedBy))
+        );
+
+        // Đẩy các quán local chưa có lên server để lưu vĩnh viễn vào DB
+        for (const localP of pendingLocalPlaces) {
+          try {
+            const synced = await apiService.createPlace(localP);
+            if (synced && synced.id) {
+              localP.id = synced.id;
+              backendPlaces.unshift(synced);
+              backendIds.add(String(synced.id));
+            }
+          } catch (e) {
+            console.warn('Lỗi đồng bộ quán local lên server:', e);
+          }
+        }
+
+        // Hợp nhất dữ liệu: ưu tiên các quán từ backend, kết hợp các quán local còn lại (nếu server tạm thời lỗi)
+        const mergedPlaces = [...backendPlaces];
+        for (const localP of pendingLocalPlaces) {
+          if (!mergedPlaces.some(p => String(p.id) === String(localP.id))) {
+            mergedPlaces.unshift(localP);
+          }
+        }
+
+        model.places = mergedPlaces;
         model.savePlaces();
         this.updateCounters();
         this.renderCurrentPlaces();
-        console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Java Spring Boot Backend');
+        console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Java Spring Boot Backend (Tổng quán:', model.places.length, ')');
       }
     } catch (e) {
       console.log('ℹ️ [MVC Controller] Backend chưa bật, dùng dữ liệu lưu trữ local');
@@ -560,50 +590,72 @@ const appController = {
       return;
     }
 
-    const newPlace = {
-      id: `custom_${Date.now()}`,
-      name,
-      category,
-      city,
-      district: city,
-      address,
-      price: 50000,
-      priceDisplay: '',
-      rating: 5.0,
-      reviewCount: 1,
-      image: finalImage,
-      tags: [category === 'food' ? 'Quán ăn' : 'Cafe'],
-      recommendedDish,
-      suggestedBy: model.currentUser.name,
-      suggestedByRole: model.currentUser.role || 'Thành viên đề xuất',
-      createdAt: new Date().toISOString().split('T')[0]
-    };
+    const submitBtn = document.getElementById('submitPlaceBtn');
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i data-lucide="loader-2" class="spin-icon"></i> ĐANG LƯU QUÁN...';
+      view.refreshIcons();
+    }
 
-    // Gửi lên Java backend
     try {
-      const serverPlace = await apiService.createPlace(newPlace);
+      const newPlace = {
+        id: `custom_${Date.now()}`,
+        name,
+        category,
+        city,
+        district: city,
+        address,
+        price: 50000,
+        priceDisplay: '',
+        rating: 5.0,
+        reviewCount: 1,
+        image: finalImage,
+        tags: [category === 'food' ? 'Quán ăn' : 'Cafe'],
+        recommendedDish,
+        suggestedBy: model.currentUser.name,
+        suggestedByRole: model.currentUser.role || 'Thành viên đề xuất',
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+
+      // Gửi lên Java backend (loại bỏ id để backend sinh ID tự động)
+      const payload = { ...newPlace };
+      delete payload.id;
+
+      const serverPlace = await apiService.createPlace(payload);
       if (serverPlace && serverPlace.id) {
         newPlace.id = serverPlace.id;
+        console.log('✅ Đã lưu quán vào database server thành công, ID:', serverPlace.id);
+      } else {
+        console.warn('⚠️ Server chưa phản hồi, lưu tạm quán vào local');
       }
-    } catch (err) {}
 
-    model.places.unshift(newPlace);
-    model.savePlaces();
-    this.updateCounters();
-    this.resetImageUpload();
-    view.dom.addPlaceForm.reset();
+      model.places.unshift(newPlace);
+      model.savePlaces();
+      this.updateCounters();
+      this.resetImageUpload();
+      view.dom.addPlaceForm?.reset();
 
-    view.showToast(`🎉 Thêm quán "${name}" thành công! Gợi ý từ: ${model.currentUser.name}`, 'success');
-    this.switchTab(category);
+      view.showToast(`🎉 Thêm quán "${name}" thành công! Gợi ý từ: ${model.currentUser.name}`, 'success');
+      this.switchTab(category);
 
-    setTimeout(() => {
-      const card = document.getElementById(`card-${newPlace.id}`);
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.style.outline = '3px solid #10b981';
-        setTimeout(() => card.style.outline = 'none', 2500);
+      setTimeout(() => {
+        const card = document.getElementById(`card-${newPlace.id}`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.style.outline = '3px solid #10b981';
+          setTimeout(() => card.style.outline = 'none', 2500);
+        }
+      }, 300);
+    } catch (err) {
+      console.error('Lỗi khi thêm quán:', err);
+      view.showToast('Có lỗi xảy ra khi lưu quán!', 'error');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check-circle-2"></i> ĐĂNG GỢI Ý NGAY';
+        view.refreshIcons();
       }
-    }, 300);
+    }
   },
 
   bindEvents() {
