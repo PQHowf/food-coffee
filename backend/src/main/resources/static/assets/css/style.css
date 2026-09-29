@@ -2775,23 +2775,151 @@ button {
     font-size: 0.875rem;
   }
 
+  /* Add Place Form - Responsive on Mobile & iPhone 13-15 */
+  .add-place-section {
+    padding: 0 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .guest-gate-card {
+    padding: 28px 16px;
+    border-radius: 20px;
+  }
+
+  .lock-circle {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+
+  .lock-circle i,
+  .lock-circle svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .gate-title {
+    font-size: 1.25rem;
+    line-height: 1.35;
+    margin-bottom: 10px;
+  }
+
+  .gate-desc {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    margin-bottom: 22px;
+  }
+
+  .gate-actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  .add-form-container {
+    padding: 22px 16px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+  }
+
+  .form-title {
+    font-size: 1.3rem;
+    letter-spacing: -0.2px;
+  }
+
+  .user-preview-badge {
+    width: 100%;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    padding: 9px 12px;
+    border-radius: 12px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .form-group {
+    gap: 5px;
+  }
+
+  .form-label {
+    font-size: 0.825rem;
+  }
+
+  /* Prevent iOS Safari 16px font-size auto-zoom */
+  .input-with-icon input,
+  .input-with-icon select,
+  .input-with-icon textarea {
+    font-size: 16px;
+    padding: 12px 14px 12px 42px;
+    border-radius: 10px;
+    min-height: 46px;
+    box-sizing: border-box;
+  }
+
+  .input-with-icon i,
+  .input-with-icon svg {
+    left: 14px;
+    width: 18px;
+    height: 18px;
+  }
+
   .category-radio-group {
-    flex-direction: row;
-    gap: 8px;
-  }
-
-  .radio-card {
-    padding: 10px;
-  }
-
-  .upload-dropzone {
-    padding: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
 
+  .radio-card {
+    padding: 12px 8px;
+    border-radius: 12px;
+    gap: 4px;
+  }
+
+  .radio-card i,
+  .radio-card svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .radio-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+  }
+
+  .radio-desc {
+    font-size: 0.68rem;
+    line-height: 1.25;
+  }
+
+  .upload-dropzone {
+    padding: 14px 12px;
+    gap: 12px;
+    border-radius: 14px;
+  }
+
   .upload-icon-circle {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .upload-icon-circle i,
+  .upload-icon-circle svg {
+    width: 20px;
+    height: 20px;
   }
 
   .upload-title {
@@ -2799,7 +2927,94 @@ button {
   }
 
   .upload-hint {
-    font-size: 0.75rem;
+    font-size: 0.725rem;
+    line-height: 1.35;
+  }
+
+  .upload-preview-box {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .upload-preview-thumb {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+  }
+
+  .upload-preview-meta {
+    flex: 1;
+    min-width: 140px;
+  }
+
+  .upload-preview-btns {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .upload-preview-btns .btn,
+  .upload-preview-btns button {
+    width: 100%;
+    justify-content: center;
+    padding: 8px 6px;
+    font-size: 0.775rem;
+  }
+
+  .author-confirm-box {
+    padding: 14px 14px;
+    border-radius: 14px;
+  }
+
+  .author-confirm-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .author-avatar-sm {
+    flex-shrink: 0;
+  }
+
+  .author-details {
+    flex: 1;
+    min-width: 170px;
+  }
+
+  .btn-profile-view {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 14px;
+    font-size: 0.825rem;
+    min-height: 42px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+    font-size: 0.95rem;
+    font-weight: 800;
+  }
+
+  .form-actions #resetFormBtn {
+    min-height: 42px;
+    font-size: 0.875rem;
+    font-weight: 600;
   }
 
   /* Safe Area for iPhone Home Indicator */
@@ -2808,7 +3023,7 @@ button {
   }
 }
 
-/* Extra fine-tuning for compact mobile screens (iPhone 13 mini / standard iPhone viewport <= 414px) */
+/* Extra fine-tuning for compact mobile screens (iPhone 13 / 14 / 15 viewport <= 430px) */
 @media (max-width: 430px) {
   .hero-title {
     font-size: 1.35rem;
@@ -2839,5 +3054,40 @@ button {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+
+  /* iPhone 13-15 specific tweaks (390px - 430px) */
+  .add-form-container {
+    padding: 18px 12px;
+    border-radius: 16px;
+  }
+
+  .form-title {
+    font-size: 1.2rem;
+  }
+
+  .category-radio-group {
+    gap: 8px;
+  }
+
+  .radio-card {
+    padding: 10px 6px;
+  }
+
+  .radio-title {
+    font-size: 0.8rem;
+  }
+
+  .radio-desc {
+    font-size: 0.65rem;
+  }
+
+  .author-name-row strong {
+    font-size: 0.875rem;
+  }
+
+  .author-role-tag {
+    font-size: 0.675rem;
+    padding: 2px 6px;
   }
 }
