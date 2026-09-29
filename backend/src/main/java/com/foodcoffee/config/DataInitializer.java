@@ -39,32 +39,8 @@ public class DataInitializer {
                             .role("Food Reviewer & Coffee Lover")
                             .build());
                 }
-
-                if (placeRepository.count() == 0) {
-                    placeRepository.save(Place.builder()
-                            .name("Phở Thìn Lò Đúc")
-                            .category("food")
-                            .city("Hà Nội")
-                            .priceRange("<100K")
-                            .address("13 Lò Đúc, Ngô Thì Nhậm, Hai Bà Trưng")
-                            .recommendedDish("Phở bò tái lăn xào lăn thơm phức, nhiều hành lá")
-                            .image("https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80")
-                            .suggestedBy("Phạm Quốc Huy")
-                            .build());
-
-                    placeRepository.save(Place.builder()
-                            .name("Cộng Cà Phê")
-                            .category("cafe")
-                            .city("Hà Nội")
-                            .priceRange("<100K")
-                            .address("116 Cầu Gỗ, Hàng Bạc, Hoàn Kiếm")
-                            .recommendedDish("Cà phê cốt dừa thơm béo chuẩn vị Hà Nội")
-                            .image("https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80")
-                            .suggestedBy("Phạm Quốc Huy")
-                            .build());
-                }
             } catch (Exception e) {
-                System.out.println("DataInitializer: Bỏ qua tạo seed data: " + e.getMessage());
+                System.out.println("DataInitializer: Bỏ qua tạo seed user: " + e.getMessage());
             }
         };
     }

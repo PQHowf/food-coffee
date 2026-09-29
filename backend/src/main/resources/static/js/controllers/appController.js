@@ -30,42 +30,13 @@ const appController = {
   async syncWithBackend() {
     try {
       const backendPlaces = await apiService.getPlaces();
-      if (backendPlaces && Array.isArray(backendPlaces) && backendPlaces.length > 0) {
-        // Lấy tập hợp ID quán từ server
-        const backendIds = new Set(backendPlaces.map(p => String(p.id)));
-
-        // Tìm các quán local người dùng đã tự thêm trước đó mà chưa kịp lưu lên server
-        const pendingLocalPlaces = model.places.filter(p => 
-          p && (String(p.id).startsWith('custom_') || (!backendIds.has(String(p.id)) && p.suggestedBy))
-        );
-
-        // Đẩy các quán local chưa có lên server để lưu vĩnh viễn vào DB
-        for (const localP of pendingLocalPlaces) {
-          try {
-            const synced = await apiService.createPlace(localP);
-            if (synced && synced.id) {
-              localP.id = synced.id;
-              backendPlaces.unshift(synced);
-              backendIds.add(String(synced.id));
-            }
-          } catch (e) {
-            console.warn('Lỗi đồng bộ quán local lên server:', e);
-          }
-        }
-
-        // Hợp nhất dữ liệu: ưu tiên các quán từ backend, kết hợp các quán local còn lại (nếu server tạm thời lỗi)
-        const mergedPlaces = [...backendPlaces];
-        for (const localP of pendingLocalPlaces) {
-          if (!mergedPlaces.some(p => String(p.id) === String(localP.id))) {
-            mergedPlaces.unshift(localP);
-          }
-        }
-
-        model.places = mergedPlaces;
+      if (backendPlaces && Array.isArray(backendPlaces)) {
+        // Đồng bộ dữ liệu chính xác tuyệt đối theo database
+        model.places = backendPlaces;
         model.savePlaces();
         this.updateCounters();
         this.renderCurrentPlaces();
-        console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Java Spring Boot Backend (Tổng quán:', model.places.length, ')');
+        console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Database Server (Tổng quán:', model.places.length, ')');
 
         // Đồng bộ tài khoản hiện tại lên database nếu có
         if (model.currentUser && model.currentUser.name) {
@@ -79,7 +50,7 @@ const appController = {
         }
       }
     } catch (e) {
-      console.log('ℹ️ [MVC Controller] Backend chưa bật, dùng dữ liệu lưu trữ local');
+      console.log('ℹ️ [MVC Controller] Backend chưa phản hồi, giữ dữ liệu local');
     }
   },
 
@@ -127,6 +98,13 @@ const appController = {
   // Quay ngẫu nhiên chuẩn theo tab hiện tại (Quán ăn hoặc Quán cafe)
   handleRandomPicker() {
     const targetCategory = (model.currentTab === 'cafe') ? 'cafe' : 'food';
+    const targetCategoryName = targetCategory === 'cafe' ? 'QUÁN CAFE' : 'QUÁN ĂN';
+
+    const categoryPlaces = model.places.filter(p => p.category === targetCategory);
+    if (!categoryPlaces.length) {
+      view.showToast(`Chưa có địa điểm ${targetCategoryName} nào trong hệ thống! Hãy vào tab "Thêm Quán" để gợi ý nhé.`, 'warning');
+      return;
+    }
 
     // Đổ danh sách các thành phố thực tế có trong database vào bộ lọc của modal quay
     view.populateRandomCities(model.places);
