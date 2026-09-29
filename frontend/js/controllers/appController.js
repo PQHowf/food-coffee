@@ -66,6 +66,17 @@ const appController = {
         this.updateCounters();
         this.renderCurrentPlaces();
         console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Java Spring Boot Backend (Tổng quán:', model.places.length, ')');
+
+        // Đồng bộ tài khoản hiện tại lên database nếu có
+        if (model.currentUser && model.currentUser.name) {
+          try {
+            const u = await apiService.loginOrRegister(model.currentUser.name, model.currentUser.role);
+            if (u && u.name) {
+              model.saveUser(u);
+              this.updateAuthView();
+            }
+          } catch (e) {}
+        }
       }
     } catch (e) {
       console.log('ℹ️ [MVC Controller] Backend chưa bật, dùng dữ liệu lưu trữ local');
@@ -315,8 +326,17 @@ const appController = {
     view.refreshIcons();
   },
 
-  handleLogin(name, role) {
-    const user = { name, role: role || 'Thành viên đề xuất' };
+  async handleLogin(name, role) {
+    let user = { name, role: role || 'Thành viên đề xuất' };
+    try {
+      const serverUser = await apiService.loginOrRegister(name, role);
+      if (serverUser && serverUser.name) {
+        user = serverUser;
+        console.log('✅ Đã lưu tài khoản vào Database thành công, ID:', serverUser.id);
+      }
+    } catch (err) {
+      console.warn('Lỗi lưu tài khoản lên server:', err);
+    }
     model.saveUser(user);
     this.updateAuthView();
     this.closeAuthModal();
@@ -569,6 +589,19 @@ const appController = {
     const defaultImg = category === 'food' 
       ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
       : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80';
+
+    // Nếu có file ảnh được chọn từ thiết bị mà chưa có URL máy chủ thì tải lên máy chủ ngay
+    if (this.selectedRawFile && (!this.uploadedImageData || this.uploadedImageData.startsWith('data:'))) {
+      try {
+        const uploadedUrl = await apiService.uploadImage(this.selectedRawFile);
+        if (uploadedUrl) {
+          this.uploadedImageData = uploadedUrl;
+        }
+      } catch (err) {
+        console.warn('Không thể upload ảnh lên server, dùng ảnh mặc định/fallback');
+      }
+    }
+
     const finalImage = this.uploadedImageData || inputUrl || defaultImg;
 
     if (!name) {
@@ -768,7 +801,7 @@ const appController = {
       this.closeAccountModal();
       this.handleLogout();
     });
-    view.dom.accountUpdateForm?.addEventListener('submit', (e) => {
+    view.dom.accountUpdateForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const newName = view.dom.accEditName.value.trim();
       const newRole = view.dom.accEditRole.value.trim() || 'Thành viên đề xuất';
@@ -777,6 +810,14 @@ const appController = {
         return;
       }
       const oldName = model.currentUser.name;
+
+      // Cập nhật lên Database server
+      try {
+        await apiService.updateUser(oldName, newName, newRole);
+      } catch (err) {
+        console.warn('Không thể cập nhật user lên server:', err);
+      }
+
       model.currentUser.name = newName;
       model.currentUser.role = newRole;
       model.places.forEach(p => {

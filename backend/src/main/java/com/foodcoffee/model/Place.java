@@ -31,13 +31,13 @@ public class Place {
 
     private String district;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String address;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String recommendedDish;
 
-    @Column(length = 1000)
+    @Column(columnDefinition = "TEXT")
     private String image;
 
     private String suggestedBy;

@@ -127,5 +127,20 @@ const apiService = {
       console.error('Lỗi gọi API user login:', err);
     }
     return null;
+  },
+
+  async updateUser(oldName, newName, newRole) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(oldName)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newName, role: newRole }),
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.error('Lỗi cập nhật user qua API:', err);
+    }
+    return null;
   }
 };
