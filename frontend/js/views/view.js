@@ -50,6 +50,7 @@ const view = {
       formSuggestedByPreview: document.getElementById('formSuggestedByPreview'),
       btnFormViewAccount: document.getElementById('btnFormViewAccount'),
       newPlaceCity: document.getElementById('newPlaceCity'),
+      newPlacePriceRange: document.getElementById('newPlacePriceRange'),
       newPlaceImage: document.getElementById('newPlaceImage'),
       newPlaceFileInput: document.getElementById('newPlaceFileInput'),
       uploadDropZone: document.getElementById('uploadDropZone'),
@@ -116,6 +117,7 @@ const view = {
       editCategoryCafe: document.getElementById('editCategoryCafe'),
       editPlaceName: document.getElementById('editPlaceName'),
       editPlaceCity: document.getElementById('editPlaceCity'),
+      editPlacePriceRange: document.getElementById('editPlacePriceRange'),
       editPlaceAddress: document.getElementById('editPlaceAddress'),
       editPlaceDish: document.getElementById('editPlaceDish'),
       editPlaceImage: document.getElementById('editPlaceImage'),
@@ -127,11 +129,14 @@ const view = {
       randomModalClose: document.getElementById('randomModalClose'),
       randomModalTitle: document.getElementById('randomModalTitle'),
       randomModalSubtitle: document.getElementById('randomModalSubtitle'),
+      randomCityFilter: document.getElementById('randomCityFilter'),
+      randomPriceFilter: document.getElementById('randomPriceFilter'),
       randomWheelBox: document.getElementById('randomWheelBox'),
       slotPreview: document.getElementById('slotPreview'),
       winnerCard: document.getElementById('winnerCard'),
       winnerImage: document.getElementById('winnerImage'),
       winnerCategory: document.getElementById('winnerCategory'),
+      winnerPriceTag: document.getElementById('winnerPriceTag'),
       winnerName: document.getElementById('winnerName'),
       winnerAddress: document.getElementById('winnerAddress'),
       winnerPrice: document.getElementById('winnerPrice'),
@@ -207,6 +212,7 @@ const view = {
           <div class="card-body">
             <div class="card-title-row">
               <h3 class="card-title">${this.escapeHTML(place.name)}</h3>
+              <span class="card-price-pill">${this.escapeHTML(place.priceRange || '<100K')}</span>
             </div>
 
             <div class="card-info-item address">
@@ -257,6 +263,24 @@ const view = {
       this.dom.editPlaceCity.innerHTML = formCities.map(city => {
         return `<option value="${city}">${city}</option>`;
       }).join('');
+    }
+  },
+
+  populateRandomCities(places) {
+    if (!this.dom.randomCityFilter) return;
+    const currentVal = this.dom.randomCityFilter.value || 'all';
+    // Chỉ lấy các thành phố thực tế đang có trong database (places)
+    const uniqueCities = [...new Set((places || []).map(p => p.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'vi'));
+    
+    let html = '<option value="all">Tất cả thành phố</option>';
+    uniqueCities.forEach(city => {
+      html += `<option value="${this.escapeHTML(city)}">${this.escapeHTML(city)}</option>`;
+    });
+    this.dom.randomCityFilter.innerHTML = html;
+    if (uniqueCities.includes(currentVal)) {
+      this.dom.randomCityFilter.value = currentVal;
+    } else {
+      this.dom.randomCityFilter.value = 'all';
     }
   },
 

@@ -24,7 +24,8 @@ public class DataInitializer {
                 jdbcTemplate.execute("ALTER TABLE places DROP COLUMN IF EXISTS price_display;");
                 jdbcTemplate.execute("ALTER TABLE places DROP COLUMN IF EXISTS suggested_by_role;");
                 jdbcTemplate.execute("DROP TABLE IF EXISTS place_tags CASCADE;");
-                System.out.println("✅ DataInitializer: Đã dọn dẹp các cột và bảng thừa trong Database thành công!");
+                jdbcTemplate.execute("ALTER TABLE places ADD COLUMN IF NOT EXISTS price_range VARCHAR(50);");
+                System.out.println("✅ DataInitializer: Đã dọn dẹp và cập nhật cột price_range trong Database thành công!");
             } catch (Exception e) {
                 System.out.println("DataInitializer: Bỏ qua dọn dẹp cột thừa: " + e.getMessage());
             }
@@ -44,6 +45,7 @@ public class DataInitializer {
                             .name("Phở Thìn Lò Đúc")
                             .category("food")
                             .city("Hà Nội")
+                            .priceRange("<100K")
                             .address("13 Lò Đúc, Ngô Thì Nhậm, Hai Bà Trưng")
                             .recommendedDish("Phở bò tái lăn xào lăn thơm phức, nhiều hành lá")
                             .image("https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80")
@@ -54,6 +56,7 @@ public class DataInitializer {
                             .name("Cộng Cà Phê")
                             .category("cafe")
                             .city("Hà Nội")
+                            .priceRange("<100K")
                             .address("116 Cầu Gỗ, Hàng Bạc, Hoàn Kiếm")
                             .recommendedDish("Cà phê cốt dừa thơm béo chuẩn vị Hà Nội")
                             .image("https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80")

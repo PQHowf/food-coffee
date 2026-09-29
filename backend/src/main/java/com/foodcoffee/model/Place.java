@@ -38,6 +38,8 @@ public class Place {
 
     private String suggestedBy;
 
+    private String priceRange; // "<100K", "100K-200K", "200K-300K", ">300K"
+
     private LocalDate createdAt;
 
     @PrePersist

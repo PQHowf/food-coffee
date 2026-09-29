@@ -46,6 +46,9 @@ public class PlaceService {
             place.setCity(updatedPlace.getCity());
             place.setAddress(updatedPlace.getAddress());
             place.setRecommendedDish(updatedPlace.getRecommendedDish());
+            if (updatedPlace.getPriceRange() != null) {
+                place.setPriceRange(updatedPlace.getPriceRange());
+            }
             if (updatedPlace.getImage() != null) {
                 place.setImage(updatedPlace.getImage());
             }

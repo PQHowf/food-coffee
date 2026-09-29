@@ -924,6 +924,17 @@ button {
   white-space: nowrap;
 }
 
+.card-price-pill {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #15803d;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
 /* Address & Price rows */
 .card-info-item {
   display: flex;
@@ -2165,6 +2176,73 @@ button {
   animation: pulse 1.5s infinite ease-in-out;
 }
 
+/* Random Modal Filter Row (Thành phố từ DB & Mức giá) */
+.random-filter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+}
+
+.random-filter-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.random-filter-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.random-filter-label i {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+}
+
+.random-filter-select {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.random-filter-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.random-empty-notice {
+  text-align: center;
+  padding: 24px 16px;
+  background: #fff1f2;
+  border: 1px dashed #f43f5e;
+  border-radius: var(--radius-md);
+  color: #9f1239;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
 .random-wheel-box {
   background: #0f172a;
   border-radius: var(--radius-lg);
@@ -2240,11 +2318,31 @@ button {
   gap: 8px;
 }
 
+.winner-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .winner-category {
   font-size: 0.75rem;
   font-weight: 800;
   color: #b45309;
   text-transform: uppercase;
+}
+
+.winner-price-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 9px;
+  border-radius: 9999px;
 }
 
 .winner-name {
@@ -2666,6 +2764,28 @@ button {
     font-size: 0.775rem;
     line-height: 1.35;
     margin-bottom: 0;
+  }
+
+  .random-filter-row {
+    padding: 8px 10px;
+    gap: 8px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+  }
+
+  .random-filter-select {
+    padding: 6px 6px;
+    font-size: 0.78rem;
+  }
+
+  .random-filter-label {
+    font-size: 0.7rem;
+    gap: 3px;
+  }
+
+  .random-filter-label i {
+    width: 12px;
+    height: 12px;
   }
 
   .random-wheel-box {

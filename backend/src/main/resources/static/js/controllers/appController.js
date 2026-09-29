@@ -127,52 +127,107 @@ const appController = {
   // Quay ngẫu nhiên chuẩn theo tab hiện tại (Quán ăn hoặc Quán cafe)
   handleRandomPicker() {
     const targetCategory = (model.currentTab === 'cafe') ? 'cafe' : 'food';
-    const targetCategoryName = targetCategory === 'cafe' ? 'QUÁN CAFE' : 'QUÁN ĂN';
 
-    // Lọc danh sách theo đúng tab danh mục hiện tại (kèm theo bộ lọc thành phố nếu có)
-    let candidatePlaces = model.places.filter(p => p.category === targetCategory);
-    if (model.filters.city !== 'all') {
-      candidatePlaces = candidatePlaces.filter(p => p.city === model.filters.city);
+    // Đổ danh sách các thành phố thực tế có trong database vào bộ lọc của modal quay
+    view.populateRandomCities(model.places);
+
+    // Đồng bộ thành phố đang chọn ở thanh tìm kiếm (nếu có trong danh sách thành phố DB)
+    if (view.dom.randomCityFilter) {
+      const activeCity = model.filters.city;
+      const options = Array.from(view.dom.randomCityFilter.options).map(o => o.value);
+      if (options.includes(activeCity)) {
+        view.dom.randomCityFilter.value = activeCity;
+      } else {
+        view.dom.randomCityFilter.value = 'all';
+      }
     }
-
-    if (!candidatePlaces.length) {
-      // Nếu thành phố đang chọn không có quán nào thì lấy tất cả theo danh mục
-      candidatePlaces = model.places.filter(p => p.category === targetCategory);
-    }
-
-    if (!candidatePlaces.length) {
-      view.showToast(`Chưa có địa điểm ${targetCategoryName} nào trong hệ thống!`, 'warning');
-      return;
+    if (view.dom.randomPriceFilter) {
+      view.dom.randomPriceFilter.value = 'all';
     }
 
     // Mở modal quay ngẫu nhiên
-    this.openRandomModal(candidatePlaces, targetCategory);
+    this.openRandomModal(targetCategory);
   },
 
-  openRandomModal(places, category) {
+  openRandomModal(category) {
     if (!view.dom.randomModal) return;
 
-    this.currentRandomCandidates = places;
     this.currentRandomCategory = category;
 
     const isCafe = category === 'cafe';
     const categoryTitle = isCafe ? 'HÔM NAY ĐI CAFE Ở ĐÂU?' : 'HÔM NAY BẠN SẼ ĂN GÌ?';
-    const categorySub = isCafe 
-      ? `Hệ thống đang quay ngẫu nhiên 1 trong ${places.length} quán cafe chill...`
-      : `Hệ thống đang quay ngẫu nhiên 1 trong ${places.length} quán ăn ngon...`;
 
     if (view.dom.randomModalTitle) view.dom.randomModalTitle.textContent = categoryTitle;
-    if (view.dom.randomModalSubtitle) view.dom.randomModalSubtitle.textContent = categorySub;
-
-    if (view.dom.randomWheelBox) view.dom.randomWheelBox.style.display = 'block';
-    if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
 
     view.dom.randomModal.style.display = 'flex';
-    this.spinRandomWheel(places);
+    this.handleRandomFilterChange();
+  },
+
+  getRandomCandidates() {
+    const targetCategory = (this.currentRandomCategory === 'cafe') ? 'cafe' : 'food';
+    const selectedCity = view.dom.randomCityFilter ? view.dom.randomCityFilter.value : 'all';
+    const selectedPrice = view.dom.randomPriceFilter ? view.dom.randomPriceFilter.value : 'all';
+
+    let candidates = model.places.filter(p => p.category === targetCategory);
+
+    if (selectedCity && selectedCity !== 'all') {
+      candidates = candidates.filter(p => p.city === selectedCity);
+    }
+
+    if (selectedPrice && selectedPrice !== 'all') {
+      candidates = candidates.filter(p => (p.priceRange || '<100K') === selectedPrice);
+    }
+
+    return candidates;
+  },
+
+  handleRandomFilterChange() {
+    const candidates = this.getRandomCandidates();
+    this.currentRandomCandidates = candidates;
+
+    const count = candidates.length;
+    const isCafe = this.currentRandomCategory === 'cafe';
+    if (view.dom.randomModalSubtitle) {
+      view.dom.randomModalSubtitle.textContent = count > 0
+        ? `Đang quay ngẫu nhiên 1 trong ${count} quán ${isCafe ? 'cafe chill' : 'ăn ngon'}...`
+        : `Không có quán ${isCafe ? 'cafe' : 'ăn'} nào phù hợp với bộ lọc hiện tại.`;
+    }
+
+    if (count > 0) {
+      this.spinRandomWheel(candidates);
+    } else {
+      this.showRandomEmptyState();
+    }
+  },
+
+  showRandomEmptyState() {
+    if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
+    if (view.dom.randomWheelBox) {
+      view.dom.randomWheelBox.style.display = 'block';
+      if (view.dom.slotPreview) {
+        view.dom.slotPreview.parentElement.style.display = 'flex';
+        view.dom.slotPreview.innerHTML = `
+          <div style="text-align: center; color: #ffffff; padding: 12px 6px;">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">🔍</div>
+            <div style="font-size: 0.95rem; font-weight: 700; color: #fca5a5;">Không tìm thấy quán phù hợp</div>
+            <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 4px;">Vui lòng thử chọn mức giá hoặc thành phố khác</div>
+          </div>
+        `;
+        view.refreshIcons();
+      }
+    }
+    if (view.dom.reRollBtn) view.dom.reRollBtn.disabled = true;
+    if (view.dom.acceptPickBtn) view.dom.acceptPickBtn.disabled = true;
   },
 
   spinRandomWheel(places) {
-    if (!places || !places.length) return;
+    if (!places || !places.length) {
+      this.showRandomEmptyState();
+      return;
+    }
+
+    if (view.dom.reRollBtn) view.dom.reRollBtn.disabled = false;
+    if (view.dom.acceptPickBtn) view.dom.acceptPickBtn.disabled = false;
 
     if (view.dom.randomWheelBox) view.dom.randomWheelBox.style.display = 'block';
     if (view.dom.winnerCard) view.dom.winnerCard.style.display = 'none';
@@ -229,6 +284,9 @@ const appController = {
     if (view.dom.winnerImage) view.dom.winnerImage.src = winner.image || defaultImg;
     if (view.dom.winnerCategory) {
       view.dom.winnerCategory.textContent = winner.category === 'cafe' ? '☕ QUÁN CAFE CHILL' : '🍲 QUÁN ĂN NGON';
+    }
+    if (view.dom.winnerPriceTag) {
+      view.dom.winnerPriceTag.textContent = winner.priceRange || '<100K';
     }
     if (view.dom.winnerName) view.dom.winnerName.textContent = winner.name;
     if (view.dom.winnerAddress) view.dom.winnerAddress.textContent = `${winner.address} (${winner.city})`;
@@ -567,6 +625,10 @@ const appController = {
       view.dom.editPlaceCity.value = place.city || 'Hà Nội';
     }
 
+    if (view.dom.editPlacePriceRange) {
+      view.dom.editPlacePriceRange.value = place.priceRange || '<100K';
+    }
+
     view.dom.editPlaceModal.style.display = 'flex';
     view.refreshIcons();
   },
@@ -586,6 +648,7 @@ const appController = {
     const newCategory = document.querySelector('input[name="editPlaceCategory"]:checked')?.value || 'food';
     const newName = view.dom.editPlaceName.value.trim();
     const newCity = view.dom.editPlaceCity.value;
+    const newPriceRange = view.dom.editPlacePriceRange?.value || '<100K';
     const newAddress = view.dom.editPlaceAddress.value.trim();
     const newDish = view.dom.editPlaceDish.value.trim();
     const newImage = view.dom.editPlaceImage.value.trim();
@@ -598,6 +661,7 @@ const appController = {
     place.category = newCategory;
     place.name = newName;
     place.city = newCity;
+    place.priceRange = newPriceRange;
     place.address = newAddress;
     place.recommendedDish = newDish;
     if (newImage) place.image = newImage;
@@ -727,6 +791,7 @@ const appController = {
     const category = document.querySelector('input[name="placeCategory"]:checked')?.value || 'food';
     const name = document.getElementById('newPlaceName')?.value.trim() || '';
     const city = document.getElementById('newPlaceCity')?.value.trim() || '';
+    const priceRange = document.getElementById('newPlacePriceRange')?.value || '<100K';
     const address = document.getElementById('newPlaceAddress')?.value.trim() || '';
     const recommendedDish = document.getElementById('newPlaceDish')?.value.trim() || '';
     const inputUrl = document.getElementById('newPlaceImage')?.value.trim() || '';
@@ -781,6 +846,7 @@ const appController = {
         name,
         category,
         city,
+        priceRange,
         address,
         image: finalImage,
         recommendedDish,
@@ -987,10 +1053,15 @@ const appController = {
     view.dom.editPlaceForm?.addEventListener('submit', (e) => this.handleEditPlaceSubmit(e));
 
     // Random Mystery Modal Actions
+    view.dom.randomCityFilter?.addEventListener('change', () => this.handleRandomFilterChange());
+    view.dom.randomPriceFilter?.addEventListener('change', () => this.handleRandomFilterChange());
     view.dom.randomModalClose?.addEventListener('click', () => this.closeRandomModal());
     view.dom.reRollBtn?.addEventListener('click', () => {
-      if (this.currentRandomCandidates && this.currentRandomCandidates.length) {
-        this.spinRandomWheel(this.currentRandomCandidates);
+      const candidates = this.getRandomCandidates();
+      if (candidates && candidates.length) {
+        this.spinRandomWheel(candidates);
+      } else {
+        this.showRandomEmptyState();
       }
     });
     view.dom.acceptPickBtn?.addEventListener('click', () => {

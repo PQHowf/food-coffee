@@ -12,7 +12,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.5">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.6">
 </head>
 <body>
 
@@ -230,6 +230,20 @@
                 <i data-lucide="map-pin"></i>
                 <select id="newPlaceCity" required>
                   <!-- Injected by JS -->
+                </select>
+              </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="form-group">
+              <label for="newPlacePriceRange" class="form-label">Mức Giá <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="banknote"></i>
+                <select id="newPlacePriceRange" required>
+                  <option value="<100K">&lt;100K</option>
+                  <option value="100K-200K">100K-200K</option>
+                  <option value="200K-300K">200K-300K</option>
+                  <option value=">300K">&gt;300K</option>
                 </select>
               </div>
             </div>
@@ -545,6 +559,18 @@
               </select>
             </div>
           </div>
+          <div class="form-group flex-1">
+            <label for="editPlacePriceRange" class="form-label">Mức giá <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="banknote"></i>
+              <select id="editPlacePriceRange" required>
+                <option value="<100K">&lt;100K</option>
+                <option value="100K-200K">100K-200K</option>
+                <option value="200K-300K">200K-300K</option>
+                <option value=">300K">&gt;300K</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -596,6 +622,31 @@
         <p class="modal-desc" id="randomModalSubtitle">Hệ thống đang lựa chọn ngẫu nhiên một địa điểm hoàn hảo...</p>
       </div>
 
+      <!-- Bộ lọc quay ngẫu nhiên: Thành phố (chỉ từ database) & Mức giá -->
+      <div class="random-filter-row">
+        <div class="random-filter-col">
+          <label for="randomCityFilter" class="random-filter-label">
+            <i data-lucide="map-pin"></i> Thành phố
+          </label>
+          <select id="randomCityFilter" class="random-filter-select">
+            <option value="all">Tất cả thành phố</option>
+            <!-- Injected dynamically from existing DB places -->
+          </select>
+        </div>
+        <div class="random-filter-col">
+          <label for="randomPriceFilter" class="random-filter-label">
+            <i data-lucide="banknote"></i> Mức giá
+          </label>
+          <select id="randomPriceFilter" class="random-filter-select">
+            <option value="all">Tất cả mức giá</option>
+            <option value="<100K">&lt;100K</option>
+            <option value="100K-200K">100K-200K</option>
+            <option value="200K-300K">200K-300K</option>
+            <option value=">300K">&gt;300K</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Shuffle / Animation Visual Box -->
       <div class="random-wheel-box" id="randomWheelBox">
         <div class="slot-container" id="slotContainer">
@@ -615,7 +666,10 @@
         </div>
         <img src="" alt="Winner place" class="winner-image" id="winnerImage">
         <div class="winner-info">
-          <span class="winner-category" id="winnerCategory">QUÁN ĂN</span>
+          <div class="winner-tag-row">
+            <span class="winner-category" id="winnerCategory">QUÁN ĂN</span>
+            <span class="winner-price-badge" id="winnerPriceTag">&lt;100K</span>
+          </div>
           <h4 class="winner-name" id="winnerName">TÊN QUÁN</h4>
           <p class="winner-address"><i data-lucide="map-pin"></i> <span id="winnerAddress">Địa chỉ</span></p>
           <div class="winner-dish">
@@ -646,9 +700,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=2.5"></script>
-  <script src="js/services/apiService.js?v=2.5"></script>
-  <script src="js/views/view.js?v=2.5"></script>
-  <script src="js/controllers/appController.js?v=2.5"></script>
+  <script src="js/models/state.js?v=2.6"></script>
+  <script src="js/services/apiService.js?v=2.6"></script>
+  <script src="js/views/view.js?v=2.6"></script>
+  <script src="js/controllers/appController.js?v=2.6"></script>
 </body>
 </html>

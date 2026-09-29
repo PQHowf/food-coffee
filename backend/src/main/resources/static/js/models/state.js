@@ -31,6 +31,7 @@ const initialPlacesData = [
     name: "Phở Thìn Lò Đúc",
     category: "food",
     city: "Hà Nội",
+    priceRange: "<100K",
     address: "13 Lò Đúc, Ngô Thì Nhậm, Hai Bà Trưng",
     image: "https://images.unsplash.com/photo-1582878826629-29b7ad1cdc43?auto=format&fit=crop&w=800&q=80",
     recommendedDish: "Phở bò tái lăn xào lăn thơm phức, nhiều hành lá",
@@ -42,6 +43,7 @@ const initialPlacesData = [
     name: "Bánh Mì Huỳnh Hoa",
     category: "food",
     city: "TP. Hồ Chí Minh",
+    priceRange: "<100K",
     address: "26 Lê Thị Riêng, P. Bến Thành, Quận 1",
     image: "https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80",
     recommendedDish: "Bánh mì pate chả thịt nguội siêu đẫm nhân",
@@ -53,6 +55,7 @@ const initialPlacesData = [
     name: "Cộng Cà Phê - Cầu Gỗ",
     category: "cafe",
     city: "Hà Nội",
+    priceRange: "<100K",
     address: "116 Cầu Gỗ, Hàng Bạc, Hoàn Kiếm",
     image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80",
     recommendedDish: "Cà phê cốt dừa thơm béo chuẩn vị Hà Nội",
@@ -64,6 +67,7 @@ const initialPlacesData = [
     name: "The Workshop Specialty Coffee",
     category: "cafe",
     city: "TP. Hồ Chí Minh",
+    priceRange: "100K-200K",
     address: "27 Ngô Đức Kế, Bến Nghé, Quận 1",
     image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80",
     recommendedDish: "Cà phê Pour-over hạt Ethiopia hương hoa quả",
@@ -88,6 +92,10 @@ const model = {
     if (savedPlaces) {
       try {
         this.places = JSON.parse(savedPlaces);
+        // Đảm bảo các quán cũ luôn có priceRange hợp lệ
+        this.places.forEach(p => {
+          if (!p.priceRange) p.priceRange = '<100K';
+        });
       } catch (e) {
         this.places = [...initialPlacesData];
       }
