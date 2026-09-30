@@ -38,12 +38,16 @@ const appController = {
         this.renderCurrentPlaces();
         console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Database Server (Tổng quán:', model.places.length, ')');
 
-        // Đồng bộ tài khoản hiện tại lên database nếu có
-        if (model.currentUser && model.currentUser.name) {
+        // Đồng bộ tài khoản hiện tại lên database nếu có để lấy id chuẩn
+        if (model.currentUser && (model.currentUser.username || model.currentUser.name)) {
           try {
-            const u = await apiService.loginOrRegister(model.currentUser.name, model.currentUser.role);
-            if (u && u.name) {
-              model.saveUser(u);
+            const u = await apiService.getUser(model.currentUser.username || model.currentUser.name) ||
+                      await apiService.loginOrRegister(model.currentUser.username || model.currentUser.name, model.currentUser.role);
+            if (u && u.id) {
+              model.currentUser.id = u.id;
+              if (u.name) model.currentUser.name = u.name;
+              if (u.username) model.currentUser.username = u.username;
+              model.saveUser(model.currentUser);
               this.updateAuthView();
             }
           } catch (e) {}
@@ -52,6 +56,33 @@ const appController = {
     } catch (e) {
       console.log('ℹ️ [MVC Controller] Backend chưa phản hồi, giữ dữ liệu local');
     }
+  },
+
+  isUserPlace(p) {
+    if (!model.currentUser || !p) return false;
+    // 1. So khớp chuẩn theo ID người dùng trong Database (user_id)
+    if (model.currentUser.id && p.userId && String(p.userId) === String(model.currentUser.id)) {
+      return true;
+    }
+    // 2. So khớp theo tên hiển thị
+    if (model.currentUser.name && p.suggestedBy && p.suggestedBy === model.currentUser.name) {
+      return true;
+    }
+    // 3. So khớp theo username
+    if (model.currentUser.username && p.suggestedBy && p.suggestedBy === model.currentUser.username) {
+      return true;
+    }
+    return false;
+  },
+
+  getUserPlacesCount() {
+    if (!model.currentUser) return 0;
+    return model.places.filter(p => this.isUserPlace(p)).length;
+  },
+
+  getUserPlaces() {
+    if (!model.currentUser) return [];
+    return model.places.filter(p => this.isUserPlace(p));
   },
 
   getRoleByPlacesCount(count) {
@@ -85,8 +116,8 @@ const appController = {
   },
 
   updateAuthView() {
-    if (model.currentUser && model.currentUser.name) {
-      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+    if (model.currentUser && (model.currentUser.name || model.currentUser.username)) {
+      const myCount = this.getUserPlacesCount();
       model.currentUser.role = this.getRoleByPlacesCount(myCount);
     }
 
@@ -361,7 +392,7 @@ const appController = {
       view.dom.addFormContainer.style.display = 'block';
 
       const initials = view.getInitials(model.currentUser.name);
-      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const myCount = this.getUserPlacesCount();
       const role = this.getRoleByPlacesCount(myCount);
       model.currentUser.role = role;
 
@@ -581,7 +612,7 @@ const appController = {
       return;
     }
     const initials = view.getInitials(model.currentUser.name);
-    const myPlaces = model.places.filter(p => p.suggestedBy === model.currentUser.name);
+    const myPlaces = this.getUserPlaces();
     const role = this.getRoleByPlacesCount(myPlaces.length);
     model.currentUser.role = role;
     model.saveUser(model.currentUser);
@@ -620,7 +651,7 @@ const appController = {
 
   renderUserPlaces() {
     if (!model.currentUser) return;
-    const myPlaces = model.places.filter(p => p.suggestedBy === model.currentUser.name);
+    const myPlaces = this.getUserPlaces();
     if (view.dom.accPlacesCount) view.dom.accPlacesCount.textContent = myPlaces.length;
     if (view.dom.accPlacesCountTab) view.dom.accPlacesCountTab.textContent = myPlaces.length;
 
@@ -722,7 +753,7 @@ const appController = {
     model.savePlaces();
 
     if (model.currentUser) {
-      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const myCount = this.getUserPlacesCount();
       const newRole = this.getRoleByPlacesCount(myCount);
       if (model.currentUser.role !== newRole) {
         model.currentUser.role = newRole;
@@ -873,8 +904,20 @@ const appController = {
     }
 
     try {
+      // Đảm bảo lấy được ID của user từ database nếu local chưa có
+      if (model.currentUser && !model.currentUser.id && (model.currentUser.username || model.currentUser.name)) {
+        try {
+          const u = await apiService.getUser(model.currentUser.username || model.currentUser.name);
+          if (u && u.id) {
+            model.currentUser.id = u.id;
+            model.saveUser(model.currentUser);
+          }
+        } catch (e) {}
+      }
+
       const newPlace = {
         id: `custom_${Date.now()}`,
+        userId: model.currentUser && model.currentUser.id ? model.currentUser.id : null,
         name,
         category,
         city,
@@ -886,14 +929,15 @@ const appController = {
         createdAt: new Date().toISOString().split('T')[0]
       };
 
-      // Gửi lên Java backend (loại bỏ id để backend sinh ID tự động)
+      // Gửi lên Java backend (loại bỏ id client để backend sinh ID tự động)
       const payload = { ...newPlace };
       delete payload.id;
 
       const serverPlace = await apiService.createPlace(payload);
       if (serverPlace && serverPlace.id) {
         newPlace.id = serverPlace.id;
-        console.log('✅ Đã lưu quán vào database server thành công, ID:', serverPlace.id);
+        if (serverPlace.userId) newPlace.userId = serverPlace.userId;
+        console.log('✅ Đã lưu quán vào database server thành công, ID:', serverPlace.id, 'UserId:', serverPlace.userId);
       } else {
         console.warn('⚠️ Server chưa phản hồi, lưu tạm quán vào local');
       }
@@ -902,7 +946,7 @@ const appController = {
       model.savePlaces();
 
       // Cập nhật lại danh xưng tự động theo số quán đã đóng góp
-      const userPlacesCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const userPlacesCount = this.getUserPlacesCount();
       const newRole = this.getRoleByPlacesCount(userPlacesCount);
       if (model.currentUser.role !== newRole) {
         model.currentUser.role = newRole;

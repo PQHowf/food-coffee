@@ -56,4 +56,9 @@ public class PlaceController {
     public ResponseEntity<List<Place>> getPlacesByAuthor(@PathVariable String name) {
         return ResponseEntity.ok(placeService.getPlacesByAuthor(name));
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Place>> getPlacesByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(placeService.getPlacesByUserId(userId));
+    }
 }

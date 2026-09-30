@@ -11,7 +11,11 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findByCategory(String category);
     List<Place> findByCity(String city);
     List<Place> findByCategoryAndCity(String category, String city);
+    List<Place> findByUserId(Long userId);
     List<Place> findBySuggestedBy(String suggestedBy);
+    List<Place> findByUserIdIsNull();
+    long countByUserId(Long userId);
+    long countBySuggestedBy(String suggestedBy);
     List<Place> findByNameContainingIgnoreCaseOrRecommendedDishContainingIgnoreCaseOrAddressContainingIgnoreCase(
             String name, String dish, String address);
 }

@@ -165,6 +165,30 @@ const apiService = {
     return null;
   },
 
+  async getUser(nameOrUsername) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(nameOrUsername)}`, {
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn('Lỗi lấy thông tin user qua API:', err);
+    }
+    return null;
+  },
+
+  async getUserPlaces(userId) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/places/user/${encodeURIComponent(userId)}`, {
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn('Lỗi lấy danh sách quán của user qua API:', err);
+    }
+    return [];
+  },
+
   async updateUser(oldName, newName, newRole) {
     try {
       const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(oldName)}`, {
