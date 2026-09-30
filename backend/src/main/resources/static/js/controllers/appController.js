@@ -6,6 +6,10 @@
 const appController = {
   uploadedImageData: '',
   selectedRawFile: null,
+  editUploadedImageData: '',
+  editSelectedRawFile: null,
+  editOriginalImage: '',
+  isEditImageRemoved: false,
 
   async init() {
     // 1. Khởi tạo Model & View Elements
@@ -675,11 +679,14 @@ const appController = {
   openEditPlaceModal(place) {
     if (!place || !view.dom.editPlaceModal) return;
 
+    this.resetEditImageUpload();
+    this.editOriginalImage = place.image || '';
+
     if (view.dom.editPlaceId) view.dom.editPlaceId.value = place.id;
     if (view.dom.editPlaceName) view.dom.editPlaceName.value = place.name;
     if (view.dom.editPlaceAddress) view.dom.editPlaceAddress.value = place.address;
     if (view.dom.editPlaceDish) view.dom.editPlaceDish.value = place.recommendedDish || '';
-    if (view.dom.editPlaceImage) view.dom.editPlaceImage.value = place.image || '';
+    if (view.dom.editPlaceImage) view.dom.editPlaceImage.value = (place.image && place.image.startsWith('http')) ? place.image : '';
 
     if (place.category === 'cafe') {
       if (view.dom.editCategoryCafe) view.dom.editCategoryCafe.checked = true;
@@ -695,11 +702,66 @@ const appController = {
       view.dom.editPlacePriceRange.value = place.priceRange || '<100K';
     }
 
+    // Hiển thị xem trước ảnh hiện tại nếu có
+    if (place.image && place.image.trim()) {
+      this.updateEditUploadPreview(place.image.trim(), 'Ảnh hiện tại của quán', null, false);
+    } else {
+      if (view.dom.editUploadDropZone) view.dom.editUploadDropZone.style.display = 'flex';
+      if (view.dom.editUploadPreviewBox) view.dom.editUploadPreviewBox.style.display = 'none';
+    }
+
     view.dom.editPlaceModal.style.display = 'flex';
     view.refreshIcons();
   },
 
+  handleEditFileSelected(file) {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      view.showToast('Vui lòng chọn tệp định dạng hình ảnh!', 'warning');
+      return;
+    }
+    this.editSelectedRawFile = file;
+    this.isEditImageRemoved = false;
+
+    // Nén nhẹ và hiển thị preview
+    this.compressImageFile(file, (dataUrl, name, size) => {
+      this.editUploadedImageData = dataUrl;
+      this.updateEditUploadPreview(dataUrl, name, size, false);
+      if (view.dom.editPlaceImage) view.dom.editPlaceImage.value = '';
+      view.showToast('Đã chọn ảnh mới từ thiết bị!', 'success');
+    });
+  },
+
+  updateEditUploadPreview(src, name, size, isServer) {
+    if (view.dom.editUploadPreviewImg) view.dom.editUploadPreviewImg.src = src;
+    if (view.dom.editPreviewFileName) view.dom.editPreviewFileName.textContent = name || 'Ảnh quán';
+    if (view.dom.editPreviewFileSize) {
+      if (size) {
+        const sizeKB = Math.round(size / 1024);
+        const label = isServer ? ' (Đã lưu máy chủ)' : '';
+        view.dom.editPreviewFileSize.textContent = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB${label}` : `${sizeKB} KB${label}`;
+      } else {
+        view.dom.editPreviewFileSize.textContent = 'Đang sử dụng';
+      }
+    }
+    if (view.dom.editUploadDropZone) view.dom.editUploadDropZone.style.display = 'none';
+    if (view.dom.editUploadPreviewBox) view.dom.editUploadPreviewBox.style.display = 'flex';
+    view.refreshIcons();
+  },
+
+  resetEditImageUpload() {
+    this.editUploadedImageData = '';
+    this.editSelectedRawFile = null;
+    this.editOriginalImage = '';
+    this.isEditImageRemoved = false;
+    if (view.dom.editPlaceFileInput) view.dom.editPlaceFileInput.value = '';
+    if (view.dom.editUploadPreviewBox) view.dom.editUploadPreviewBox.style.display = 'none';
+    if (view.dom.editUploadDropZone) view.dom.editUploadDropZone.style.display = 'flex';
+    if (view.dom.editPlaceImage) view.dom.editPlaceImage.value = '';
+  },
+
   closeEditPlaceModal() {
+    this.resetEditImageUpload();
     if (view.dom.editPlaceModal) {
       view.dom.editPlaceModal.style.display = 'none';
     }
@@ -717,34 +779,72 @@ const appController = {
     const newPriceRange = view.dom.editPlacePriceRange?.value || '<100K';
     const newAddress = view.dom.editPlaceAddress.value.trim();
     const newDish = view.dom.editPlaceDish.value.trim();
-    const newImage = view.dom.editPlaceImage.value.trim();
+    const urlImage = view.dom.editPlaceImage?.value.trim() || '';
 
     if (!newName) {
       view.showToast('Vui lòng nhập tên quán!', 'warning');
       return;
     }
 
-    place.category = newCategory;
-    place.name = newName;
-    place.city = newCity;
-    place.priceRange = newPriceRange;
-    place.address = newAddress;
-    place.recommendedDish = newDish;
-    if (newImage) place.image = newImage;
+    const saveBtn = view.dom.btnSaveEditPlace;
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i data-lucide="loader-2" class="spin-icon"></i> ĐANG LƯU...';
+      view.refreshIcons();
+    }
 
-    // Gửi cập nhật lên Java Backend
     try {
+      let finalImage = this.editOriginalImage;
+
+      // 1. Nếu người dùng chọn file ảnh mới từ thiết bị
+      if (this.editSelectedRawFile) {
+        try {
+          const serverUrl = await apiService.uploadImage(this.editSelectedRawFile);
+          if (serverUrl) {
+            finalImage = serverUrl;
+          } else if (this.editUploadedImageData) {
+            finalImage = this.editUploadedImageData;
+          }
+        } catch (err) {
+          if (this.editUploadedImageData) finalImage = this.editUploadedImageData;
+        }
+      } else if (this.editUploadedImageData) {
+        finalImage = this.editUploadedImageData;
+      } else if (urlImage) {
+        finalImage = urlImage;
+      } else if (this.isEditImageRemoved) {
+        finalImage = '';
+      }
+
+      place.category = newCategory;
+      place.name = newName;
+      place.city = newCity;
+      place.priceRange = newPriceRange;
+      place.address = newAddress;
+      place.recommendedDish = newDish || null;
+      place.image = finalImage;
+
+      // Gửi cập nhật lên Java Backend
       if (!isNaN(Number(id))) {
         await apiService.updatePlace(id, place);
       }
-    } catch (err) {}
 
-    model.savePlaces();
-    this.updateCounters();
-    this.renderCurrentPlaces();
-    this.renderUserPlaces();
-    this.closeEditPlaceModal();
-    view.showToast(`Đã cập nhật thông tin quán "${newName}" thành công!`, 'success');
+      model.savePlaces();
+      this.updateCounters();
+      this.renderCurrentPlaces();
+      this.renderUserPlaces();
+      this.closeEditPlaceModal();
+      view.showToast(`Đã cập nhật thông tin quán "${newName}" thành công!`, 'success');
+    } catch (err) {
+      console.error('Lỗi khi cập nhật quán:', err);
+      view.showToast('Có lỗi xảy ra khi lưu quán!', 'error');
+    } finally {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i data-lucide="check"></i> LƯU CẬP NHẬT';
+        view.refreshIcons();
+      }
+    }
   },
 
   async handleDeletePlace(place) {
@@ -1213,6 +1313,57 @@ const appController = {
     view.dom.editPlaceModalClose?.addEventListener('click', () => this.closeEditPlaceModal());
     view.dom.btnCancelEditPlace?.addEventListener('click', () => this.closeEditPlaceModal());
     view.dom.editPlaceForm?.addEventListener('submit', (e) => this.handleEditPlaceSubmit(e));
+
+    // Edit Place Image Upload events
+    if (view.dom.editUploadDropZone && view.dom.editPlaceFileInput) {
+      view.dom.editUploadDropZone.addEventListener('click', () => view.dom.editPlaceFileInput.click());
+      view.dom.editPlaceFileInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (file) this.handleEditFileSelected(file);
+      });
+
+      ['dragenter', 'dragover'].forEach(name => {
+        view.dom.editUploadDropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          view.dom.editUploadDropZone.classList.add('drag-over');
+        });
+      });
+      ['dragleave', 'drop'].forEach(name => {
+        view.dom.editUploadDropZone.addEventListener(name, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          view.dom.editUploadDropZone.classList.remove('drag-over');
+        });
+      });
+      view.dom.editUploadDropZone.addEventListener('drop', (e) => {
+        const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (file) this.handleEditFileSelected(file);
+      });
+    }
+
+    view.dom.btnEditChangeUpload?.addEventListener('click', () => view.dom.editPlaceFileInput?.click());
+    view.dom.btnEditRemoveUpload?.addEventListener('click', () => {
+      this.editUploadedImageData = '';
+      this.editSelectedRawFile = null;
+      this.editOriginalImage = '';
+      this.isEditImageRemoved = true;
+      if (view.dom.editPlaceFileInput) view.dom.editPlaceFileInput.value = '';
+      if (view.dom.editPlaceImage) view.dom.editPlaceImage.value = '';
+      if (view.dom.editUploadPreviewBox) view.dom.editUploadPreviewBox.style.display = 'none';
+      if (view.dom.editUploadDropZone) view.dom.editUploadDropZone.style.display = 'flex';
+      view.refreshIcons();
+    });
+
+    view.dom.editPlaceImage?.addEventListener('input', (e) => {
+      const val = e.target.value.trim();
+      if (val && (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('data:image/'))) {
+        this.updateEditUploadPreview(val, 'Link ảnh web', null, false);
+        this.editUploadedImageData = val;
+        this.editSelectedRawFile = null;
+        this.isEditImageRemoved = false;
+      }
+    });
 
     // Random Mystery Modal Actions
     view.dom.randomCityFilter?.addEventListener('change', () => this.handleRandomFilterChange());

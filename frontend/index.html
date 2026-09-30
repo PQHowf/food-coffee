@@ -12,7 +12,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.9">
+  <link rel="stylesheet" href="assets/css/style.css?v=3.0">
 </head>
 <body>
 
@@ -617,11 +617,55 @@
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="editPlaceImage" class="form-label">Link ảnh (URL)</label>
-          <div class="input-with-icon">
-            <i data-lucide="image"></i>
-            <input type="url" id="editPlaceImage" placeholder="https://example.com/anh.jpg">
+        <!-- Image Upload from Device (iOS, Windows, Mac, Android) / URL -->
+        <div class="form-group full-width">
+          <label class="form-label">Hình ảnh quán</label>
+          <div class="image-upload-wrapper" id="editImageUploadWrapper">
+            <!-- Hidden file input for edit modal -->
+            <input 
+              type="file" 
+              id="editPlaceFileInput" 
+              accept="image/*" 
+              class="file-input-hidden"
+            >
+            
+            <!-- Upload dropzone -->
+            <div class="upload-dropzone" id="editUploadDropZone" role="button" tabindex="0">
+              <div class="upload-icon-circle">
+                <i data-lucide="cloud-upload"></i>
+              </div>
+              <div class="upload-text-content">
+                <strong class="upload-title">Tải ảnh mới từ thiết bị</strong>
+              </div>
+            </div>
+
+            <!-- Preview box when image exists or new image is chosen -->
+            <div class="upload-preview-box" id="editUploadPreviewBox" style="display: none;">
+              <img id="editUploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb">
+              <div class="upload-preview-meta">
+                <div class="preview-filename" id="editPreviewFileName">anh_quan.jpg</div>
+                <div class="preview-filesize" id="editPreviewFileSize">Đang sử dụng</div>
+              </div>
+              <div class="upload-preview-btns">
+                <button type="button" class="btn btn-secondary btn-sm" id="btnEditChangeUpload">
+                  <i data-lucide="refresh-cw"></i> Đổi ảnh khác
+                </button>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btnEditRemoveUpload">
+                  <i data-lucide="trash-2"></i> Xóa ảnh
+                </button>
+              </div>
+            </div>
+
+            <!-- Alternative URL input -->
+            <div class="upload-url-input-wrap" id="editUploadUrlInputWrap" style="margin-top: 10px;">
+              <label for="editPlaceImage" class="url-input-label">
+                <i data-lucide="link"></i> Hoặc dán link ảnh từ web (URL):
+              </label>
+              <div class="input-with-icon">
+                <i data-lucide="globe"></i>
+                <input type="url" id="editPlaceImage" placeholder="https://example.com/anh.jpg">
+              </div>
+            </div>
           </div>
         </div>
 
@@ -728,9 +772,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=2.9"></script>
-  <script src="js/services/apiService.js?v=2.9"></script>
-  <script src="js/views/view.js?v=2.9"></script>
-  <script src="js/controllers/appController.js?v=2.9"></script>
+  <script src="js/models/state.js?v=3.0"></script>
+  <script src="js/services/apiService.js?v=3.0"></script>
+  <script src="js/views/view.js?v=3.0"></script>
+  <script src="js/controllers/appController.js?v=3.0"></script>
 </body>
 </html>
