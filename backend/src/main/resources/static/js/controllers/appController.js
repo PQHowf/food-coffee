@@ -634,17 +634,27 @@ const appController = {
   },
 
   switchAccountTab(tab) {
+    view.dom.accTabProfile?.classList.remove('active');
+    view.dom.accTabMyPlaces?.classList.remove('active');
+    view.dom.accTabPassword?.classList.remove('active');
+
+    if (view.dom.accProfileTabContainer) view.dom.accProfileTabContainer.style.display = 'none';
+    if (view.dom.accountMyPlacesSection) view.dom.accountMyPlacesSection.style.display = 'none';
+    if (view.dom.accPasswordTabContainer) view.dom.accPasswordTabContainer.style.display = 'none';
+
     if (tab === 'profile') {
       view.dom.accTabProfile?.classList.add('active');
-      view.dom.accTabMyPlaces?.classList.remove('active');
       if (view.dom.accProfileTabContainer) view.dom.accProfileTabContainer.style.display = 'block';
-      if (view.dom.accountMyPlacesSection) view.dom.accountMyPlacesSection.style.display = 'none';
-    } else {
+    } else if (tab === 'myplaces') {
       view.dom.accTabMyPlaces?.classList.add('active');
-      view.dom.accTabProfile?.classList.remove('active');
-      if (view.dom.accProfileTabContainer) view.dom.accProfileTabContainer.style.display = 'none';
       if (view.dom.accountMyPlacesSection) view.dom.accountMyPlacesSection.style.display = 'block';
       this.renderUserPlaces();
+    } else if (tab === 'password') {
+      view.dom.accTabPassword?.classList.add('active');
+      if (view.dom.accPasswordTabContainer) view.dom.accPasswordTabContainer.style.display = 'block';
+      if (view.dom.errAccCurrentPass) view.dom.errAccCurrentPass.style.display = 'none';
+      if (view.dom.errAccNewPass) view.dom.errAccNewPass.style.display = 'none';
+      if (view.dom.errAccConfirmPass) view.dom.errAccConfirmPass.style.display = 'none';
     }
     view.refreshIcons();
   },
@@ -1194,9 +1204,10 @@ const appController = {
       }
     });
 
-    // Account Sub Tabs (Hồ sơ vs Quán đã thêm)
+    // Account Sub Tabs (Hồ sơ vs Quán đã thêm vs Đổi mật khẩu)
     view.dom.accTabProfile?.addEventListener('click', () => this.switchAccountTab('profile'));
     view.dom.accTabMyPlaces?.addEventListener('click', () => this.switchAccountTab('myplaces'));
+    view.dom.accTabPassword?.addEventListener('click', () => this.switchAccountTab('password'));
 
     // Edit Place Modal Events
     view.dom.editPlaceModalClose?.addEventListener('click', () => this.closeEditPlaceModal());

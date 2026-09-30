@@ -12,7 +12,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.8">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.9">
 </head>
 <body>
 
@@ -448,10 +448,11 @@
         </div>
       </div>
 
-      <!-- Account Navigation Tabs (Thông tin / Quán đã thêm) -->
-      <div class="auth-tabs" style="margin-top: 10px; margin-bottom: 16px;">
+      <!-- Account Navigation Tabs: Hồ sơ cá nhân - Quán đã thêm - Đổi mật khẩu -->
+      <div class="auth-tabs account-modal-tabs" style="margin-top: 10px; margin-bottom: 16px;">
         <button type="button" class="auth-tab active" id="accTabProfile">HỒ SƠ CÁ NHÂN</button>
         <button type="button" class="auth-tab" id="accTabMyPlaces">QUÁN ĐÃ THÊM (<span id="accPlacesCountTab">0</span>)</button>
+        <button type="button" class="auth-tab" id="accTabPassword">ĐỔI MẬT KHẨU</button>
       </div>
 
       <!-- Tab 1: Edit profile form -->
@@ -483,47 +484,6 @@
             </button>
           </div>
         </form>
-
-        <!-- Đổi Mật Khẩu -->
-        <div class="account-password-section" id="accountPasswordSection">
-          <div class="password-section-header">
-            <i data-lucide="key-round"></i>
-            <span>ĐỔI MẬT KHẨU</span>
-          </div>
-
-          <form id="changePasswordForm" class="change-password-form" novalidate>
-            <div class="form-group">
-              <label for="accCurrentPass" class="form-label">Mật khẩu hiện tại <span class="required">*</span></label>
-              <div class="input-with-icon">
-                <i data-lucide="lock"></i>
-                <input type="password" id="accCurrentPass" autocomplete="current-password" required>
-              </div>
-              <span class="error-feedback" id="errAccCurrentPass">Mật khẩu hiện tại không đúng</span>
-            </div>
-
-            <div class="form-group">
-              <label for="accNewPass" class="form-label">Mật khẩu mới <span class="required">*</span></label>
-              <div class="input-with-icon">
-                <i data-lucide="key"></i>
-                <input type="password" id="accNewPass" placeholder="Tối thiểu 4 ký tự" autocomplete="new-password" required>
-              </div>
-              <span class="error-feedback" id="errAccNewPass">Vui lòng nhập mật khẩu mới từ 4 ký tự</span>
-            </div>
-
-            <div class="form-group">
-              <label for="accConfirmPass" class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
-              <div class="input-with-icon">
-                <i data-lucide="check-circle-2"></i>
-                <input type="password" id="accConfirmPass" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password" required>
-              </div>
-              <span class="error-feedback" id="errAccConfirmPass">Mật khẩu xác nhận không khớp</span>
-            </div>
-
-            <button type="submit" class="btn btn-secondary btn-full" id="btnChangePassword">
-              <i data-lucide="shield-check"></i> CẬP NHẬT MẬT KHẨU
-            </button>
-          </form>
-        </div>
       </div>
 
       <!-- Tab 2: Quán đã thêm (Danh sách có nút Sửa / Xoá) -->
@@ -531,6 +491,42 @@
         <div class="my-places-list" id="accountMyPlacesList">
           <!-- Rendered dynamically by JS -->
         </div>
+      </div>
+
+      <!-- Tab 3: Đổi Mật Khẩu -->
+      <div id="accPasswordTabContainer" style="display: none;">
+        <form id="changePasswordForm" class="change-password-form" novalidate style="margin-top: 4px;">
+          <div class="form-group">
+            <label for="accCurrentPass" class="form-label">Mật khẩu hiện tại <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="lock"></i>
+              <input type="password" id="accCurrentPass" autocomplete="current-password" required>
+            </div>
+            <span class="error-feedback" id="errAccCurrentPass">Mật khẩu hiện tại không đúng</span>
+          </div>
+
+          <div class="form-group">
+            <label for="accNewPass" class="form-label">Mật khẩu mới <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="key"></i>
+              <input type="password" id="accNewPass" placeholder="Tối thiểu 4 ký tự" autocomplete="new-password" required>
+            </div>
+            <span class="error-feedback" id="errAccNewPass">Vui lòng nhập mật khẩu mới từ 4 ký tự</span>
+          </div>
+
+          <div class="form-group">
+            <label for="accConfirmPass" class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="check-circle-2"></i>
+              <input type="password" id="accConfirmPass" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password" required>
+            </div>
+            <span class="error-feedback" id="errAccConfirmPass">Mật khẩu xác nhận không khớp</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" id="btnChangePassword" style="margin-top: 8px;">
+            <i data-lucide="shield-check"></i> CẬP NHẬT MẬT KHẨU
+          </button>
+        </form>
       </div>
     </div>
   </div>
@@ -732,9 +728,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=2.8"></script>
-  <script src="js/services/apiService.js?v=2.8"></script>
-  <script src="js/views/view.js?v=2.8"></script>
-  <script src="js/controllers/appController.js?v=2.8"></script>
+  <script src="js/models/state.js?v=2.9"></script>
+  <script src="js/services/apiService.js?v=2.9"></script>
+  <script src="js/views/view.js?v=2.9"></script>
+  <script src="js/controllers/appController.js?v=2.9"></script>
 </body>
 </html>

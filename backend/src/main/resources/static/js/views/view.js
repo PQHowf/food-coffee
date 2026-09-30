@@ -105,6 +105,8 @@ const view = {
       btnModalLogout: document.getElementById('btnModalLogout'),
       accTabProfile: document.getElementById('accTabProfile'),
       accTabMyPlaces: document.getElementById('accTabMyPlaces'),
+      accTabPassword: document.getElementById('accTabPassword'),
+      accPasswordTabContainer: document.getElementById('accPasswordTabContainer'),
       accPlacesCountTab: document.getElementById('accPlacesCountTab'),
       accountMyPlacesSection: document.getElementById('accountMyPlacesSection'),
       accountMyPlacesList: document.getElementById('accountMyPlacesList'),

@@ -2211,6 +2211,24 @@ button {
   box-shadow: var(--shadow-sm);
 }
 
+.account-modal-tabs {
+  gap: 2px;
+}
+
+.account-modal-tabs .auth-tab {
+  font-size: 0.8rem;
+  padding: 9px 6px;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .account-modal-tabs .auth-tab {
+    font-size: 0.72rem;
+    padding: 8px 2px;
+  }
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;
