@@ -54,6 +54,30 @@ const appController = {
     }
   },
 
+  getRoleByPlacesCount(count) {
+    if (count >= 20) return 'Bậc Thầy Ẩm Thực';
+    if (count >= 15) return 'Thánh Review Quán';
+    if (count >= 10) return 'Chuyên Gia Quán Xá';
+    if (count >= 5) return 'Người Sành Ăn';
+    return 'Tân Binh Ẩm Thực';
+  },
+
+  getRoleRankProgress(count) {
+    if (count >= 20) {
+      return `🏆 Đã thêm <strong>${count}</strong> quán. Bạn đã đạt danh hiệu cao nhất: <strong>Bậc Thầy Ẩm Thực</strong>!`;
+    }
+    if (count >= 15) {
+      return `⭐ Đã thêm <strong>${count}</strong> quán. Thêm <strong>${20 - count}</strong> quán nữa để đạt mốc 20: <strong>Bậc Thầy Ẩm Thực</strong>.`;
+    }
+    if (count >= 10) {
+      return `⭐ Đã thêm <strong>${count}</strong> quán. Thêm <strong>${15 - count}</strong> quán nữa để đạt mốc 15: <strong>Thánh Review Quán</strong>.`;
+    }
+    if (count >= 5) {
+      return `⭐ Đã thêm <strong>${count}</strong> quán. Thêm <strong>${10 - count}</strong> quán nữa để đạt mốc 10: <strong>Chuyên Gia Quán Xá</strong>.`;
+    }
+    return `⭐ Đã thêm <strong>${count}</strong> quán. Thêm <strong>${5 - count}</strong> quán nữa để đạt mốc 5: <strong>Người Sành Ăn</strong>.`;
+  },
+
   updateCounters() {
     const foodCount = model.places.filter(p => p.category === 'food').length;
     const cafeCount = model.places.filter(p => p.category === 'cafe').length;
@@ -61,6 +85,11 @@ const appController = {
   },
 
   updateAuthView() {
+    if (model.currentUser && model.currentUser.name) {
+      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      model.currentUser.role = this.getRoleByPlacesCount(myCount);
+    }
+
     view.renderAuth(
       model.currentUser,
       () => this.openAccountModal(),
@@ -267,9 +296,20 @@ const appController = {
       view.dom.winnerPriceTag.textContent = winner.priceRange || '<100K';
     }
     if (view.dom.winnerName) view.dom.winnerName.textContent = winner.name;
-    if (view.dom.winnerAddress) view.dom.winnerAddress.textContent = `${winner.address} (${winner.city})`;
+
+    let winnerFullAddress = winner.address || '';
+    if (winner.city && !winnerFullAddress.toLowerCase().includes(winner.city.toLowerCase())) {
+      winnerFullAddress = winnerFullAddress ? `${winnerFullAddress}, ${winner.city}` : winner.city;
+    }
+    if (view.dom.winnerAddress) view.dom.winnerAddress.textContent = winnerFullAddress;
+
     if (view.dom.winnerDish) {
-      view.dom.winnerDish.textContent = winner.recommendedDish || (winner.category === 'cafe' ? 'Cà phê đặc biệt' : 'Món đặc sản');
+      if (winner.recommendedDish) {
+        view.dom.winnerDish.parentElement.style.display = 'flex';
+        view.dom.winnerDish.textContent = winner.recommendedDish;
+      } else {
+        view.dom.winnerDish.parentElement.style.display = 'none';
+      }
     }
     if (view.dom.winnerSuggested) {
       view.dom.winnerSuggested.textContent = `Gợi ý từ: ${winner.suggestedBy || 'Cộng đồng'}`;
@@ -321,11 +361,15 @@ const appController = {
       view.dom.addFormContainer.style.display = 'block';
 
       const initials = view.getInitials(model.currentUser.name);
+      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const role = this.getRoleByPlacesCount(myCount);
+      model.currentUser.role = role;
+
       if (view.dom.formUserAvatar) view.dom.formUserAvatar.textContent = initials;
       if (view.dom.formUserName) view.dom.formUserName.textContent = model.currentUser.name;
       if (view.dom.formAuthorAvatar) view.dom.formAuthorAvatar.textContent = initials;
       if (view.dom.formSuggestedByPreview) view.dom.formSuggestedByPreview.textContent = model.currentUser.name;
-      if (view.dom.formAuthorRole) view.dom.formAuthorRole.textContent = model.currentUser.role || 'Thành viên đề xuất';
+      if (view.dom.formAuthorRole) view.dom.formAuthorRole.textContent = role;
     } else {
       view.dom.guestGateCard.style.display = 'block';
       view.dom.addFormContainer.style.display = 'none';
@@ -538,15 +582,18 @@ const appController = {
     }
     const initials = view.getInitials(model.currentUser.name);
     const myPlaces = model.places.filter(p => p.suggestedBy === model.currentUser.name);
+    const role = this.getRoleByPlacesCount(myPlaces.length);
+    model.currentUser.role = role;
+    model.saveUser(model.currentUser);
 
     if (view.dom.accAvatarLarge) view.dom.accAvatarLarge.textContent = initials;
     if (view.dom.accNameDisplay) view.dom.accNameDisplay.textContent = model.currentUser.name;
-    if (view.dom.accRoleDisplay) view.dom.accRoleDisplay.textContent = model.currentUser.role || 'Thành viên đề xuất';
+    if (view.dom.accRoleDisplay) view.dom.accRoleDisplay.textContent = role;
     if (view.dom.accPlacesCount) view.dom.accPlacesCount.textContent = myPlaces.length;
     if (view.dom.accPlacesCountTab) view.dom.accPlacesCountTab.textContent = myPlaces.length;
-    if (view.dom.accFavsCount) view.dom.accFavsCount.textContent = model.favorites.length;
     if (view.dom.accEditName) view.dom.accEditName.value = model.currentUser.name;
-    if (view.dom.accEditRole) view.dom.accEditRole.value = model.currentUser.role || '';
+    if (view.dom.accEditRole) view.dom.accEditRole.value = role;
+    if (view.dom.roleRankProgress) view.dom.roleRankProgress.innerHTML = this.getRoleRankProgress(myPlaces.length);
 
     this.switchAccountTab('profile');
     this.renderUserPlaces();
@@ -559,12 +606,12 @@ const appController = {
     if (tab === 'profile') {
       view.dom.accTabProfile?.classList.add('active');
       view.dom.accTabMyPlaces?.classList.remove('active');
-      if (view.dom.accountUpdateForm) view.dom.accountUpdateForm.style.display = 'flex';
+      if (view.dom.accProfileTabContainer) view.dom.accProfileTabContainer.style.display = 'block';
       if (view.dom.accountMyPlacesSection) view.dom.accountMyPlacesSection.style.display = 'none';
     } else {
       view.dom.accTabMyPlaces?.classList.add('active');
       view.dom.accTabProfile?.classList.remove('active');
-      if (view.dom.accountUpdateForm) view.dom.accountUpdateForm.style.display = 'none';
+      if (view.dom.accProfileTabContainer) view.dom.accProfileTabContainer.style.display = 'none';
       if (view.dom.accountMyPlacesSection) view.dom.accountMyPlacesSection.style.display = 'block';
       this.renderUserPlaces();
     }
@@ -673,7 +720,19 @@ const appController = {
 
     model.places = model.places.filter(p => String(p.id) !== String(place.id));
     model.savePlaces();
+
+    if (model.currentUser) {
+      const myCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const newRole = this.getRoleByPlacesCount(myCount);
+      if (model.currentUser.role !== newRole) {
+        model.currentUser.role = newRole;
+        model.saveUser(model.currentUser);
+        apiService.updateUser(model.currentUser.name, model.currentUser.name, newRole).catch(() => {});
+      }
+    }
+
     this.updateCounters();
+    this.updateAuthView();
     this.renderCurrentPlaces();
     this.renderUserPlaces();
     view.showToast(`Đã xóa quán "${place.name}"!`, 'info');
@@ -806,11 +865,6 @@ const appController = {
       document.getElementById('errPlaceAddress')?.classList.remove('show');
     }
 
-    if (!recommendedDish) {
-      view.showToast('Vui lòng nhập món ngon hoặc điểm đặc sắc nên thử!', 'warning');
-      return;
-    }
-
     const submitBtn = document.getElementById('submitPlaceBtn');
     if (submitBtn) {
       submitBtn.disabled = true;
@@ -827,7 +881,7 @@ const appController = {
         priceRange,
         address,
         image: finalImage,
-        recommendedDish,
+        recommendedDish: recommendedDish || null,
         suggestedBy: model.currentUser.name,
         createdAt: new Date().toISOString().split('T')[0]
       };
@@ -846,7 +900,19 @@ const appController = {
 
       model.places.unshift(newPlace);
       model.savePlaces();
+
+      // Cập nhật lại danh xưng tự động theo số quán đã đóng góp
+      const userPlacesCount = model.places.filter(p => p.suggestedBy === model.currentUser.name).length;
+      const newRole = this.getRoleByPlacesCount(userPlacesCount);
+      if (model.currentUser.role !== newRole) {
+        model.currentUser.role = newRole;
+        model.saveUser(model.currentUser);
+        apiService.updateUser(model.currentUser.name, model.currentUser.name, newRole).catch(() => {});
+        view.showToast(`Chúc mừng bạn đã đạt danh xưng mới: "${newRole}"!`, 'success');
+      }
+
       this.updateCounters();
+      this.updateAuthView();
       this.resetImageUpload();
       view.dom.addPlaceForm?.reset();
 
@@ -982,7 +1048,6 @@ const appController = {
       this.handleAuthSubmit();
     });
 
-    // Account Modal
     view.dom.accountModalClose?.addEventListener('click', () => this.closeAccountModal());
     view.dom.btnModalLogout?.addEventListener('click', () => {
       this.closeAccountModal();
@@ -991,26 +1056,27 @@ const appController = {
     view.dom.accountUpdateForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const newName = view.dom.accEditName.value.trim();
-      const newRole = view.dom.accEditRole.value.trim() || 'Thành viên đề xuất';
       if (!newName) {
         view.showToast('Vui lòng không để trống họ tên!', 'warning');
         return;
       }
       const oldName = model.currentUser.name;
+      const myPlaces = model.places.filter(p => p.suggestedBy === oldName);
+      const role = this.getRoleByPlacesCount(myPlaces.length);
 
       // Cập nhật lên Database server
       try {
-        await apiService.updateUser(oldName, newName, newRole);
+        await apiService.updateUser(oldName, newName, role);
       } catch (err) {
         console.warn('Không thể cập nhật user lên server:', err);
       }
 
       model.currentUser.name = newName;
-      model.currentUser.role = newRole;
+      model.currentUser.role = role;
       model.places.forEach(p => {
         if (p.suggestedBy === oldName) {
           p.suggestedBy = newName;
-          p.suggestedByRole = newRole;
+          p.suggestedByRole = role;
         }
       });
       model.saveUser(model.currentUser);
@@ -1019,6 +1085,69 @@ const appController = {
       this.renderCurrentPlaces();
       this.closeAccountModal();
       view.showToast('Đã cập nhật thông tin tài khoản thành công!', 'success');
+    });
+
+    // Form đổi mật khẩu
+    view.dom.changePasswordForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (view.dom.errAccCurrentPass) view.dom.errAccCurrentPass.style.display = 'none';
+      if (view.dom.errAccNewPass) view.dom.errAccNewPass.style.display = 'none';
+      if (view.dom.errAccConfirmPass) view.dom.errAccConfirmPass.style.display = 'none';
+
+      const currentPass = view.dom.accCurrentPass?.value || '';
+      const newPass = view.dom.accNewPass?.value || '';
+      const confirmPass = view.dom.accConfirmPass?.value || '';
+
+      if (!currentPass) {
+        if (view.dom.errAccCurrentPass) {
+          view.dom.errAccCurrentPass.textContent = 'Vui lòng nhập mật khẩu hiện tại';
+          view.dom.errAccCurrentPass.style.display = 'block';
+        }
+        return;
+      }
+
+      if (!newPass || newPass.length < 4) {
+        if (view.dom.errAccNewPass) {
+          view.dom.errAccNewPass.textContent = 'Mật khẩu mới phải từ 4 ký tự trở lên';
+          view.dom.errAccNewPass.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        if (view.dom.errAccConfirmPass) {
+          view.dom.errAccConfirmPass.textContent = 'Mật khẩu xác nhận không khớp';
+          view.dom.errAccConfirmPass.style.display = 'block';
+        }
+        return;
+      }
+
+      const btn = view.dom.btnChangePassword;
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2" class="spin-icon"></i> Đang đổi mật khẩu...';
+        view.refreshIcons();
+      }
+
+      const username = model.currentUser?.username || model.currentUser?.name;
+      const res = await apiService.changePassword(username, currentPass, newPass);
+
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="shield-check"></i> CẬP NHẬT MẬT KHẨU';
+        view.refreshIcons();
+      }
+
+      if (res && res.ok) {
+        view.showToast('Đổi mật khẩu thành công!', 'success');
+        view.dom.changePasswordForm.reset();
+      } else {
+        if (view.dom.errAccCurrentPass) {
+          view.dom.errAccCurrentPass.textContent = res?.message || 'Mật khẩu hiện tại không chính xác';
+          view.dom.errAccCurrentPass.style.display = 'block';
+        }
+        view.showToast(res?.message || 'Không thể đổi mật khẩu!', 'error');
+      }
     });
 
     // Account Sub Tabs (Hồ sơ vs Quán đã thêm)

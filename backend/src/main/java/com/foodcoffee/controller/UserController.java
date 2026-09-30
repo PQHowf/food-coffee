@@ -71,4 +71,22 @@ public class UserController {
         User updated = userService.updateUser(oldName, newName.trim(), newRole);
         return ResponseEntity.ok(updated);
     }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody Map<String, String> payload) {
+        String username = payload.get("username");
+        String currentPassword = payload.get("currentPassword");
+        String newPassword = payload.get("newPassword");
+
+        if (username == null || newPassword == null || newPassword.trim().length() < 4) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Mật khẩu mới phải từ 4 ký tự trở lên"));
+        }
+
+        boolean success = userService.changePassword(username.trim(), currentPassword, newPassword.trim());
+        if (success) {
+            return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "Mật khẩu hiện tại không chính xác"));
+        }
+    }
 }

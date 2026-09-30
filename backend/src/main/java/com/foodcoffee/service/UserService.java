@@ -71,4 +71,25 @@ public class UserService {
         }
         return userRepository.save(user);
     }
+
+    public boolean changePassword(String usernameOrName, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(usernameOrName)
+                .or(() -> userRepository.findByName(usernameOrName))
+                .or(() -> userRepository.findByEmail(usernameOrName))
+                .orElse(null);
+        if (user == null) {
+            return false;
+        }
+
+        // Kiểm tra mật khẩu hiện tại nếu user đã đặt mật khẩu
+        if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+            if (currentPassword == null || !user.getPassword().equals(currentPassword.trim())) {
+                return false;
+            }
+        }
+
+        user.setPassword(newPassword.trim());
+        userRepository.save(user);
+        return true;
+    }
 }

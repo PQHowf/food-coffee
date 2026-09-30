@@ -12,7 +12,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=2.7">
+  <link rel="stylesheet" href="assets/css/style.css?v=2.8">
 </head>
 <body>
 
@@ -142,7 +142,6 @@
           <i data-lucide="compass"></i>
         </div>
         <h3 class="empty-title">Không tìm thấy quán nào phù hợp</h3>
-        <p class="empty-desc">Thử tìm kiếm với từ khóa khác hoặc điều chỉnh lại bộ lọc thành phố và mức giá.</p>
         <button class="btn btn-primary" id="emptyResetBtn">
           <i data-lucide="rotate-ccw"></i> Đặt lại bộ lọc
         </button>
@@ -198,7 +197,6 @@
                   <span class="radio-card">
                     <i data-lucide="utensils"></i>
                     <span class="radio-title">QUÁN ĂN</span>
-                    <span class="radio-desc">Món ngon, nhà hàng, ẩm thực</span>
                   </span>
                 </label>
 
@@ -207,7 +205,6 @@
                   <span class="radio-card">
                     <i data-lucide="coffee"></i>
                     <span class="radio-title">QUÁN CAFE</span>
-                    <span class="radio-desc">Cà phê, trà sữa, view chill</span>
                   </span>
                 </label>
               </div>
@@ -260,10 +257,10 @@
 
             <!-- Recommended Dish / Note -->
             <div class="form-group full-width">
-              <label for="newPlaceDish" class="form-label">Món Ngon / Điểm Đặc Sắc Nên Thử <span class="required">*</span></label>
+              <label for="newPlaceDish" class="form-label">Món Ngon / Điểm Đặc Sắc Nên Thử</label>
               <div class="input-with-icon">
                 <i data-lucide="heart"></i>
-                <input type="text" id="newPlaceDish" placeholder="Ví dụ: Bò xào tái lăn nhiều hành, Cà phê cốt dừa béo mịn..." required>
+                <input type="text" id="newPlaceDish" placeholder="Ví dụ: Bò xào tái lăn nhiều hành, Cà phê cốt dừa béo mịn...">
               </div>
             </div>
 
@@ -286,7 +283,6 @@
                   </div>
                   <div class="upload-text-content">
                     <strong class="upload-title">Tải ảnh lên từ thiết bị</strong>
-                    <span class="upload-hint">Chạm để chọn từ thư viện ảnh hoặc chụp trực tiếp (iPhone, Android, Mac, Windows)</span>
                   </div>
                 </div>
 
@@ -328,12 +324,9 @@
                   <div class="author-label">Thông tin tài khoản người gợi ý:</div>
                   <div class="author-name-row">
                     <strong class="suggested-highlight" id="formSuggestedByPreview">Phạm Quốc Huy</strong>
-                    <span class="author-role-tag" id="formAuthorRole">Food Reviewer</span>
+                    <span class="author-role-tag" id="formAuthorRole">Tân Binh Ẩm Thực</span>
                   </div>
                 </div>
-                <button type="button" class="btn btn-secondary btn-sm btn-profile-view" id="btnFormViewAccount" title="Xem & chỉnh sửa tài khoản">
-                  <i data-lucide="user-cog"></i> Thông tin tài khoản
-                </button>
               </div>
             </div>
 
@@ -436,7 +429,6 @@
           <i data-lucide="user-check"></i>
         </div>
         <h3 class="modal-title" id="accountModalTitle">THÔNG TIN TÀI KHOẢN</h3>
-        <p class="modal-desc">Hồ sơ cá nhân và quản lý thông tin hiển thị của bạn</p>
       </div>
 
       <!-- Account Profile Header -->
@@ -444,19 +436,15 @@
         <div class="account-avatar-large" id="accAvatarLarge">HQ</div>
         <div class="account-identity">
           <h4 class="acc-name" id="accNameDisplay">Phạm Quốc Huy</h4>
-          <span class="acc-role" id="accRoleDisplay">Food Reviewer</span>
+          <span class="acc-role" id="accRoleDisplay">Tân Binh Ẩm Thực</span>
         </div>
       </div>
 
-      <!-- Account Activity Stats -->
-      <div class="account-stats-grid">
+      <!-- Account Activity Stats (Chỉ hiển thị Quán đã gợi ý) -->
+      <div class="account-stats-grid single-stat">
         <div class="stat-box">
           <div class="stat-val" id="accPlacesCount">0</div>
           <div class="stat-lbl">Quán đã gợi ý</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-val" id="accFavsCount">0</div>
-          <div class="stat-lbl">Quán đã lưu</div>
         </div>
       </div>
 
@@ -467,32 +455,76 @@
       </div>
 
       <!-- Tab 1: Edit profile form -->
-      <form id="accountUpdateForm" class="account-edit-form">
-        <div class="form-group">
-          <label for="accEditName" class="form-label">Họ và Tên</label>
-          <div class="input-with-icon">
-            <i data-lucide="user"></i>
-            <input type="text" id="accEditName" required>
+      <div id="accProfileTabContainer">
+        <form id="accountUpdateForm" class="account-edit-form">
+          <div class="form-group">
+            <label for="accEditName" class="form-label">Họ và Tên <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="user"></i>
+              <input type="text" id="accEditName" required>
+            </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="accEditRole" class="form-label">Danh xưng / Sở thích</label>
-          <div class="input-with-icon">
-            <i data-lucide="award"></i>
-            <input type="text" id="accEditRole">
+          <div class="form-group">
+            <label for="accEditRole" class="form-label">Danh xưng thành viên</label>
+            <div class="input-with-icon">
+              <i data-lucide="award"></i>
+              <input type="text" id="accEditRole" readonly disabled class="input-readonly">
+            </div>
+            <div class="role-rank-progress" id="roleRankProgress"></div>
           </div>
-        </div>
 
-        <div class="account-modal-actions">
-          <button type="submit" class="btn btn-primary" id="btnSaveAccount">
-            <i data-lucide="check"></i> LƯU THAY ĐỔI
-          </button>
-          <button type="button" class="btn btn-danger-soft" id="btnModalLogout">
-            <i data-lucide="log-out"></i> ĐĂNG XUẤT
-          </button>
+          <div class="account-modal-actions">
+            <button type="submit" class="btn btn-primary" id="btnSaveAccount">
+              <i data-lucide="check"></i> LƯU THAY ĐỔI
+            </button>
+            <button type="button" class="btn btn-danger-soft" id="btnModalLogout">
+              <i data-lucide="log-out"></i> ĐĂNG XUẤT
+            </button>
+          </div>
+        </form>
+
+        <!-- Đổi Mật Khẩu -->
+        <div class="account-password-section" id="accountPasswordSection">
+          <div class="password-section-header">
+            <i data-lucide="key-round"></i>
+            <span>ĐỔI MẬT KHẨU</span>
+          </div>
+
+          <form id="changePasswordForm" class="change-password-form" novalidate>
+            <div class="form-group">
+              <label for="accCurrentPass" class="form-label">Mật khẩu hiện tại <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="lock"></i>
+                <input type="password" id="accCurrentPass" autocomplete="current-password" required>
+              </div>
+              <span class="error-feedback" id="errAccCurrentPass">Mật khẩu hiện tại không đúng</span>
+            </div>
+
+            <div class="form-group">
+              <label for="accNewPass" class="form-label">Mật khẩu mới <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="key"></i>
+                <input type="password" id="accNewPass" placeholder="Tối thiểu 4 ký tự" autocomplete="new-password" required>
+              </div>
+              <span class="error-feedback" id="errAccNewPass">Vui lòng nhập mật khẩu mới từ 4 ký tự</span>
+            </div>
+
+            <div class="form-group">
+              <label for="accConfirmPass" class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="check-circle-2"></i>
+                <input type="password" id="accConfirmPass" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password" required>
+              </div>
+              <span class="error-feedback" id="errAccConfirmPass">Mật khẩu xác nhận không khớp</span>
+            </div>
+
+            <button type="submit" class="btn btn-secondary btn-full" id="btnChangePassword">
+              <i data-lucide="shield-check"></i> CẬP NHẬT MẬT KHẨU
+            </button>
+          </form>
         </div>
-      </form>
+      </div>
 
       <!-- Tab 2: Quán đã thêm (Danh sách có nút Sửa / Xoá) -->
       <div id="accountMyPlacesSection" class="account-my-places-section" style="display: none;">
@@ -582,10 +614,10 @@
         </div>
 
         <div class="form-group">
-          <label for="editPlaceDish" class="form-label">Món nên thử nhất <span class="required">*</span></label>
+          <label for="editPlaceDish" class="form-label">Món nên thử nhất</label>
           <div class="input-with-icon">
             <i data-lucide="sparkles"></i>
-            <input type="text" id="editPlaceDish" placeholder="Ví dụ: Phở bò đặc biệt, Cà phê trứng..." required>
+            <input type="text" id="editPlaceDish" placeholder="Ví dụ: Phở bò đặc biệt, Cà phê trứng...">
           </div>
         </div>
 
@@ -700,9 +732,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=2.7"></script>
-  <script src="js/services/apiService.js?v=2.7"></script>
-  <script src="js/views/view.js?v=2.7"></script>
-  <script src="js/controllers/appController.js?v=2.7"></script>
+  <script src="js/models/state.js?v=2.8"></script>
+  <script src="js/services/apiService.js?v=2.8"></script>
+  <script src="js/views/view.js?v=2.8"></script>
+  <script src="js/controllers/appController.js?v=2.8"></script>
 </body>
 </html>

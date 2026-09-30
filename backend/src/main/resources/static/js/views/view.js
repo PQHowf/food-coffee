@@ -96,10 +96,11 @@ const view = {
       accNameDisplay: document.getElementById('accNameDisplay'),
       accRoleDisplay: document.getElementById('accRoleDisplay'),
       accPlacesCount: document.getElementById('accPlacesCount'),
-      accFavsCount: document.getElementById('accFavsCount'),
+      accProfileTabContainer: document.getElementById('accProfileTabContainer'),
       accountUpdateForm: document.getElementById('accountUpdateForm'),
       accEditName: document.getElementById('accEditName'),
       accEditRole: document.getElementById('accEditRole'),
+      roleRankProgress: document.getElementById('roleRankProgress'),
       btnSaveAccount: document.getElementById('btnSaveAccount'),
       btnModalLogout: document.getElementById('btnModalLogout'),
       accTabProfile: document.getElementById('accTabProfile'),
@@ -107,6 +108,14 @@ const view = {
       accPlacesCountTab: document.getElementById('accPlacesCountTab'),
       accountMyPlacesSection: document.getElementById('accountMyPlacesSection'),
       accountMyPlacesList: document.getElementById('accountMyPlacesList'),
+      changePasswordForm: document.getElementById('changePasswordForm'),
+      accCurrentPass: document.getElementById('accCurrentPass'),
+      errAccCurrentPass: document.getElementById('errAccCurrentPass'),
+      accNewPass: document.getElementById('accNewPass'),
+      errAccNewPass: document.getElementById('errAccNewPass'),
+      accConfirmPass: document.getElementById('accConfirmPass'),
+      errAccConfirmPass: document.getElementById('errAccConfirmPass'),
+      btnChangePassword: document.getElementById('btnChangePassword'),
 
       // Edit Place Modal
       editPlaceModal: document.getElementById('editPlaceModal'),
@@ -195,6 +204,11 @@ const view = {
         ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
         : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80');
 
+      let fullAddress = place.address || '';
+      if (place.city && !fullAddress.toLowerCase().includes(place.city.toLowerCase())) {
+        fullAddress = fullAddress ? `${fullAddress}, ${place.city}` : place.city;
+      }
+
       return `
         <article class="place-card" id="card-${place.id}">
           <div class="card-image-wrap">
@@ -217,7 +231,7 @@ const view = {
 
             <div class="card-info-item address">
               <i data-lucide="map-pin"></i>
-              <span>${this.escapeHTML(place.address)}</span>
+              <span>${this.escapeHTML(fullAddress)}</span>
             </div>
 
             ${place.recommendedDish ? `

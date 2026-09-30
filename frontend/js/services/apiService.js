@@ -178,5 +178,21 @@ const apiService = {
       console.error('Lỗi cập nhật user qua API:', err);
     }
     return null;
+  },
+
+  async changePassword(username, currentPassword, newPassword) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/change-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, currentPassword, newPassword }),
+        signal: AbortSignal.timeout(10000)
+      });
+      const data = await res.json().catch(() => ({}));
+      return { ok: res.ok, message: data.message || (res.ok ? 'Đổi mật khẩu thành công!' : 'Đổi mật khẩu thất bại') };
+    } catch (err) {
+      console.error('Lỗi gọi API đổi mật khẩu:', err);
+      return { ok: false, message: 'Lỗi kết nối máy chủ khi đổi mật khẩu' };
+    }
   }
 };
