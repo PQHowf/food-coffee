@@ -11,6 +11,13 @@ const appController = {
   editOriginalImage: '',
   isEditImageRemoved: false,
 
+  // Phân trang Lazy Load / Infinite Scroll
+  PAGE_SIZE: 8,
+  currentRenderOffset: 8,
+  currentFilteredPlaces: [],
+  isLoadingMore: false,
+  infiniteObserver: null,
+
   async init() {
     // 1. Khởi tạo Model & View Elements
     model.init();
@@ -27,7 +34,10 @@ const appController = {
     // 4. Đăng ký sự kiện (Event Listeners)
     this.bindEvents();
 
-    // 5. Thử đồng bộ dữ liệu với Java Spring Boot Backend (bất đồng bộ)
+    // 5. Khởi tạo Observer theo dõi cuộn để tải thêm quán
+    this.initInfiniteScrollObserver();
+
+    // 6. Thử đồng bộ dữ liệu với Java Spring Boot Backend (bất đồng bộ)
     this.syncWithBackend();
   },
 
@@ -138,7 +148,7 @@ const appController = {
     }
   },
 
-  renderCurrentPlaces() {
+  renderCurrentPlaces(resetPagination = true) {
     let list = model.places.filter(p => p.category === model.currentTab);
 
     // Lọc theo thành phố
@@ -156,7 +166,83 @@ const appController = {
       );
     }
 
-    view.renderPlaces(list, model.favorites);
+    this.currentFilteredPlaces = list;
+
+    if (resetPagination) {
+      this.currentRenderOffset = Math.min(this.PAGE_SIZE, list.length);
+      const initialBatch = list.slice(0, this.currentRenderOffset);
+      view.renderPlaces(initialBatch, model.favorites);
+    }
+
+    this.updateInfiniteScrollUI();
+  },
+
+  updateInfiniteScrollUI() {
+    const total = this.currentFilteredPlaces.length;
+    if (!view.dom.infiniteScrollContainer) return;
+
+    if (total === 0 || model.currentTab === 'add') {
+      view.dom.infiniteScrollContainer.style.display = 'none';
+      if (view.dom.infiniteScrollLoader) view.dom.infiniteScrollLoader.style.display = 'none';
+      if (view.dom.infiniteScrollEnd) view.dom.infiniteScrollEnd.style.display = 'none';
+      return;
+    }
+
+    view.dom.infiniteScrollContainer.style.display = 'flex';
+
+    if (this.currentRenderOffset < total) {
+      if (view.dom.infiniteScrollLoader) view.dom.infiniteScrollLoader.style.display = 'none';
+      if (view.dom.infiniteScrollEnd) view.dom.infiniteScrollEnd.style.display = 'none';
+    } else {
+      if (view.dom.infiniteScrollLoader) view.dom.infiniteScrollLoader.style.display = 'none';
+      if (view.dom.infiniteScrollEnd) {
+        view.dom.infiniteScrollEnd.style.display = total > this.PAGE_SIZE ? 'flex' : 'none';
+      }
+    }
+  },
+
+  loadMorePlaces() {
+    if (this.isLoadingMore || model.currentTab === 'add') return;
+    if (this.currentRenderOffset >= this.currentFilteredPlaces.length) return;
+
+    this.isLoadingMore = true;
+    if (view.dom.infiniteScrollLoader) view.dom.infiniteScrollLoader.style.display = 'flex';
+    if (view.dom.infiniteScrollEnd) view.dom.infiniteScrollEnd.style.display = 'none';
+
+    setTimeout(() => {
+      const nextBatch = this.currentFilteredPlaces.slice(
+        this.currentRenderOffset,
+        this.currentRenderOffset + this.PAGE_SIZE
+      );
+      this.currentRenderOffset += nextBatch.length;
+      view.appendPlaces(nextBatch, model.favorites);
+
+      if (view.dom.infiniteScrollLoader) view.dom.infiniteScrollLoader.style.display = 'none';
+      this.updateInfiniteScrollUI();
+      this.isLoadingMore = false;
+    }, 180);
+  },
+
+  initInfiniteScrollObserver() {
+    if (this.infiniteObserver) {
+      this.infiniteObserver.disconnect();
+      this.infiniteObserver = null;
+    }
+
+    if (view.dom.infiniteScrollSentinel && 'IntersectionObserver' in window) {
+      this.infiniteObserver = new IntersectionObserver((entries) => {
+        if (entries[0] && entries[0].isIntersecting && !this.isLoadingMore) {
+          if (this.currentRenderOffset < this.currentFilteredPlaces.length) {
+            this.loadMorePlaces();
+          }
+        }
+      }, {
+        root: null,
+        rootMargin: '300px', // Bắt đầu tải thêm trước khi lướt tới chạm đáy 300px
+        threshold: 0.05
+      });
+      this.infiniteObserver.observe(view.dom.infiniteScrollSentinel);
+    }
   },
 
   // Quay ngẫu nhiên chuẩn theo tab hiện tại (Quán ăn hoặc Quán cafe)
@@ -1397,6 +1483,22 @@ const appController = {
         view.showToast(`Chúc bạn có trải nghiệm tuyệt vời tại "${p.name}"!`, 'success');
       }
     });
+
+    // Fallback scroll listener cho tải thêm quán (phòng khi thiết bị không hỗ trợ IntersectionObserver)
+    let scrollThrottleTimer = null;
+    window.addEventListener('scroll', () => {
+      if (scrollThrottleTimer) return;
+      scrollThrottleTimer = setTimeout(() => {
+        scrollThrottleTimer = null;
+        if (model.currentTab === 'add' || this.isLoadingMore) return;
+        if (this.currentRenderOffset >= this.currentFilteredPlaces.length) return;
+        const scrollPos = (window.scrollY || window.pageYOffset || document.documentElement.scrollTop) + window.innerHeight;
+        const threshold = document.documentElement.scrollHeight - 350;
+        if (scrollPos >= threshold) {
+          this.loadMorePlaces();
+        }
+      }, 120);
+    }, { passive: true });
 
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {

@@ -12,7 +12,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=3.0">
+  <link rel="stylesheet" href="assets/css/style.css?v=3.1">
 </head>
 <body>
 
@@ -134,6 +134,18 @@
       <!-- Places Grid -->
       <div class="places-grid" id="placesGrid">
         <!-- Place cards dynamically rendered by app.js -->
+      </div>
+
+      <!-- Infinite Scroll Sentinel & Loader -->
+      <div class="infinite-scroll-container" id="infiniteScrollContainer" style="display: none;">
+        <div class="infinite-scroll-loader" id="infiniteScrollLoader" style="display: none;">
+          <div class="spinner-ring"></div>
+          <span>Đang tải thêm quán...</span>
+        </div>
+        <div class="infinite-scroll-end" id="infiniteScrollEnd" style="display: none;">
+          <span>✨ Đã hiển thị tất cả quán</span>
+        </div>
+        <div id="infiniteScrollSentinel" style="height: 12px; width: 100%; margin-top: -10px;"></div>
       </div>
 
       <!-- Empty State -->
@@ -772,9 +784,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.0"></script>
-  <script src="js/services/apiService.js?v=3.0"></script>
-  <script src="js/views/view.js?v=3.0"></script>
-  <script src="js/controllers/appController.js?v=3.0"></script>
+  <script src="js/models/state.js?v=3.1"></script>
+  <script src="js/services/apiService.js?v=3.1"></script>
+  <script src="js/views/view.js?v=3.1"></script>
+  <script src="js/controllers/appController.js?v=3.1"></script>
 </body>
 </html>

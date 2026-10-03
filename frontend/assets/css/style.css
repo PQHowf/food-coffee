@@ -1328,7 +1328,16 @@ button {
 }
 
 .input-with-icon select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
   cursor: pointer;
+  padding-left: 48px !important;
+  padding-right: 36px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px 16px !important;
 }
 
 .input-with-icon input:focus,
@@ -1336,6 +1345,16 @@ button {
   outline: none;
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.flex-1 {
+  flex: 1;
 }
 
 .field-hint {
@@ -3262,10 +3281,21 @@ button {
 
   /* iPhone 13-15 specific tweaks (390px - 430px) */
   .input-with-icon input,
-  .input-with-icon select,
   .input-with-icon textarea {
     padding-left: 48px !important;
     padding-right: 14px !important;
+    font-size: 16px !important;
+  }
+
+  .input-with-icon select {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    padding-left: 48px !important;
+    padding-right: 36px !important;
+    font-size: 16px !important;
+    text-indent: 0px !important;
+    background-position: right 12px center !important;
   }
 
   .add-form-container {
@@ -3302,3 +3332,58 @@ button {
     padding: 2px 6px;
   }
 }
+
+/* ==========================================================================
+   INFINITE SCROLLING / LAZY LOADING STYLES
+   ========================================================================== */
+.infinite-scroll-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 0 40px;
+  width: 100%;
+}
+
+.infinite-scroll-loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  animation: fadeIn 0.3s ease;
+}
+
+.spinner-ring {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-subtle);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: infiniteSpin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes infiniteSpin {
+  to { transform: rotate(360deg); }
+}
+
+.infinite-scroll-end {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 24px;
+  color: var(--text-subtle);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  animation: fadeIn 0.3s ease;
+}
+

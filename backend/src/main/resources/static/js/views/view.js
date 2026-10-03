@@ -36,6 +36,10 @@ const view = {
       placesGrid: document.getElementById('placesGrid'),
       emptyState: document.getElementById('emptyState'),
       emptyResetBtn: document.getElementById('emptyResetBtn'),
+      infiniteScrollContainer: document.getElementById('infiniteScrollContainer'),
+      infiniteScrollLoader: document.getElementById('infiniteScrollLoader'),
+      infiniteScrollEnd: document.getElementById('infiniteScrollEnd'),
+      infiniteScrollSentinel: document.getElementById('infiniteScrollSentinel'),
 
       // Add Place View
       addPlaceSection: document.getElementById('addPlaceSection'),
@@ -191,6 +195,66 @@ const view = {
       .replace(/'/g, '&#039;');
   },
 
+  createPlaceCardHTML(place, favorites = []) {
+    const isFav = favorites.includes(place.id);
+    const catBadgeClass = place.category === 'food' ? 'badge-food' : 'badge-cafe';
+    const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
+    const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
+    const initials = this.getInitials(place.suggestedBy);
+    const imgSrc = place.image || (place.category === 'food'
+      ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
+      : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80');
+
+    let fullAddress = place.address || '';
+    if (place.city && !fullAddress.toLowerCase().includes(place.city.toLowerCase())) {
+      fullAddress = fullAddress ? `${fullAddress}, ${place.city}` : place.city;
+    }
+
+    return `
+      <article class="place-card" id="card-${place.id}">
+        <div class="card-image-wrap">
+          <img 
+            src="${this.escapeHTML(imgSrc)}" 
+            alt="${this.escapeHTML(place.name)}" 
+            class="card-image"
+            loading="lazy"
+          >
+          <span class="card-category-badge ${catBadgeClass}">
+            <i data-lucide="${catIcon}"></i> ${catLabel}
+          </span>
+        </div>
+
+        <div class="card-body">
+          <div class="card-title-row">
+            <h3 class="card-title">${this.escapeHTML(place.name)}</h3>
+            <span class="card-price-pill">${this.escapeHTML(place.priceRange || '<100K')}</span>
+          </div>
+
+          <div class="card-info-item address">
+            <i data-lucide="map-pin"></i>
+            <span>${this.escapeHTML(fullAddress)}</span>
+          </div>
+
+          ${place.recommendedDish ? `
+            <div class="card-highlight-dish">
+              <strong>Món nên thử:</strong> ${this.escapeHTML(place.recommendedDish)}
+            </div>
+          ` : ''}
+
+          <div class="card-footer">
+            <div class="suggested-by-badge" title="Người đã đề xuất địa điểm này">
+              <div class="suggested-avatar">${initials}</div>
+              <div class="suggested-text">
+                <span class="suggested-label">Gợi ý từ:</span>
+                <strong class="suggested-name">${this.escapeHTML(place.suggestedBy || 'Ẩn danh')}</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  },
+
   renderPlaces(places, favorites) {
     if (this.dom.resultCountBadge) {
       this.dom.resultCountBadge.style.display = 'none';
@@ -203,68 +267,15 @@ const view = {
     }
 
     this.dom.emptyState.style.display = 'none';
-
-    const html = places.map(place => {
-      const isFav = favorites.includes(place.id);
-      const catBadgeClass = place.category === 'food' ? 'badge-food' : 'badge-cafe';
-      const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
-      const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
-      const initials = this.getInitials(place.suggestedBy);
-      const imgSrc = place.image || (place.category === 'food'
-        ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
-        : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80');
-
-      let fullAddress = place.address || '';
-      if (place.city && !fullAddress.toLowerCase().includes(place.city.toLowerCase())) {
-        fullAddress = fullAddress ? `${fullAddress}, ${place.city}` : place.city;
-      }
-
-      return `
-        <article class="place-card" id="card-${place.id}">
-          <div class="card-image-wrap">
-            <img 
-              src="${this.escapeHTML(imgSrc)}" 
-              alt="${this.escapeHTML(place.name)}" 
-              class="card-image"
-              loading="lazy"
-            >
-            <span class="card-category-badge ${catBadgeClass}">
-              <i data-lucide="${catIcon}"></i> ${catLabel}
-            </span>
-          </div>
-
-          <div class="card-body">
-            <div class="card-title-row">
-              <h3 class="card-title">${this.escapeHTML(place.name)}</h3>
-              <span class="card-price-pill">${this.escapeHTML(place.priceRange || '<100K')}</span>
-            </div>
-
-            <div class="card-info-item address">
-              <i data-lucide="map-pin"></i>
-              <span>${this.escapeHTML(fullAddress)}</span>
-            </div>
-
-            ${place.recommendedDish ? `
-              <div class="card-highlight-dish">
-                <strong>Món nên thử:</strong> ${this.escapeHTML(place.recommendedDish)}
-              </div>
-            ` : ''}
-
-            <div class="card-footer">
-              <div class="suggested-by-badge" title="Người đã đề xuất địa điểm này">
-                <div class="suggested-avatar">${initials}</div>
-                <div class="suggested-text">
-                  <span class="suggested-label">Gợi ý từ:</span>
-                  <strong class="suggested-name">${this.escapeHTML(place.suggestedBy || 'Ẩn danh')}</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        </article>
-      `;
-    }).join('');
-
+    const html = places.map(place => this.createPlaceCardHTML(place, favorites)).join('');
     this.dom.placesGrid.innerHTML = html;
+    this.refreshIcons();
+  },
+
+  appendPlaces(places, favorites) {
+    if (!places || places.length === 0) return;
+    const html = places.map(place => this.createPlaceCardHTML(place, favorites)).join('');
+    this.dom.placesGrid.insertAdjacentHTML('beforeend', html);
     this.refreshIcons();
   },
 
