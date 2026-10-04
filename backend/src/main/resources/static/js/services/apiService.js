@@ -105,8 +105,12 @@ const apiService = {
 
       if (res.ok) {
         const data = await res.json();
-        const origin = (window.location.port === '3000' || window.location.port === '5500') ? 'http://localhost:8080' : window.location.origin;
-        return data.url.startsWith('http') ? data.url : `${origin}${data.url}`;
+        // Ưu tiên đường dẫn tương đối /uploads/... để hoạt động trên mọi tên miền (coffood.top, onrender.com)
+        if (data.url.startsWith('http')) return data.url;
+        if (window.location.port === '3000' || window.location.port === '5500') {
+          return `http://localhost:8080${data.url}`;
+        }
+        return data.url;
       }
     } catch (err) {
       console.error('Không thể upload ảnh lên backend:', err);

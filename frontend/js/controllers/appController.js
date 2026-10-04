@@ -885,7 +885,15 @@ const appController = {
       // 1. Nếu người dùng chọn file ảnh mới từ thiết bị
       if (this.editSelectedRawFile) {
         try {
-          const serverUrl = await apiService.uploadImage(this.editSelectedRawFile);
+          let fileToUpload = this.editSelectedRawFile;
+          if (this.editUploadedImageData && this.editUploadedImageData.startsWith('data:')) {
+            const blob = this.dataURLToBlob(this.editUploadedImageData);
+            if (blob) {
+              const fileName = (this.editSelectedRawFile.name || 'image.jpg').replace(/\.[^/.]+$/, "") + ".jpg";
+              fileToUpload = new File([blob], fileName, { type: 'image/jpeg' });
+            }
+          }
+          const serverUrl = await apiService.uploadImage(fileToUpload);
           if (serverUrl) {
             finalImage = serverUrl;
           } else if (this.editUploadedImageData) {
@@ -969,6 +977,21 @@ const appController = {
     view.dom.accountModal.style.display = 'none';
   },
 
+  dataURLToBlob(dataURL) {
+    try {
+      const parts = dataURL.split(';base64,');
+      const contentType = parts[0].split(':')[1];
+      const raw = window.atob(parts[1]);
+      const uInt8Array = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i);
+      }
+      return new Blob([uInt8Array], { type: contentType });
+    } catch (e) {
+      return null;
+    }
+  },
+
   // Upload xử lý ảnh
   async handleFileSelection(file) {
     if (!file || !file.type.startsWith('image/')) {
@@ -978,24 +1001,31 @@ const appController = {
 
     this.selectedRawFile = file;
 
-    // Ưu tiên đẩy file ảnh lên Java Spring Boot server
-    try {
-      const serverUrl = await apiService.uploadImage(file);
-      if (serverUrl) {
-        this.uploadedImageData = serverUrl;
-        this.updateUploadPreview(serverUrl, file.name, file.size, true);
-        view.showToast('Đã tải ảnh lên máy chủ thành công!', 'success');
-        return;
-      }
-    } catch (e) {
-      console.log('Chuyển nén ảnh client');
-    }
+    // Nén ảnh chất lượng cao trên client trước khi upload (tiết kiệm băng thông & tăng tốc)
+    this.compressImageFile(file, async (compressedDataUrl, name, size) => {
+      // 1. Hiển thị preview ngay lập tức
+      this.uploadedImageData = compressedDataUrl;
+      this.updateUploadPreview(compressedDataUrl, name, size, false);
 
-    // Fallback: Nén nhẹ phía client chống lag
-    this.compressImageFile(file, (dataUrl, name, size) => {
-      this.uploadedImageData = dataUrl;
-      this.updateUploadPreview(dataUrl, name, size, false);
-      view.showToast('Tải ảnh từ thiết bị thành công!', 'success');
+      // 2. Upload file đã nén lên máy chủ (lưu vĩnh viễn vào PostgreSQL)
+      try {
+        const blob = this.dataURLToBlob(compressedDataUrl);
+        if (blob) {
+          const fileName = (file.name || 'image.jpg').replace(/\.[^/.]+$/, "") + ".jpg";
+          const compressedFile = new File([blob], fileName, { type: 'image/jpeg' });
+          const serverUrl = await apiService.uploadImage(compressedFile);
+          if (serverUrl) {
+            this.uploadedImageData = serverUrl;
+            this.updateUploadPreview(serverUrl, name, blob.size, true);
+            view.showToast('Đã lưu ảnh vĩnh viễn trên máy chủ!', 'success');
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('Lỗi upload server, tự động dùng base64 an toàn:', e);
+      }
+
+      view.showToast('Đã tối ưu hóa ảnh thành công!', 'success');
     });
   },
 

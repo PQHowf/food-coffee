@@ -19,6 +19,9 @@ public class PlaceService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
     @PostConstruct
     public void backfillUserIds() {
         try {
@@ -35,6 +38,29 @@ public class PlaceService {
             }
         } catch (Exception e) {
             // bỏ qua lỗi nếu bảng mới khởi tạo
+        }
+
+        // Tự động dọn dẹp các đường link ảnh cũ bị mất file do container tạm thời
+        try {
+            List<Place> allPlaces = placeRepository.findAll();
+            for (Place p : allPlaces) {
+                String img = p.getImage();
+                if (img != null && (img.contains("food-coffee-haag.onrender.com/uploads/") || img.startsWith("/uploads/"))) {
+                    String fileName = img.substring(img.lastIndexOf('/') + 1);
+                    boolean exists = fileStorageService.imageExists(fileName);
+                    if (!exists) {
+                        // File ảnh từ container cũ đã mất trên ổ đĩa tạm, đặt null để client hiển thị ảnh category đẹp không bị lỗi 404
+                        p.setImage(null);
+                        placeRepository.save(p);
+                    } else if (img.startsWith("http")) {
+                        // Chuẩn hóa thành đường dẫn tương đối /uploads/... để hoạt động tốt với mọi tên miền
+                        p.setImage("/uploads/" + fileName);
+                        placeRepository.save(p);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Cleanup orphan images: " + e.getMessage());
         }
     }
 
@@ -87,9 +113,8 @@ public class PlaceService {
             if (updatedPlace.getPriceRange() != null) {
                 place.setPriceRange(updatedPlace.getPriceRange());
             }
-            if (updatedPlace.getImage() != null) {
-                place.setImage(updatedPlace.getImage());
-            }
+            // Cho phép cập nhật cả khi ảnh rỗng (xóa ảnh)
+            place.setImage(updatedPlace.getImage());
             if (updatedPlace.getSuggestedBy() != null) {
                 place.setSuggestedBy(updatedPlace.getSuggestedBy());
             }

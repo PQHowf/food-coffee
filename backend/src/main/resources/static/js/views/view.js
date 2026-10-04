@@ -195,15 +195,51 @@ const view = {
       .replace(/'/g, '&#039;');
   },
 
+  getFallbackImage(place) {
+    const isFood = !place || place.category !== 'cafe';
+    const foodImages = [
+      'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=800&q=80'
+    ];
+    const cafeImages = [
+      'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80'
+    ];
+    const list = isFood ? foodImages : cafeImages;
+    let seed = 0;
+    if (place && place.id) {
+      seed = typeof place.id === 'number' ? place.id : Array.from(String(place.id)).reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    } else if (place && place.name) {
+      seed = Array.from(String(place.name)).reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    }
+    return list[Math.abs(seed) % list.length];
+  },
+
   createPlaceCardHTML(place, favorites = []) {
     const isFav = favorites.includes(place.id);
     const catBadgeClass = place.category === 'food' ? 'badge-food' : 'badge-cafe';
     const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
     const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
     const initials = this.getInitials(place.suggestedBy);
-    const imgSrc = place.image || (place.category === 'food'
-      ? 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80'
-      : 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?auto=format&fit=crop&w=800&q=80');
+
+    const fallbackImg = this.getFallbackImage(place);
+    let rawImg = (place.image && typeof place.image === 'string') ? place.image.trim() : '';
+
+    // Chuẩn hóa nếu link ảnh chứa domain cũ onrender.com -> thành relative path
+    if (rawImg.includes('/uploads/')) {
+      rawImg = rawImg.substring(rawImg.lastIndexOf('/uploads/'));
+    }
+
+    const imgSrc = rawImg || fallbackImg;
 
     let fullAddress = place.address || '';
     if (place.city && !fullAddress.toLowerCase().includes(place.city.toLowerCase())) {
@@ -218,6 +254,7 @@ const view = {
             alt="${this.escapeHTML(place.name)}" 
             class="card-image"
             loading="lazy"
+            onerror="if (!this.dataset.fallbackTried) { this.dataset.fallbackTried = '1'; this.src = '${this.escapeHTML(fallbackImg)}'; }"
           >
           <span class="card-category-badge ${catBadgeClass}">
             <i data-lucide="${catIcon}"></i> ${catLabel}
@@ -346,7 +383,12 @@ const view = {
       return `
         <div class="my-place-item" id="my-place-${p.id}">
           <div class="my-place-main-info">
-            <img src="${this.escapeHTML(imgSrc)}" alt="${this.escapeHTML(p.name)}" class="my-place-thumb">
+            <img 
+              src="${this.escapeHTML(imgSrc)}" 
+              alt="${this.escapeHTML(p.name)}" 
+              class="my-place-thumb"
+              onerror="if (!this.dataset.fallbackTried) { this.dataset.fallbackTried = '1'; this.src = '${this.escapeHTML(fallbackImg)}'; }"
+            >
             <div class="my-place-meta">
               <div class="my-place-name" title="${this.escapeHTML(p.name)}">${this.escapeHTML(p.name)}</div>
               <div class="my-place-sub">

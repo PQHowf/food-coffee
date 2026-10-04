@@ -653,7 +653,7 @@
 
             <!-- Preview box when image exists or new image is chosen -->
             <div class="upload-preview-box" id="editUploadPreviewBox" style="display: none;">
-              <img id="editUploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb">
+              <img id="editUploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80';">
               <div class="upload-preview-meta">
                 <div class="preview-filename" id="editPreviewFileName">anh_quan.jpg</div>
                 <div class="preview-filesize" id="editPreviewFileSize">Đang sử dụng</div>
@@ -748,7 +748,7 @@
         <div class="winner-badge">
           <i data-lucide="crown"></i> GỢI Ý MAY MẮN HÔM NAY
         </div>
-        <img src="" alt="Winner place" class="winner-image" id="winnerImage">
+        <img src="" alt="Winner place" class="winner-image" id="winnerImage" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80';">
         <div class="winner-info">
           <div class="winner-tag-row">
             <span class="winner-category" id="winnerCategory">QUÁN ĂN</span>
@@ -784,9 +784,9 @@
 
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.1"></script>
-  <script src="js/services/apiService.js?v=3.1"></script>
-  <script src="js/views/view.js?v=3.1"></script>
-  <script src="js/controllers/appController.js?v=3.1"></script>
+  <script src="js/models/state.js?v=3.2"></script>
+  <script src="js/services/apiService.js?v=3.2"></script>
+  <script src="js/views/view.js?v=3.2"></script>
+  <script src="js/controllers/appController.js?v=3.2"></script>
 </body>
 </html>
