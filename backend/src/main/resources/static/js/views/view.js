@@ -11,6 +11,9 @@ const view = {
       // Brand & Navigation
       brandLogo: document.getElementById('brandLogo'),
       authSection: document.getElementById('authSection'),
+      pwaInstallBtn: document.getElementById('pwaInstallBtn'),
+      iosInstallModal: document.getElementById('iosInstallModal'),
+      closeIosInstallBtn: document.getElementById('closeIosInstallBtn'),
       tabFood: document.getElementById('tabFood'),
       tabCafe: document.getElementById('tabCafe'),
       tabAdd: document.getElementById('tabAdd'),

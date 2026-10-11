@@ -3387,3 +3387,147 @@ button {
   animation: fadeIn 0.3s ease;
 }
 
+/* ==========================================================================
+   PROGRESSIVE WEB APP (PWA) STYLES
+   ========================================================================== */
+.header-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn-pwa-install {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--primary-glow);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  animation: pulseInstall 3s infinite ease-in-out;
+}
+
+.btn-pwa-install:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--primary-glow);
+  background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+}
+
+.btn-pwa-install i,
+.btn-pwa-install svg {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes pulseInstall {
+  0%, 100% {
+    box-shadow: 0 4px 12px var(--primary-glow);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(249, 115, 22, 0.55);
+  }
+}
+
+/* iOS Install Modal */
+.ios-install-card {
+  max-width: 420px;
+  width: 90%;
+  padding: 28px 24px;
+  border-radius: 24px;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-xl);
+  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ios-install-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ios-app-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+  flex-shrink: 0;
+}
+
+.ios-install-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.ios-install-subtitle {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.ios-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  background: var(--bg-subtle);
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.ios-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+.ios-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.ios-share-icon {
+  display: inline-flex;
+  vertical-align: middle;
+  color: #007aff;
+}
+
+.ios-share-icon i,
+.ios-share-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 640px) {
+  .btn-pwa-install span {
+    display: none;
+  }
+  .btn-pwa-install {
+    padding: 8px 10px;
+    border-radius: var(--radius-full);
+  }
+}
+
+

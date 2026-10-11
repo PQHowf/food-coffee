@@ -1,0 +1,110 @@
+{
+  "name": "CofFood - Hôm Nay Ăn Gì & Cafe Chill",
+  "short_name": "CofFood",
+  "description": "Khám phá địa điểm ăn uống, quán cafe ngon và quay ngẫu nhiên món ăn mỗi ngày.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#f97316",
+  "lang": "vi",
+  "dir": "ltr",
+  "categories": ["food", "lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "assets/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quán Ăn Ngon",
+      "short_name": "Quán Ăn",
+      "description": "Xem danh sách các quán ăn ngon chọn lọc",
+      "url": "/?tab=food",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Quán Cafe Chill",
+      "short_name": "Quán Cafe",
+      "description": "Khám phá các góc cafe chill và đẹp",
+      "url": "/?tab=cafe",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Quay Ngẫu Nhiên",
+      "short_name": "Quay Quán",
+      "description": "Quay ngẫu nhiên chọn địa điểm ăn uống hôm nay",
+      "url": "/?action=random",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Thêm Quán Mới",
+      "short_name": "Thêm Quán",
+      "description": "Chia sẻ địa điểm ăn uống yêu thích của bạn",
+      "url": "/?tab=add",
+      "icons": [{ "src": "assets/icons/icon-96x96.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

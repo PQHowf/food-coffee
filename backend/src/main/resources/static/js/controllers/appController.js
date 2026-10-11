@@ -18,6 +18,9 @@ const appController = {
   isLoadingMore: false,
   infiniteObserver: null,
 
+  // PWA State
+  deferredInstallPrompt: null,
+
   async init() {
     // 1. Khởi tạo Model & View Elements
     model.init();
@@ -37,7 +40,10 @@ const appController = {
     // 5. Khởi tạo Observer theo dõi cuộn để tải thêm quán
     this.initInfiniteScrollObserver();
 
-    // 6. Thử đồng bộ dữ liệu với Java Spring Boot Backend (bất đồng bộ)
+    // 6. Khởi tạo PWA (Service Worker, Cài đặt App, Offline detection)
+    this.initPWA();
+
+    // 7. Thử đồng bộ dữ liệu với Java Spring Boot Backend (bất đồng bộ)
     this.syncWithBackend();
   },
 
@@ -1530,12 +1536,21 @@ const appController = {
       }, 120);
     }, { passive: true });
 
+    // PWA Install button & iOS modal events
+    view.dom.pwaInstallBtn?.addEventListener('click', () => this.handlePwaInstallClick());
+    view.dom.closeIosInstallBtn?.addEventListener('click', () => {
+      if (view.dom.iosInstallModal) view.dom.iosInstallModal.style.display = 'none';
+    });
+
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {
       if (e.target === view.dom.authModal) this.closeAuthModal();
       if (e.target === view.dom.accountModal) this.closeAccountModal();
       if (e.target === view.dom.randomModal) this.closeRandomModal();
       if (e.target === view.dom.editPlaceModal) this.closeEditPlaceModal();
+      if (e.target === view.dom.iosInstallModal) {
+        view.dom.iosInstallModal.style.display = 'none';
+      }
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1543,6 +1558,7 @@ const appController = {
         this.closeAccountModal();
         this.closeRandomModal();
         this.closeEditPlaceModal();
+        if (view.dom.iosInstallModal) view.dom.iosInstallModal.style.display = 'none';
       }
     });
   },
@@ -1555,6 +1571,117 @@ const appController = {
     view.dom.cityFilter.value = 'all';
     this.renderCurrentPlaces();
     view.showToast('Đã xóa tất cả bộ lọc!', 'info');
+  },
+
+  // ==========================================================================
+  // PROGRESSIVE WEB APP (PWA) LOGIC
+  // ==========================================================================
+  initPWA() {
+    // 1. Đăng ký Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('✅ [PWA] Service Worker đăng ký thành công! Scope:', registration.scope);
+
+            // Theo dõi nếu có bản cập nhật mới
+            registration.onupdatefound = () => {
+              const installingWorker = registration.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    view.showToast('✨ Ứng dụng đã có bản cập nhật mới! Tải lại trang để áp dụng.', 'info');
+                  }
+                };
+              }
+            };
+          })
+          .catch((err) => {
+            console.warn('⚠️ [PWA] Không thể đăng ký Service Worker:', err);
+          });
+      });
+    }
+
+    // 2. Bắt sự kiện beforeinstallprompt (Android / Chrome / Edge / Desktop)
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Chặn prompt mặc định của trình duyệt để hiển thị nút cài đặt tinh tế
+      e.preventDefault();
+      this.deferredInstallPrompt = e;
+      if (view.dom.pwaInstallBtn) {
+        view.dom.pwaInstallBtn.style.display = 'inline-flex';
+        view.refreshIcons();
+      }
+      console.log('✨ [PWA] Thiết bị hỗ trợ cài đặt trực tiếp');
+    });
+
+    // 3. Xử lý sau khi người dùng cài đặt thành công
+    window.addEventListener('appinstalled', () => {
+      this.deferredInstallPrompt = null;
+      if (view.dom.pwaInstallBtn) {
+        view.dom.pwaInstallBtn.style.display = 'none';
+      }
+      view.showToast('🎉 Đã cài đặt ứng dụng CofFood vào màn hình chính!', 'success');
+      console.log('🎉 [PWA] Đã cài đặt ứng dụng thành công');
+    });
+
+    // 4. Kiểm tra riêng cho iOS Safari (Apple không hỗ trợ beforeinstallprompt)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isIOS && !isStandalone) {
+      if (view.dom.pwaInstallBtn) {
+        view.dom.pwaInstallBtn.style.display = 'inline-flex';
+        view.refreshIcons();
+      }
+    }
+
+    // 5. Lắng nghe trạng thái Offline / Online
+    window.addEventListener('offline', () => {
+      view.showToast('⚡ Bạn đang ở chế độ ngoại tuyến. Danh sách quán đã lưu vẫn xem được bình thường!', 'warning');
+    });
+    window.addEventListener('online', () => {
+      view.showToast('🌐 Đã kết nối Internet trở lại!', 'success');
+      this.syncWithBackend();
+    });
+
+    // 6. Xử lý PWA Shortcuts (Action param trong URL)
+    const urlParams = new URLSearchParams(window.location.search);
+    const action = urlParams.get('action');
+    const tabParam = urlParams.get('tab');
+    if (action === 'random') {
+      setTimeout(() => this.openRandomModal(), 600);
+    } else if (tabParam && ['food', 'cafe', 'add'].includes(tabParam)) {
+      this.switchTab(tabParam);
+    }
+  },
+
+  handlePwaInstallClick() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+
+    // Nếu là iPhone/iPad chưa cài app: Hiển thị bảng hướng dẫn chuẩn iOS
+    if (isIOS && !isStandalone) {
+      if (view.dom.iosInstallModal) {
+        view.dom.iosInstallModal.style.display = 'flex';
+        view.refreshIcons();
+      }
+      return;
+    }
+
+    // Nếu là Android / Desktop / Chrome có prompt
+    if (this.deferredInstallPrompt) {
+      this.deferredInstallPrompt.prompt();
+      this.deferredInstallPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('[PWA] Người dùng đồng ý cài đặt');
+        } else {
+          console.log('[PWA] Người dùng đã hủy cài đặt');
+        }
+        this.deferredInstallPrompt = null;
+      });
+    } else {
+      view.showToast('Để cài đặt ứng dụng: Hãy chọn "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính" từ menu trình duyệt (⋮).', 'info');
+    }
   }
 };
 
