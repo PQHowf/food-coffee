@@ -14,6 +14,7 @@ const view = {
       pwaInstallBtn: document.getElementById('pwaInstallBtn'),
       iosInstallModal: document.getElementById('iosInstallModal'),
       closeIosInstallBtn: document.getElementById('closeIosInstallBtn'),
+      closeIosInstallIcon: document.getElementById('closeIosInstallIcon'),
       tabFood: document.getElementById('tabFood'),
       tabCafe: document.getElementById('tabCafe'),
       tabAdd: document.getElementById('tabAdd'),

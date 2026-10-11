@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>GỢI Ý QUÁN ĂN & QUÁN CAFE | HÔM NAY ĂN GÌ?</title>
   <meta name="description" content="Khám phá và chia sẻ các quán ăn ngon, quán cafe đẹp tại Hà Nội, TP.HCM, Đà Nẵng, Đà Lạt. Tìm kiếm, lọc theo giá, thành phố và quay ngẫu nhiên hôm nay ăn gì!">
   
@@ -32,7 +32,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=3.3">
+  <link rel="stylesheet" href="assets/css/style.css?v=3.4">
 </head>
 <body>
 
@@ -388,7 +388,7 @@
   </main>
 
   <!-- MODAL 1: AUTH (LOGIN / REGISTER / QUICK DEMO) -->
-  <div class="modal-overlay" id="authModal" aria-hidden="true" style="display: none;">
+  <div class="modal-overlay" id="authModal" style="display: none;">
     <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="authModalTitle">
       <button class="modal-close-btn" id="authModalClose" title="Đóng">
         <i data-lucide="x"></i>
@@ -457,7 +457,7 @@
   </div>
 
   <!-- MODAL: ACCOUNT INFORMATION (THÔNG TIN TÀI KHOẢN) -->
-  <div class="modal-overlay" id="accountModal" aria-hidden="true" style="display: none;">
+  <div class="modal-overlay" id="accountModal" style="display: none;">
     <div class="modal-card account-modal-card" role="dialog" aria-labelledby="accountModalTitle">
       <button class="modal-close-btn" id="accountModalClose" title="Đóng">
         <i data-lucide="x"></i>
@@ -571,7 +571,7 @@
   </div>
 
   <!-- MODAL 3: SỬA THÔNG TIN QUÁN (EDIT PLACE MODAL) -->
-  <div class="modal-overlay" id="editPlaceModal" aria-hidden="true" style="display: none;">
+  <div class="modal-overlay" id="editPlaceModal" style="display: none;">
     <div class="modal-card edit-place-modal-card" role="dialog" aria-labelledby="editPlaceModalTitle">
       <button class="modal-close-btn" id="editPlaceModalClose" title="Đóng">
         <i data-lucide="x"></i>
@@ -719,7 +719,7 @@
   </div>
 
   <!-- MODAL 2: RANDOM WHEEL / MYSTERY PICKER ("Hôm nay ăn/uống gì?") -->
-  <div class="modal-overlay" id="randomModal" aria-hidden="true" style="display: none;">
+  <div class="modal-overlay" id="randomModal" style="display: none;">
     <div class="modal-card random-modal-card" role="dialog" aria-labelledby="randomModalTitle">
       <button class="modal-close-btn" id="randomModalClose" title="Đóng">
         <i data-lucide="x"></i>
@@ -805,13 +805,16 @@
     </div>
   </div>
 
-  <!-- iOS PWA Install Guide Modal -->
-  <div class="modal-backdrop" id="iosInstallModal" style="display: none;">
-    <div class="modal-card ios-install-card">
+  <!-- PWA Install Guide Modal -->
+  <div class="modal-overlay" id="iosInstallModal" style="display: none;">
+    <div class="modal-card ios-install-card" role="dialog" aria-labelledby="iosInstallTitle">
+      <button class="modal-close-btn" id="closeIosInstallIcon" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
       <div class="ios-install-header">
         <img src="assets/icons/icon-128x128.png" alt="CofFood Logo" class="ios-app-icon">
         <div>
-          <h3 class="ios-install-title">Cài đặt CofFood về iPhone</h3>
+          <h3 class="ios-install-title" id="iosInstallTitle">Cài đặt CofFood về iPhone</h3>
           <p class="ios-install-subtitle">Thêm vào Màn hình chính để mở nhanh toàn màn hình</p>
         </div>
       </div>
@@ -845,9 +848,9 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.3"></script>
-  <script src="js/services/apiService.js?v=3.3"></script>
-  <script src="js/views/view.js?v=3.3"></script>
-  <script src="js/controllers/appController.js?v=3.3"></script>
+  <script src="js/models/state.js?v=3.4"></script>
+  <script src="js/services/apiService.js?v=3.4"></script>
+  <script src="js/views/view.js?v=3.4"></script>
+  <script src="js/controllers/appController.js?v=3.4"></script>
 </body>
 </html>

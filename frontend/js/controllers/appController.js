@@ -294,6 +294,7 @@ const appController = {
     if (view.dom.randomModalTitle) view.dom.randomModalTitle.textContent = categoryTitle;
 
     view.dom.randomModal.style.display = 'flex';
+    view.dom.randomModal.removeAttribute('aria-hidden');
     this.handleRandomFilterChange();
   },
 
@@ -449,6 +450,7 @@ const appController = {
   closeRandomModal() {
     if (view.dom.randomModal) {
       view.dom.randomModal.style.display = 'none';
+      view.dom.randomModal.setAttribute('aria-hidden', 'true');
     }
   },
 
@@ -505,8 +507,16 @@ const appController = {
 
   // Modal Auth
   openAuthModal(mode = 'login') {
+    if (!view.dom.authModal) return;
     view.dom.authModal.style.display = 'flex';
+    view.dom.authModal.removeAttribute('aria-hidden');
     this.setAuthMode(mode);
+    setTimeout(() => {
+      const targetInput = mode === 'register' ? view.dom.authEmail : view.dom.authUsername;
+      if (targetInput && window.innerWidth > 768) {
+        targetInput.focus();
+      }
+    }, 120);
   },
 
   clearAuthErrors() {
@@ -516,7 +526,10 @@ const appController = {
   },
 
   closeAuthModal() {
-    if (view.dom.authModal) view.dom.authModal.style.display = 'none';
+    if (view.dom.authModal) {
+      view.dom.authModal.style.display = 'none';
+      view.dom.authModal.setAttribute('aria-hidden', 'true');
+    }
     if (view.dom.authForm) view.dom.authForm.reset();
     this.clearAuthErrors();
   },
@@ -725,7 +738,10 @@ const appController = {
     this.switchAccountTab('profile');
     this.renderUserPlaces();
 
-    view.dom.accountModal.style.display = 'flex';
+    if (view.dom.accountModal) {
+      view.dom.accountModal.style.display = 'flex';
+      view.dom.accountModal.removeAttribute('aria-hidden');
+    }
     view.refreshIcons();
   },
 
@@ -802,7 +818,10 @@ const appController = {
       if (view.dom.editUploadPreviewBox) view.dom.editUploadPreviewBox.style.display = 'none';
     }
 
-    view.dom.editPlaceModal.style.display = 'flex';
+    if (view.dom.editPlaceModal) {
+      view.dom.editPlaceModal.style.display = 'flex';
+      view.dom.editPlaceModal.removeAttribute('aria-hidden');
+    }
     view.refreshIcons();
   },
 
@@ -856,6 +875,7 @@ const appController = {
     this.resetEditImageUpload();
     if (view.dom.editPlaceModal) {
       view.dom.editPlaceModal.style.display = 'none';
+      view.dom.editPlaceModal.setAttribute('aria-hidden', 'true');
     }
   },
 
@@ -980,7 +1000,10 @@ const appController = {
   },
 
   closeAccountModal() {
-    view.dom.accountModal.style.display = 'none';
+    if (view.dom.accountModal) {
+      view.dom.accountModal.style.display = 'none';
+      view.dom.accountModal.setAttribute('aria-hidden', 'true');
+    }
   },
 
   dataURLToBlob(dataURL) {
@@ -1536,10 +1559,26 @@ const appController = {
       }, 120);
     }, { passive: true });
 
-    // PWA Install button & iOS modal events
+    // PWA Install button & Modal events
     view.dom.pwaInstallBtn?.addEventListener('click', () => this.handlePwaInstallClick());
-    view.dom.closeIosInstallBtn?.addEventListener('click', () => {
-      if (view.dom.iosInstallModal) view.dom.iosInstallModal.style.display = 'none';
+    view.dom.closeIosInstallBtn?.addEventListener('click', () => this.closePwaInstallModal());
+    view.dom.closeIosInstallIcon?.addEventListener('click', () => this.closePwaInstallModal());
+
+    // Stop click events inside modal cards from bubbling to the overlay backdrop
+    document.querySelectorAll('.modal-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    // Make sure clicking or tapping any input-with-icon container focuses its child input cleanly
+    document.querySelectorAll('.input-with-icon').forEach(wrap => {
+      wrap.addEventListener('click', (e) => {
+        const input = wrap.querySelector('input, textarea, select');
+        if (input && e.target !== input) {
+          input.focus();
+        }
+      });
     });
 
     // Modals backdrop click & ESC
@@ -1548,9 +1587,7 @@ const appController = {
       if (e.target === view.dom.accountModal) this.closeAccountModal();
       if (e.target === view.dom.randomModal) this.closeRandomModal();
       if (e.target === view.dom.editPlaceModal) this.closeEditPlaceModal();
-      if (e.target === view.dom.iosInstallModal) {
-        view.dom.iosInstallModal.style.display = 'none';
-      }
+      if (e.target === view.dom.iosInstallModal) this.closePwaInstallModal();
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1558,7 +1595,7 @@ const appController = {
         this.closeAccountModal();
         this.closeRandomModal();
         this.closeEditPlaceModal();
-        if (view.dom.iosInstallModal) view.dom.iosInstallModal.style.display = 'none';
+        this.closePwaInstallModal();
       }
     });
   },
@@ -1604,7 +1641,6 @@ const appController = {
 
     // 2. Bắt sự kiện beforeinstallprompt (Android / Chrome / Edge / Desktop)
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Chặn prompt mặc định của trình duyệt để hiển thị nút cài đặt tinh tế
       e.preventDefault();
       this.deferredInstallPrompt = e;
       if (view.dom.pwaInstallBtn) {
@@ -1624,11 +1660,14 @@ const appController = {
       console.log('🎉 [PWA] Đã cài đặt ứng dụng thành công');
     });
 
-    // 4. Kiểm tra riêng cho iOS Safari (Apple không hỗ trợ beforeinstallprompt)
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // 4. Kiểm tra riêng cho môi trường Standalone PWA vs Browser
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
-    if (isIOS && !isStandalone) {
+    if (isStandalone) {
+      if (view.dom.pwaInstallBtn) view.dom.pwaInstallBtn.style.display = 'none';
+      console.log('📱 [PWA] Đang chạy trong môi trường Standalone App');
+    } else {
+      // Khi đang duyệt trên trình duyệt thông thường, hiển thị nút cài đặt app
       if (view.dom.pwaInstallBtn) {
         view.dom.pwaInstallBtn.style.display = 'inline-flex';
         view.refreshIcons();
@@ -1655,20 +1694,87 @@ const appController = {
     }
   },
 
-  handlePwaInstallClick() {
+  openPwaInstallModal() {
+    if (!view.dom.iosInstallModal) return;
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const titleEl = document.getElementById('iosInstallTitle');
+    const subtitleEl = view.dom.iosInstallModal.querySelector('.ios-install-subtitle');
+    const stepsEl = view.dom.iosInstallModal.querySelector('.ios-steps');
+
+    if (isIOS) {
+      if (titleEl) titleEl.textContent = 'Cài đặt CofFood về iPhone';
+      if (subtitleEl) subtitleEl.textContent = 'Thêm vào Màn hình chính để mở nhanh toàn màn hình';
+      if (stepsEl) {
+        stepsEl.innerHTML = `
+          <div class="ios-step-item">
+            <div class="ios-step-num">1</div>
+            <div class="ios-step-text">
+              Bấm nút <strong>Chia sẻ</strong> <span class="ios-share-icon"><i data-lucide="share"></i></span> trên thanh Safari.
+            </div>
+          </div>
+          <div class="ios-step-item">
+            <div class="ios-step-num">2</div>
+            <div class="ios-step-text">
+              Cuộn xuống và chọn <strong>Thêm vào MH chính</strong> (Add to Home Screen ➕).
+            </div>
+          </div>
+          <div class="ios-step-item">
+            <div class="ios-step-num">3</div>
+            <div class="ios-step-text">
+              Nhấn <strong>Thêm</strong> (Add) ở góc trên bên phải để hoàn tất!
+            </div>
+          </div>
+        `;
+      }
+    } else {
+      if (titleEl) titleEl.textContent = 'Cài đặt ứng dụng CofFood';
+      if (subtitleEl) subtitleEl.textContent = 'Thêm vào Màn hình chính để sử dụng mượt mà, tiện lợi';
+      if (stepsEl) {
+        stepsEl.innerHTML = `
+          <div class="ios-step-item">
+            <div class="ios-step-num">1</div>
+            <div class="ios-step-text">
+              Bấm vào biểu tượng <strong>Menu 3 chấm (⋮)</strong> ở góc trên trình duyệt.
+            </div>
+          </div>
+          <div class="ios-step-item">
+            <div class="ios-step-num">2</div>
+            <div class="ios-step-text">
+              Chọn <strong>Cài đặt ứng dụng</strong> hoặc <strong>Thêm vào màn hình chính</strong>.
+            </div>
+          </div>
+          <div class="ios-step-item">
+            <div class="ios-step-num">3</div>
+            <div class="ios-step-text">
+              Xác nhận <strong>Cài đặt / Thêm</strong> để hoàn tất!
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    view.dom.iosInstallModal.style.display = 'flex';
+    view.dom.iosInstallModal.removeAttribute('aria-hidden');
+    view.refreshIcons();
+  },
+
+  closePwaInstallModal() {
+    if (view.dom.iosInstallModal) {
+      view.dom.iosInstallModal.style.display = 'none';
+      view.dom.iosInstallModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  handlePwaInstallClick() {
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
 
-    // Nếu là iPhone/iPad chưa cài app: Hiển thị bảng hướng dẫn chuẩn iOS
-    if (isIOS && !isStandalone) {
-      if (view.dom.iosInstallModal) {
-        view.dom.iosInstallModal.style.display = 'flex';
-        view.refreshIcons();
-      }
+    // Nếu đã ở trong App standalone PWA
+    if (isStandalone) {
+      view.showToast('Bạn đang sử dụng ứng dụng CofFood trên thiết bị!', 'info');
       return;
     }
 
-    // Nếu là Android / Desktop / Chrome có prompt
+    // Nếu là Android / Desktop / Chrome có prompt tự động
     if (this.deferredInstallPrompt) {
       this.deferredInstallPrompt.prompt();
       this.deferredInstallPrompt.userChoice.then((choiceResult) => {
@@ -1679,9 +1785,11 @@ const appController = {
         }
         this.deferredInstallPrompt = null;
       });
-    } else {
-      view.showToast('Để cài đặt ứng dụng: Hãy chọn "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính" từ menu trình duyệt (⋮).', 'info');
+      return;
     }
+
+    // Nếu không có prompt tự động (iOS Safari hoặc browser chưa kích hoạt prompt)
+    this.openPwaInstallModal();
   }
 };
 
