@@ -655,9 +655,11 @@ const view = {
                       <i data-lucide="${catBadgeIcon}"></i> ${catBadgeText}
                     </span>
                   </div>
-                  <span class="card-status-badge ${isDone ? 'done' : 'pending'}">
-                    ${isDone ? '<i data-lucide="check-circle-2"></i> Đã ghé' : '<i data-lucide="circle"></i> Dự kiến'}
-                  </span>
+                  ${isDone ? `
+                    <span class="card-status-badge done">
+                      <i data-lucide="check-circle-2"></i> Đã ghé
+                    </span>
+                  ` : ''}
                 </div>
 
                 <h4 class="card-place-title">${this.escapeHTML(item.placeName || item.title)}</h4>
@@ -666,11 +668,6 @@ const view = {
                   ${item.address ? `
                     <span class="card-info-pill" title="${this.escapeHTML(item.address)}">
                       <i data-lucide="map-pin"></i> ${this.escapeHTML(item.address)}
-                    </span>
-                  ` : ''}
-                  ${item.recommendedDish ? `
-                    <span class="card-info-pill" title="Món nổi bật">
-                      <i data-lucide="sparkles"></i> ${this.escapeHTML(item.recommendedDish)}
                     </span>
                   ` : ''}
                   ${item.priceRange ? `
@@ -682,10 +679,25 @@ const view = {
               </div>
             </div>
 
-            ${item.note ? `
-              <div class="card-note-box">
-                <i data-lucide="sticky-note"></i>
-                <span>${this.escapeHTML(item.note)}</span>
+            <!-- Khối hiển thị riêng: Món nên thử -->
+            ${item.recommendedDish ? `
+              <div class="card-detail-section dish-section">
+                <div class="detail-label">
+                  <i data-lucide="sparkles"></i>
+                  <span>Món nên thử</span>
+                </div>
+                <div class="detail-value">${this.escapeHTML(item.recommendedDish)}</div>
+              </div>
+            ` : ''}
+
+            <!-- Khối hiển thị riêng: Ghi chú -->
+            ${(item.note && !item.note.startsWith('Gợi ý bởi')) ? `
+              <div class="card-detail-section note-section">
+                <div class="detail-label">
+                  <i data-lucide="sticky-note"></i>
+                  <span>Ghi chú</span>
+                </div>
+                <div class="detail-value">${this.escapeHTML(item.note)}</div>
               </div>
             ` : ''}
 

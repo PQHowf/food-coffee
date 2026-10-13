@@ -139,7 +139,14 @@ const model = {
           // Xoá bỏ dữ liệu demo cũ nếu có
           const hasOldDemo = parsed.items.some(i => i.id === 'stop_1' || i.id === 'stop_2');
           if (!hasOldDemo) {
+            // Dọn sạch 'Gợi ý bởi...' nếu có từ trước
+            parsed.items.forEach(item => {
+              if (item.note && item.note.startsWith('Gợi ý bởi')) {
+                item.note = '';
+              }
+            });
             this.tripPlan = parsed;
+            this.saveTripPlan();
             return;
           }
         }

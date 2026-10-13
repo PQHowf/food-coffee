@@ -3,7 +3,7 @@
  * Cung cấp khả năng chạy offline, nạp nhanh tài nguyên (App Shell) và lưu bộ nhớ đệm thông minh.
  */
 
-const CACHE_NAME = 'coffood-pwa-v1.3';
+const CACHE_NAME = 'coffood-pwa-v1.4';
 
 // Các tài nguyên cốt lõi (App Shell) được lưu đệm ngay khi cài đặt
 const PRECACHE_ASSETS = [
@@ -11,15 +11,15 @@ const PRECACHE_ASSETS = [
   '/index.html',
   '/manifest.json',
   '/assets/css/style.css',
-  '/assets/css/style.css?v=3.6',
+  '/assets/css/style.css?v=3.7',
   '/js/models/state.js',
-  '/js/models/state.js?v=3.6',
+  '/js/models/state.js?v=3.7',
   '/js/services/apiService.js',
-  '/js/services/apiService.js?v=3.6',
+  '/js/services/apiService.js?v=3.7',
   '/js/views/view.js',
-  '/js/views/view.js?v=3.6',
+  '/js/views/view.js?v=3.7',
   '/js/controllers/appController.js',
-  '/js/controllers/appController.js?v=3.6',
+  '/js/controllers/appController.js?v=3.7',
   '/assets/icons/icon-192x192.png',
   '/assets/icons/icon-512x512.png',
   '/assets/icons/icon-maskable-192x192.png',

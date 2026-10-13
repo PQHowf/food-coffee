@@ -572,8 +572,8 @@ const appController = {
       address: place.address || place.city || '',
       recommendedDish: place.recommendedDish || '',
       priceRange: place.priceRange || '<100K',
-      image: (place.image && place.image.trim()) || '',
-      note: `Gợi ý bởi ${place.suggestedBy || 'Cộng đồng CofFood'}.`,
+      image: '',
+      note: '',
       travelDuration: `~15 phút di chuyển`,
       isCompleted: false
     };
