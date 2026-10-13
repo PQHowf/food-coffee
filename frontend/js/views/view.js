@@ -18,6 +18,8 @@ const view = {
       tabFood: document.getElementById('tabFood'),
       tabCafe: document.getElementById('tabCafe'),
       tabAdd: document.getElementById('tabAdd'),
+      tabPlan: document.getElementById('tabPlan'),
+      planBadgeCount: document.getElementById('planBadgeCount'),
       foodCount: document.getElementById('foodCount'),
       cafeCount: document.getElementById('cafeCount'),
       tabLockBadge: document.getElementById('tabLockBadge'),
@@ -170,9 +172,47 @@ const view = {
       winnerDish: document.getElementById('winnerDish'),
       winnerSuggested: document.getElementById('winnerSuggested'),
       reRollBtn: document.getElementById('reRollBtn'),
-      acceptPickBtn: document.getElementById('acceptPickBtn'),
+      toastContainer: document.getElementById('toastContainer'),
 
-      toastContainer: document.getElementById('toastContainer')
+      // Trip Planner (Kế hoạch đi chơi)
+      planSection: document.getElementById('planSection'),
+      planHeroTitle: document.getElementById('planHeroTitle'),
+      planHeroSubtitle: document.getElementById('planHeroSubtitle'),
+      btnPlanPickFromDb: document.getElementById('btnPlanPickFromDb'),
+      btnPlanAddCustom: document.getElementById('btnPlanAddCustom'),
+      btnPlanResetDemo: document.getElementById('btnPlanResetDemo'),
+      btnPlanShare: document.getElementById('btnPlanShare'),
+      btnPlanClear: document.getElementById('btnPlanClear'),
+      statPlanStops: document.getElementById('statPlanStops'),
+      statPlanDuration: document.getElementById('statPlanDuration'),
+      statPlanBudget: document.getElementById('statPlanBudget'),
+      statPlanProgress: document.getElementById('statPlanProgress'),
+      planTimelineList: document.getElementById('planTimelineList'),
+      planEmptyState: document.getElementById('planEmptyState'),
+      btnEmptyResetDemo: document.getElementById('btnEmptyResetDemo'),
+      btnEmptyPickPlace: document.getElementById('btnEmptyPickPlace'),
+      sidebarPlaceSearch: document.getElementById('sidebarPlaceSearch'),
+      sidebarPlacesList: document.getElementById('sidebarPlacesList'),
+      planPickPlaceModal: document.getElementById('planPickPlaceModal'),
+      planPickModalClose: document.getElementById('planPickModalClose'),
+      modalPickSearch: document.getElementById('modalPickSearch'),
+      modalPickCategory: document.getElementById('modalPickCategory'),
+      modalPlacesPickerGrid: document.getElementById('modalPlacesPickerGrid'),
+      planAddCustomModal: document.getElementById('planAddCustomModal'),
+      planCustomModalClose: document.getElementById('planCustomModalClose'),
+      planCustomForm: document.getElementById('planCustomForm'),
+      customStopName: document.getElementById('customStopName'),
+      customStopTime: document.getElementById('customStopTime'),
+      customStopPeriod: document.getElementById('customStopPeriod'),
+      customStopCategory: document.getElementById('customStopCategory'),
+      customStopAddress: document.getElementById('customStopAddress'),
+      customStopDish: document.getElementById('customStopDish'),
+      customStopPrice: document.getElementById('customStopPrice'),
+      customStopNote: document.getElementById('customStopNote'),
+      planShareModal: document.getElementById('planShareModal'),
+      planShareModalClose: document.getElementById('planShareModalClose'),
+      planShareTextarea: document.getElementById('planShareTextarea'),
+      btnCopyShareText: document.getElementById('btnCopyShareText')
     };
   },
 
@@ -509,5 +549,245 @@ const view = {
       toast.style.transition = 'all 0.3s ease';
       setTimeout(() => toast.remove(), 300);
     }, 3500);
+  },
+
+  // ==========================================================================
+  // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) RENDERING
+  // ==========================================================================
+  renderTripPlan(plan, onToggleComplete, onDeleteStop) {
+    if (!this.dom.planTimelineList) return;
+
+    const items = (plan && Array.isArray(plan.items)) ? plan.items : [];
+    const total = items.length;
+    const completedCount = items.filter(i => i.isCompleted).length;
+
+    // Cập nhật thống kê
+    if (this.dom.statPlanStops) {
+      this.dom.statPlanStops.textContent = `${total} địa điểm`;
+    }
+    if (this.dom.statPlanProgress) {
+      this.dom.statPlanProgress.textContent = `${completedCount}/${total} đã ghé`;
+    }
+    if (this.dom.planBadgeCount) {
+      this.dom.planBadgeCount.textContent = total > 0 ? `${total} điểm` : 'Mới';
+    }
+
+    if (total === 0) {
+      this.dom.planTimelineList.style.display = 'none';
+      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
+      if (this.dom.statPlanDuration) this.dom.statPlanDuration.textContent = '0 tiếng';
+      if (this.dom.statPlanBudget) this.dom.statPlanBudget.textContent = '0đ';
+      this.refreshIcons();
+      return;
+    }
+
+    this.dom.planTimelineList.style.display = 'block';
+    if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'none';
+
+    // Tính thời lượng
+    const firstTime = items[0].time ? items[0].time.split('-')[0].trim() : '08:00';
+    const lastTime = items[items.length - 1].time ? (items[items.length - 1].time.split('-')[1] || items[items.length - 1].time).trim() : '21:00';
+    if (this.dom.statPlanDuration) {
+      this.dom.statPlanDuration.textContent = `${firstTime} - ${lastTime}`;
+    }
+
+    // Hiển thị danh sách chặng
+    let html = '';
+    items.forEach((item, index) => {
+      const isDone = !!item.isCompleted;
+      const isLast = index === items.length - 1;
+      const catBadge = item.category === 'cafe' ? '☕ Cafe' : (item.category === 'food' ? '🍜 Quán ăn' : '🎡 Điểm chill');
+      const thumb = item.image || this.getFallbackImage({ category: item.category, name: item.placeName });
+
+      // Link Google Maps
+      const mapsQuery = encodeURIComponent(`${item.placeName || ''} ${item.address || ''}`);
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+
+      html += `
+        <div class="timeline-stop-item ${isDone ? 'completed' : ''}" data-stop-id="${item.id}">
+          <!-- Left Time Node -->
+          <div class="timeline-time-node">
+            <div class="timeline-marker-circle" title="Chặng ${index + 1}">
+              ${isDone ? '<i data-lucide="check"></i>' : (index + 1)}
+            </div>
+            <span class="timeline-period-badge">${this.escapeHTML(item.period || 'Chặng')}</span>
+          </div>
+
+          <!-- Right Place Card -->
+          <div class="timeline-place-card">
+            <div class="card-top-header">
+              <div class="card-thumb-wrap">
+                <img src="${this.escapeHTML(thumb)}" alt="${this.escapeHTML(item.placeName || item.title)}" class="card-thumb-img" loading="lazy">
+                <span class="card-thumb-badge">${catBadge}</span>
+              </div>
+
+              <div class="card-main-meta">
+                <div class="card-time-row">
+                  <span class="card-time-tag">
+                    <i data-lucide="clock"></i> ${this.escapeHTML(item.time || 'Linh hoạt')}
+                  </span>
+                  <span class="card-status-badge ${isDone ? 'done' : 'pending'}">
+                    ${isDone ? '<i data-lucide="check-circle-2"></i> Đã ghé' : '<i data-lucide="circle"></i> Dự kiến'}
+                  </span>
+                </div>
+
+                <h4 class="card-place-title">${this.escapeHTML(item.placeName || item.title)}</h4>
+
+                <div class="card-info-pills">
+                  ${item.address ? `
+                    <span class="card-info-pill" title="${this.escapeHTML(item.address)}">
+                      <i data-lucide="map-pin"></i> ${this.escapeHTML(item.address)}
+                    </span>
+                  ` : ''}
+                  ${item.recommendedDish ? `
+                    <span class="card-info-pill" title="Món nổi bật">
+                      <i data-lucide="sparkles"></i> ${this.escapeHTML(item.recommendedDish)}
+                    </span>
+                  ` : ''}
+                  ${item.priceRange ? `
+                    <span class="card-info-pill" title="Mức giá">
+                      <i data-lucide="coins"></i> ${this.escapeHTML(item.priceRange)}
+                    </span>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+
+            ${item.note ? `
+              <div class="card-note-box">
+                <i data-lucide="sticky-note"></i>
+                <span>${this.escapeHTML(item.note)}</span>
+              </div>
+            ` : ''}
+
+            <div class="card-actions-footer">
+              <button type="button" class="btn-complete-toggle ${isDone ? 'checked' : ''}" data-action="toggle-complete" data-id="${item.id}">
+                <i data-lucide="${isDone ? 'check-square' : 'square'}"></i>
+                <span>${isDone ? 'Đã hoàn thành' : 'Đánh dấu đã ghé'}</span>
+              </button>
+
+              <div class="card-action-btns-right">
+                <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-card-action" title="Chỉ đường trên Google Maps">
+                  <i data-lucide="navigation"></i>
+                </a>
+                <button type="button" class="btn-card-action btn-del-action" data-action="delete-stop" data-id="${item.id}" title="Xóa khỏi lịch trình">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${(!isLast && item.travelDuration) ? `
+          <div class="timeline-travel-connector">
+            <i data-lucide="move-down"></i>
+            <span>${this.escapeHTML(item.travelDuration)}</span>
+          </div>
+        ` : ''}
+      `;
+    });
+
+    this.dom.planTimelineList.innerHTML = html;
+
+    // Gắn sự kiện các nút trong timeline card
+    this.dom.planTimelineList.querySelectorAll('[data-action="toggle-complete"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        onToggleComplete(id);
+      });
+    });
+
+    this.dom.planTimelineList.querySelectorAll('[data-action="delete-stop"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        onDeleteStop(id);
+      });
+    });
+
+    this.refreshIcons();
+  },
+
+  renderPlanSidebarPlaces(places, onQuickAdd) {
+    if (!this.dom.sidebarPlacesList) return;
+    if (!places || places.length === 0) {
+      this.dom.sidebarPlacesList.innerHTML = `
+        <div style="text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.8rem;">
+          Không tìm thấy quán phù hợp
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    places.slice(0, 15).forEach(p => {
+      const thumb = (p.image && p.image.trim()) || this.getFallbackImage(p);
+      const catLabel = p.category === 'cafe' ? 'Cafe' : 'Quán ăn';
+      html += `
+        <div class="sidebar-place-item">
+          <img src="${this.escapeHTML(thumb)}" alt="${this.escapeHTML(p.name)}" class="sidebar-item-thumb" loading="lazy">
+          <div class="sidebar-item-info">
+            <div class="sidebar-item-name" title="${this.escapeHTML(p.name)}">${this.escapeHTML(p.name)}</div>
+            <div class="sidebar-item-sub">${catLabel} • ${this.escapeHTML(p.city || 'Toàn quốc')}</div>
+          </div>
+          <button type="button" class="btn-sidebar-add" data-place-id="${p.id}" title="Thêm vào kế hoạch đi chơi">
+            + Thêm
+          </button>
+        </div>
+      `;
+    });
+
+    this.dom.sidebarPlacesList.innerHTML = html;
+
+    this.dom.sidebarPlacesList.querySelectorAll('.btn-sidebar-add').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-place-id');
+        const place = places.find(p => String(p.id) === String(id));
+        if (place) onQuickAdd(place);
+      });
+    });
+  },
+
+  renderModalPickPlaces(places, onSelectPlace) {
+    if (!this.dom.modalPlacesPickerGrid) return;
+    if (!places || places.length === 0) {
+      this.dom.modalPlacesPickerGrid.innerHTML = `
+        <div style="grid-column: 1/-1; text-align: center; padding: 36px; color: var(--text-muted);">
+          Không có quán nào phù hợp với bộ lọc tìm kiếm
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    places.forEach(p => {
+      const thumb = (p.image && p.image.trim()) || this.getFallbackImage(p);
+      const catLabel = p.category === 'cafe' ? '☕ Quán Cafe' : '🍜 Quán Ăn';
+      html += `
+        <div class="picker-place-card" data-place-id="${p.id}">
+          <img src="${this.escapeHTML(thumb)}" alt="${this.escapeHTML(p.name)}" class="picker-place-img" loading="lazy">
+          <div class="picker-place-body">
+            <h4 class="picker-place-name">${this.escapeHTML(p.name)}</h4>
+            <div class="picker-place-addr">${this.escapeHTML(p.address || p.city || '')}</div>
+            <div class="picker-place-footer">
+              <span>${catLabel}</span>
+              <span>+ Chọn quán</span>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    this.dom.modalPlacesPickerGrid.innerHTML = html;
+
+    this.dom.modalPlacesPickerGrid.querySelectorAll('.picker-place-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const id = card.getAttribute('data-place-id');
+        const place = places.find(p => String(p.id) === String(id));
+        if (place) onSelectPlace(place);
+      });
+    });
   }
 };

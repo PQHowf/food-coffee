@@ -456,13 +456,14 @@ const appController = {
 
   switchTab(tab) {
     model.currentTab = tab;
-    [view.dom.tabFood, view.dom.tabCafe, view.dom.tabAdd].forEach(btn => btn?.classList.remove('active'));
+    [view.dom.tabFood, view.dom.tabCafe, view.dom.tabAdd, view.dom.tabPlan].forEach(btn => btn?.classList.remove('active'));
 
     if (tab === 'food') {
       view.dom.tabFood?.classList.add('active');
       view.dom.placesSection.style.display = 'block';
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
+      if (view.dom.planSection) view.dom.planSection.style.display = 'none';
       view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN ĂN';
       if (view.dom.sectionDesc) view.dom.sectionDesc.textContent = '';
       this.renderCurrentPlaces();
@@ -471,6 +472,7 @@ const appController = {
       view.dom.placesSection.style.display = 'block';
       view.dom.filterToolbar.style.display = 'flex';
       view.dom.addPlaceSection.style.display = 'none';
+      if (view.dom.planSection) view.dom.planSection.style.display = 'none';
       view.dom.sectionTitle.textContent = 'DANH SÁCH QUÁN CAFE';
       if (view.dom.sectionDesc) view.dom.sectionDesc.textContent = '';
       this.renderCurrentPlaces();
@@ -478,10 +480,261 @@ const appController = {
       view.dom.tabAdd?.classList.add('active');
       view.dom.placesSection.style.display = 'none';
       view.dom.filterToolbar.style.display = 'none';
+      if (view.dom.planSection) view.dom.planSection.style.display = 'none';
       view.dom.addPlaceSection.style.display = 'block';
       this.renderAddTabContent();
+    } else if (tab === 'plan') {
+      view.dom.tabPlan?.classList.add('active');
+      view.dom.placesSection.style.display = 'none';
+      view.dom.filterToolbar.style.display = 'none';
+      view.dom.addPlaceSection.style.display = 'none';
+      if (view.dom.planSection) view.dom.planSection.style.display = 'block';
+      this.renderPlanTab();
     }
     view.refreshIcons();
+  },
+
+  // ==========================================================================
+  // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) CONTROLLER
+  // ==========================================================================
+  planSidebarFilterCat: 'all',
+  planSidebarSearchQuery: '',
+
+  renderPlanTab() {
+    if (!model.tripPlan) {
+      model.initTripPlan();
+    }
+
+    // 1. Render Timeline
+    view.renderTripPlan(
+      model.tripPlan,
+      (stopId) => this.handleTogglePlanStop(stopId),
+      (stopId) => this.handleDeletePlanStop(stopId)
+    );
+
+    // 2. Render Sidebar Quán Gợi Ý
+    let sidebarPlaces = [...model.places];
+    if (this.planSidebarFilterCat !== 'all') {
+      sidebarPlaces = sidebarPlaces.filter(p => p.category === this.planSidebarFilterCat);
+    }
+    if (this.planSidebarSearchQuery) {
+      const q = this.planSidebarSearchQuery.toLowerCase();
+      sidebarPlaces = sidebarPlaces.filter(p => 
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.address && p.address.toLowerCase().includes(q)) ||
+        (p.recommendedDish && p.recommendedDish.toLowerCase().includes(q))
+      );
+    }
+    view.renderPlanSidebarPlaces(sidebarPlaces, (place) => this.handleQuickAddPlaceToPlan(place));
+  },
+
+  handleTogglePlanStop(stopId) {
+    const isDone = model.togglePlanStopComplete(stopId);
+    this.renderPlanTab();
+    view.showToast(isDone ? '🎉 Đã đánh dấu ghé thăm địa điểm!' : 'Đã bỏ đánh dấu hoàn thành.', 'info');
+  },
+
+  handleDeletePlanStop(stopId) {
+    model.removePlanStop(stopId);
+    this.renderPlanTab();
+    view.showToast('Đã xóa chặng khỏi lịch trình!', 'info');
+  },
+
+  handleQuickAddPlaceToPlan(place) {
+    const items = model.tripPlan?.items || [];
+    const count = items.length;
+
+    // Tự động gán khung giờ hợp lý tiếp theo
+    let nextTime = '08:00 - 09:30';
+    let period = 'Sáng';
+    if (count === 1) {
+      nextTime = '10:00 - 11:30';
+      period = 'Sáng';
+    } else if (count === 2) {
+      nextTime = '12:00 - 13:45';
+      period = 'Trưa';
+    } else if (count === 3) {
+      nextTime = '14:30 - 17:00';
+      period = 'Chiều';
+    } else if (count >= 4) {
+      nextTime = '18:30 - 21:00';
+      period = 'Tối';
+    }
+
+    const stop = {
+      time: nextTime,
+      period: period,
+      title: place.category === 'cafe' ? `Cà phê & thư giãn tại ${place.name}` : `Ăn ngon tại ${place.name}`,
+      category: place.category || 'food',
+      placeId: place.id,
+      placeName: place.name,
+      address: place.address || place.city || '',
+      recommendedDish: place.recommendedDish || '',
+      priceRange: place.priceRange || '<100K',
+      image: (place.image && place.image.trim()) || '',
+      note: `Gợi ý bởi ${place.suggestedBy || 'Cộng đồng CofFood'}.`,
+      travelDuration: `~15 phút di chuyển`,
+      isCompleted: false
+    };
+
+    model.addPlanStop(stop);
+    this.renderPlanTab();
+    view.showToast(`✨ Đã thêm "${place.name}" vào lịch trình!`, 'success');
+  },
+
+  // Modal Chọn quán từ dữ liệu
+  openPlanPickPlaceModal() {
+    if (!view.dom.planPickPlaceModal) return;
+    this.renderModalPickList();
+    view.dom.planPickPlaceModal.style.display = 'flex';
+    view.dom.planPickPlaceModal.removeAttribute('aria-hidden');
+    view.refreshIcons();
+  },
+
+  closePlanPickPlaceModal() {
+    if (view.dom.planPickPlaceModal) {
+      view.dom.planPickPlaceModal.style.display = 'none';
+      view.dom.planPickPlaceModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  renderModalPickList() {
+    let list = [...model.places];
+    const cat = view.dom.modalPickCategory?.value || 'all';
+    const q = (view.dom.modalPickSearch?.value || '').toLowerCase().trim();
+
+    if (cat !== 'all') {
+      list = list.filter(p => p.category === cat);
+    }
+    if (q) {
+      list = list.filter(p =>
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.address && p.address.toLowerCase().includes(q))
+      );
+    }
+
+    view.renderModalPickPlaces(list, (place) => {
+      this.handleQuickAddPlaceToPlan(place);
+      this.closePlanPickPlaceModal();
+    });
+  },
+
+  // Modal Thêm điểm tự do
+  openPlanAddCustomModal() {
+    if (!view.dom.planAddCustomModal) return;
+    if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
+    view.dom.planAddCustomModal.style.display = 'flex';
+    view.dom.planAddCustomModal.removeAttribute('aria-hidden');
+    view.refreshIcons();
+  },
+
+  closePlanAddCustomModal() {
+    if (view.dom.planAddCustomModal) {
+      view.dom.planAddCustomModal.style.display = 'none';
+      view.dom.planAddCustomModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  handleCustomStopSubmit(e) {
+    e.preventDefault();
+    const name = view.dom.customStopName?.value.trim();
+    const time = view.dom.customStopTime?.value.trim();
+    if (!name || !time) {
+      view.showToast('Vui lòng nhập tên địa điểm và khung giờ!', 'warning');
+      return;
+    }
+
+    const period = view.dom.customStopPeriod?.value || 'Chiều';
+    const category = view.dom.customStopCategory?.value || 'custom';
+    const address = view.dom.customStopAddress?.value.trim() || '';
+    const dish = view.dom.customStopDish?.value.trim() || '';
+    const price = view.dom.customStopPrice?.value.trim() || '';
+    const note = view.dom.customStopNote?.value.trim() || '';
+
+    const stop = {
+      time: time,
+      period: period,
+      title: name,
+      category: category,
+      placeName: name,
+      address: address,
+      recommendedDish: dish,
+      priceRange: price,
+      image: '',
+      note: note,
+      travelDuration: '~15 phút di chuyển',
+      isCompleted: false
+    };
+
+    model.addPlanStop(stop);
+    this.closePlanAddCustomModal();
+    this.renderPlanTab();
+    view.showToast(`🎉 Đã thêm "${name}" vào lịch trình!`, 'success');
+  },
+
+  // Modal Chia sẻ lịch trình
+  openPlanShareModal() {
+    if (!view.dom.planShareModal) return;
+    const plan = model.tripPlan;
+    if (!plan || !plan.items || plan.items.length === 0) {
+      view.showToast('Lịch trình hiện đang trống! Hãy thêm địa điểm trước khi chia sẻ.', 'warning');
+      return;
+    }
+
+    let text = `📋 LỊCH TRÌNH ĐI CHƠI: ${plan.title || 'CofFood Plan'}\n`;
+    text += `🗓️ Thời gian: ${plan.date || 'Cuối tuần'}\n`;
+    if (plan.note) text += `💡 Lưu ý: ${plan.note}\n`;
+    text += `-----------------------------------------\n\n`;
+
+    plan.items.forEach((item, index) => {
+      const icon = item.category === 'cafe' ? '☕' : (item.category === 'food' ? '🍜' : '🎡');
+      text += `${index + 1}. [${item.time || 'Linh hoạt'}] ${icon} ${item.placeName || item.title}\n`;
+      if (item.address) text += `   📍 Địa chỉ: ${item.address}\n`;
+      if (item.recommendedDish) text += `   ⭐ Món nổi bật: ${item.recommendedDish}\n`;
+      if (item.priceRange) text += `   💰 Giá: ${item.priceRange}\n`;
+      if (item.note) text += `   📝 Ghi chú: ${item.note}\n`;
+      if (item.travelDuration && index < plan.items.length - 1) {
+        text += `   🚗 Di chuyển tiếp theo: ${item.travelDuration}\n`;
+      }
+      text += `\n`;
+    });
+
+    text += `-----------------------------------------\n`;
+    text += `✨ Lập lịch trình qua CofFood: https://coffood.com (Gợi ý Quán Ăn & Cafe Chill)`;
+
+    if (view.dom.planShareTextarea) {
+      view.dom.planShareTextarea.value = text;
+    }
+
+    view.dom.planShareModal.style.display = 'flex';
+    view.dom.planShareModal.removeAttribute('aria-hidden');
+    view.refreshIcons();
+  },
+
+  closePlanShareModal() {
+    if (view.dom.planShareModal) {
+      view.dom.planShareModal.style.display = 'none';
+      view.dom.planShareModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  async handleCopyShareText() {
+    if (!view.dom.planShareTextarea) return;
+    const text = view.dom.planShareTextarea.value;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        view.dom.planShareTextarea.select();
+        document.execCommand('copy');
+      }
+      view.showToast('✅ Đã sao chép toàn bộ lịch trình! Bạn có thể dán ngay vào Zalo/Messenger.', 'success');
+      this.closePlanShareModal();
+    } catch (e) {
+      view.dom.planShareTextarea.select();
+      document.execCommand('copy');
+      view.showToast('✅ Đã sao chép lịch trình!', 'success');
+    }
   },
 
   renderAddTabContent() {
@@ -1246,6 +1499,7 @@ const appController = {
     view.dom.tabFood?.addEventListener('click', () => this.switchTab('food'));
     view.dom.tabCafe?.addEventListener('click', () => this.switchTab('cafe'));
     view.dom.tabAdd?.addEventListener('click', () => this.switchTab('add'));
+    view.dom.tabPlan?.addEventListener('click', () => this.switchTab('plan'));
 
     // City Filter
     view.dom.cityFilter?.addEventListener('change', (e) => {
@@ -1581,6 +1835,56 @@ const appController = {
       });
     });
 
+    // Trip Planner Events
+    view.dom.btnPlanPickFromDb?.addEventListener('click', () => this.openPlanPickPlaceModal());
+    view.dom.btnEmptyPickPlace?.addEventListener('click', () => this.openPlanPickPlaceModal());
+    view.dom.btnPlanAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
+    view.dom.btnPlanResetDemo?.addEventListener('click', () => {
+      model.resetToDemoPlan();
+      this.renderPlanTab();
+      view.showToast('✨ Đã nạp lại lịch trình mẫu cực đẹp!', 'success');
+    });
+    view.dom.btnEmptyResetDemo?.addEventListener('click', () => {
+      model.resetToDemoPlan();
+      this.renderPlanTab();
+      view.showToast('✨ Đã nạp lại lịch trình mẫu cực đẹp!', 'success');
+    });
+    view.dom.btnPlanClear?.addEventListener('click', () => {
+      if (confirm('Bạn có chắc chắn muốn xóa tất cả địa điểm trong kế hoạch không?')) {
+        model.clearPlan();
+        this.renderPlanTab();
+        view.showToast('Đã xóa tất cả điểm trong lịch trình.', 'info');
+      }
+    });
+    view.dom.btnPlanShare?.addEventListener('click', () => this.openPlanShareModal());
+    view.dom.btnCopyShareText?.addEventListener('click', () => this.handleCopyShareText());
+
+    // Sidebar quick filter & search
+    view.dom.sidebarPlaceSearch?.addEventListener('input', (e) => {
+      this.planSidebarSearchQuery = e.target.value.trim();
+      this.renderPlanTab();
+    });
+    document.querySelectorAll('.sidebar-cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sidebar-cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.planSidebarFilterCat = btn.getAttribute('data-cat') || 'all';
+        this.renderPlanTab();
+      });
+    });
+
+    // Plan Modals close
+    view.dom.planPickModalClose?.addEventListener('click', () => this.closePlanPickPlaceModal());
+    view.dom.planCustomModalClose?.addEventListener('click', () => this.closePlanAddCustomModal());
+    view.dom.planShareModalClose?.addEventListener('click', () => this.closePlanShareModal());
+
+    // Modal pick filters
+    view.dom.modalPickSearch?.addEventListener('input', () => this.renderModalPickList());
+    view.dom.modalPickCategory?.addEventListener('change', () => this.renderModalPickList());
+
+    // Modal custom form submit
+    view.dom.planCustomForm?.addEventListener('submit', (e) => this.handleCustomStopSubmit(e));
+
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {
       if (e.target === view.dom.authModal) this.closeAuthModal();
@@ -1588,6 +1892,9 @@ const appController = {
       if (e.target === view.dom.randomModal) this.closeRandomModal();
       if (e.target === view.dom.editPlaceModal) this.closeEditPlaceModal();
       if (e.target === view.dom.iosInstallModal) this.closePwaInstallModal();
+      if (e.target === view.dom.planPickPlaceModal) this.closePlanPickPlaceModal();
+      if (e.target === view.dom.planAddCustomModal) this.closePlanAddCustomModal();
+      if (e.target === view.dom.planShareModal) this.closePlanShareModal();
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1596,6 +1903,9 @@ const appController = {
         this.closeRandomModal();
         this.closeEditPlaceModal();
         this.closePwaInstallModal();
+        this.closePlanPickPlaceModal();
+        this.closePlanAddCustomModal();
+        this.closePlanShareModal();
       }
     });
   },
@@ -1689,7 +1999,7 @@ const appController = {
     const tabParam = urlParams.get('tab');
     if (action === 'random') {
       setTimeout(() => this.openRandomModal(), 600);
-    } else if (tabParam && ['food', 'cafe', 'add'].includes(tabParam)) {
+    } else if (tabParam && ['food', 'cafe', 'add', 'plan'].includes(tabParam)) {
       this.switchTab(tabParam);
     }
   },

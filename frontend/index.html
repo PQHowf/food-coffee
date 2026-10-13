@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>GỢI Ý QUÁN ĂN & QUÁN CAFE | HÔM NAY ĂN GÌ?</title>
-  <meta name="description" content="Khám phá và chia sẻ các quán ăn ngon, quán cafe đẹp tại Hà Nội, TP.HCM, Đà Nẵng, Đà Lạt. Tìm kiếm, lọc theo giá, thành phố và quay ngẫu nhiên hôm nay ăn gì!">
-  
+  <meta name="description"
+    content="Khám phá và chia sẻ các quán ăn ngon, quán cafe đẹp. Tìm kiếm, lọc theo giá, thành phố và quay ngẫu nhiên hôm nay ăn gì!">
+
   <!-- Progressive Web App (PWA) Manifest & Meta -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#f97316">
@@ -28,12 +30,14 @@
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+    rel="stylesheet">
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=3.4">
+  <link rel="stylesheet" href="assets/css/style.css?v=3.5">
 </head>
+
 <body>
 
 
@@ -71,10 +75,11 @@
     <div class="container hero-content">
       <h1 class="hero-title">KHÁM PHÁ ĐỊA ĐIỂM <span>ĂN UỐNG & CÀ PHÊ</span> TUYỆT VỜI</h1>
       <p class="hero-desc">
-        Hàng trăm quán ăn ngon và góc cafe chill được chọn lọc kỹ lưỡng, kèm thông tin người gợi ý thật và đánh giá chi tiết.
+        Hàng trăm quán ăn ngon và góc cafe chill được chọn lọc kỹ lưỡng, kèm thông tin người gợi ý thật và đánh giá chi
+        tiết.
       </p>
 
-      <!-- 3 Navigation Tabs (Tab 1: Quán ăn, Tab 2: Quán cafe, Tab 3: Thêm quán) -->
+      <!-- 4 Navigation Tabs (Quán ăn, Quán cafe, Thêm quán, Kế hoạch đi chơi) -->
       <nav class="main-tabs-wrapper" aria-label="Danh mục chính">
         <div class="main-tabs">
           <button class="tab-btn active" id="tabFood" data-tab="food">
@@ -96,6 +101,12 @@
               <i data-lucide="lock"></i>
             </span>
           </button>
+
+          <button class="tab-btn" id="tabPlan" data-tab="plan">
+            <span class="tab-icon"><i data-lucide="map-pinned"></i></span>
+            <span class="tab-label">KẾ HOẠCH ĐI CHƠI</span>
+            <span class="tab-badge-new" id="planBadgeCount">Demo</span>
+          </button>
         </div>
       </nav>
     </div>
@@ -108,13 +119,8 @@
     <section class="filter-toolbar" id="filterToolbar" aria-label="Bộ lọc và sắp xếp">
       <div class="search-box-wrapper">
         <i data-lucide="search" class="search-icon"></i>
-        <input 
-          type="text" 
-          id="searchInput" 
-          placeholder="Tìm tên quán, món ngon, địa chỉ..." 
-          aria-label="Tìm kiếm địa điểm"
-          autocomplete="off"
-        >
+        <input type="text" id="searchInput" placeholder="Tìm tên quán, món ngon, địa chỉ..."
+          aria-label="Tìm kiếm địa điểm" autocomplete="off">
         <button class="clear-search-btn" id="clearSearchBtn" title="Xóa tìm kiếm" style="display: none;">
           <i data-lucide="x"></i>
         </button>
@@ -189,7 +195,7 @@
 
     <!-- TAB 3: ADD PLACE VIEW -->
     <section class="add-place-section" id="addPlaceSection" style="display: none;">
-      
+
       <!-- STATE 1: GUEST RESTRICTION (Requires Login) -->
       <div class="guest-gate-card" id="guestGateCard">
         <div class="lock-illustration">
@@ -199,7 +205,7 @@
         </div>
         <h2 class="gate-title">CHỨC NĂNG THÊM QUÁN YÊU CẦU ĐĂNG NHẬP</h2>
         <p class="gate-desc">
-          Bạn đang ở chế độ <strong>Khách tham quan</strong> (chỉ xem được danh mục Quán ăn và Quán cafe). 
+          Bạn đang ở chế độ <strong>Khách tham quan</strong> (chỉ xem được danh mục Quán ăn và Quán cafe).
           Để đóng góp quán ngon mới và gắn tên bạn vào mục <em>"Gợi ý từ: ..."</em>, vui lòng đăng nhập tài khoản.
         </p>
         <div class="gate-actions">
@@ -226,7 +232,7 @@
 
         <form id="addPlaceForm" class="add-place-form" novalidate>
           <div class="form-grid">
-            
+
             <!-- Category Selection -->
             <div class="form-group full-width">
               <label class="form-label">Loại Hình Địa Điểm <span class="required">*</span></label>
@@ -299,7 +305,8 @@
               <label for="newPlaceDish" class="form-label">Món Ngon / Điểm Đặc Sắc Nên Thử</label>
               <div class="input-with-icon">
                 <i data-lucide="heart"></i>
-                <input type="text" id="newPlaceDish" placeholder="Ví dụ: Bò xào tái lăn nhiều hành, Cà phê cốt dừa béo mịn...">
+                <input type="text" id="newPlaceDish"
+                  placeholder="Ví dụ: Bò xào tái lăn nhiều hành, Cà phê cốt dừa béo mịn...">
               </div>
             </div>
 
@@ -308,13 +315,8 @@
               <label class="form-label">Hình Ảnh Món Ăn / Quán</label>
               <div class="image-upload-wrapper" id="imageUploadWrapper">
                 <!-- Native file input supporting iOS camera/photos, Android gallery/camera, Mac/Win file chooser -->
-                <input 
-                  type="file" 
-                  id="newPlaceFileInput" 
-                  accept="image/*" 
-                  class="file-input-hidden"
-                >
-                
+                <input type="file" id="newPlaceFileInput" accept="image/*" class="file-input-hidden">
+
                 <!-- Upload drop zone / click to upload -->
                 <div class="upload-dropzone" id="uploadDropZone" role="button" tabindex="0">
                   <div class="upload-icon-circle">
@@ -385,6 +387,146 @@
 
     </section>
 
+    <!-- TAB 4: TRIP PLANNER VIEW (LÊN KẾ HOẠCH ĐI CHƠI) -->
+    <section class="plan-section" id="planSection" style="display: none;">
+      <!-- Plan Hero Banner & Control Toolbar -->
+      <div class="plan-hero-banner">
+        <div class="plan-hero-text">
+          <div class="plan-badge-pill">
+            <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
+          </div>
+          <h2 class="plan-title" id="planHeroTitle">LỊCH TRÌNH 1 NGÀY: ĂN NGON & CAFE CHILL</h2>
+          <p class="plan-subtitle" id="planHeroSubtitle">
+            Sắp xếp lộ trình theo dòng thời gian (timeline), kết hợp các món ngon, góc cafe chill và địa điểm vui chơi cho một ngày trọn vẹn.
+          </p>
+        </div>
+
+        <div class="plan-toolbar-actions">
+          <button class="btn btn-primary" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
+            <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
+          </button>
+          <button class="btn btn-secondary" id="btnPlanAddCustom" title="Thêm địa điểm bất kỳ (rạp phim, bờ hồ...)">
+            <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
+          </button>
+          <button class="btn btn-secondary" id="btnPlanResetDemo" title="Nạp lại lịch trình mẫu cực đẹp">
+            <i data-lucide="rotate-ccw"></i> Lịch Trình Mẫu
+          </button>
+          <button class="btn btn-secondary" id="btnPlanShare" title="Chia sẻ hoặc sao chép lịch trình">
+            <i data-lucide="share-2"></i> Chia Sẻ
+          </button>
+          <button class="btn btn-outline-danger" id="btnPlanClear" title="Xóa toàn bộ điểm dừng">
+            <i data-lucide="trash-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Statistics Grid -->
+      <div class="plan-stats-grid">
+        <div class="plan-stat-card">
+          <div class="stat-icon-wrap stat-icon-orange">
+            <i data-lucide="map-pin"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Tổng Điểm Đến</span>
+            <strong class="stat-val" id="statPlanStops">5 địa điểm</strong>
+          </div>
+        </div>
+
+        <div class="plan-stat-card">
+          <div class="stat-icon-wrap stat-icon-blue">
+            <i data-lucide="clock"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Thời Lượng Dự Kiến</span>
+            <strong class="stat-val" id="statPlanDuration">~13 tiếng (08:00 - 21:00)</strong>
+          </div>
+        </div>
+
+        <div class="plan-stat-card">
+          <div class="stat-icon-wrap stat-icon-green">
+            <i data-lucide="coins"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Dự Toán Chi Phí</span>
+            <strong class="stat-val" id="statPlanBudget">~350K - 520K / người</strong>
+          </div>
+        </div>
+
+        <div class="plan-stat-card">
+          <div class="stat-icon-wrap stat-icon-purple">
+            <i data-lucide="check-circle-2"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Tiến Độ Trải Nghiệm</span>
+            <strong class="stat-val" id="statPlanProgress">1/5 đã ghé</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Plan Content (Split Layout: Timeline on Left, Quick Place Discovery on Right) -->
+      <div class="plan-layout-grid">
+        <!-- Left Column: Vertical Timeline & Place Cards -->
+        <div class="plan-timeline-column">
+          <div class="timeline-header-strip">
+            <div class="timeline-strip-title">
+              <i data-lucide="list-ordered"></i>
+              <span>DÒNG THỜI GIAN LỊCH TRÌNH</span>
+            </div>
+            <span class="timeline-strip-hint">Chạm vào nút hoàn thành khi bạn đã ghé quán</span>
+          </div>
+
+          <div class="timeline-wrapper" id="planTimelineList">
+            <!-- Dynamic timeline items rendered by JavaScript -->
+          </div>
+
+          <!-- Empty state when plan is cleared -->
+          <div class="plan-empty-state" id="planEmptyState" style="display: none;">
+            <div class="plan-empty-icon">
+              <i data-lucide="calendar-x"></i>
+            </div>
+            <h3>Chưa có địa điểm nào trong kế hoạch</h3>
+            <p>Hãy chọn những quán ăn, cafe bạn yêu thích từ kho dữ liệu hoặc bấm xem lịch trình mẫu có sẵn!</p>
+            <div class="plan-empty-actions">
+              <button class="btn btn-primary" id="btnEmptyResetDemo">
+                <i data-lucide="sparkles"></i> Xem Lịch Trình Mẫu Ngay
+              </button>
+              <button class="btn btn-secondary" id="btnEmptyPickPlace">
+                <i data-lucide="plus"></i> Chọn Quán Từ Danh Sách
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Quick Add Sidebar (Kho Quán Gợi Ý) -->
+        <aside class="plan-sidebar-column">
+          <div class="plan-sidebar-card">
+            <div class="sidebar-card-header">
+              <div class="sidebar-title-wrap">
+                <i data-lucide="compass"></i>
+                <h3 class="sidebar-title">GỢI Ý QUÁN THÊM NHANH</h3>
+              </div>
+              <span class="sidebar-desc">Bấm <strong>"+ Thêm"</strong> để đưa vào lịch trình ngay</span>
+            </div>
+
+            <div class="sidebar-search-box">
+              <i data-lucide="search"></i>
+              <input type="text" id="sidebarPlaceSearch" placeholder="Tìm nhanh quán ăn, cafe...">
+            </div>
+
+            <div class="sidebar-category-filter">
+              <button class="sidebar-cat-btn active" data-cat="all">Tất cả</button>
+              <button class="sidebar-cat-btn" data-cat="food">Quán Ăn</button>
+              <button class="sidebar-cat-btn" data-cat="cafe">Quán Cafe</button>
+            </div>
+
+            <div class="sidebar-places-list" id="sidebarPlacesList">
+              <!-- Rendered dynamically by JS -->
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
   </main>
 
   <!-- MODAL 1: AUTH (LOGIN / REGISTER / QUICK DEMO) -->
@@ -421,7 +563,8 @@
 
         <!-- Tên đăng nhập (Hiện ở cả Đăng Nhập & Đăng Ký) -->
         <div class="form-group" id="authUsernameGroup">
-          <label for="authUsername" class="form-label" id="authUsernameLabel">Tên đăng nhập hoặc Email <span class="required">*</span></label>
+          <label for="authUsername" class="form-label" id="authUsernameLabel">Tên đăng nhập hoặc Email <span
+              class="required">*</span></label>
           <div class="input-with-icon">
             <i data-lucide="at-sign"></i>
             <input type="text" id="authUsername" autocomplete="username" required>
@@ -490,7 +633,8 @@
       <!-- Account Navigation Tabs: Hồ sơ cá nhân - Quán đã thêm - Đổi mật khẩu -->
       <div class="auth-tabs account-modal-tabs" style="margin-top: 10px; margin-bottom: 16px;">
         <button type="button" class="auth-tab active" id="accTabProfile">HỒ SƠ CÁ NHÂN</button>
-        <button type="button" class="auth-tab" id="accTabMyPlaces">QUÁN ĐÃ THÊM (<span id="accPlacesCountTab">0</span>)</button>
+        <button type="button" class="auth-tab" id="accTabMyPlaces">QUÁN ĐÃ THÊM (<span
+            id="accPlacesCountTab">0</span>)</button>
         <button type="button" class="auth-tab" id="accTabPassword">ĐỔI MẬT KHẨU</button>
       </div>
 
@@ -548,7 +692,8 @@
             <label for="accNewPass" class="form-label">Mật khẩu mới <span class="required">*</span></label>
             <div class="input-with-icon">
               <i data-lucide="key"></i>
-              <input type="password" id="accNewPass" placeholder="Tối thiểu 4 ký tự" autocomplete="new-password" required>
+              <input type="password" id="accNewPass" placeholder="Tối thiểu 4 ký tự" autocomplete="new-password"
+                required>
             </div>
             <span class="error-feedback" id="errAccNewPass">Vui lòng nhập mật khẩu mới từ 4 ký tự</span>
           </div>
@@ -557,7 +702,8 @@
             <label for="accConfirmPass" class="form-label">Xác nhận mật khẩu mới <span class="required">*</span></label>
             <div class="input-with-icon">
               <i data-lucide="check-circle-2"></i>
-              <input type="password" id="accConfirmPass" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password" required>
+              <input type="password" id="accConfirmPass" placeholder="Nhập lại mật khẩu mới" autocomplete="new-password"
+                required>
             </div>
             <span class="error-feedback" id="errAccConfirmPass">Mật khẩu xác nhận không khớp</span>
           </div>
@@ -661,13 +807,8 @@
           <label class="form-label">Hình ảnh quán</label>
           <div class="image-upload-wrapper" id="editImageUploadWrapper">
             <!-- Hidden file input for edit modal -->
-            <input 
-              type="file" 
-              id="editPlaceFileInput" 
-              accept="image/*" 
-              class="file-input-hidden"
-            >
-            
+            <input type="file" id="editPlaceFileInput" accept="image/*" class="file-input-hidden">
+
             <!-- Upload dropzone -->
             <div class="upload-dropzone" id="editUploadDropZone" role="button" tabindex="0">
               <div class="upload-icon-circle">
@@ -680,7 +821,8 @@
 
             <!-- Preview box when image exists or new image is chosen -->
             <div class="upload-preview-box" id="editUploadPreviewBox" style="display: none;">
-              <img id="editUploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80';">
+              <img id="editUploadPreviewImg" src="" alt="Xem trước hình ảnh" class="upload-preview-thumb"
+                onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=300&q=80';">
               <div class="upload-preview-meta">
                 <div class="preview-filename" id="editPreviewFileName">anh_quan.jpg</div>
                 <div class="preview-filesize" id="editPreviewFileSize">Đang sử dụng</div>
@@ -775,7 +917,8 @@
         <div class="winner-badge">
           <i data-lucide="crown"></i> GỢI Ý MAY MẮN HÔM NAY
         </div>
-        <img src="" alt="Winner place" class="winner-image" id="winnerImage" onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80';">
+        <img src="" alt="Winner place" class="winner-image" id="winnerImage"
+          onerror="this.src='https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=800&q=80';">
         <div class="winner-info">
           <div class="winner-tag-row">
             <span class="winner-category" id="winnerCategory">QUÁN ĂN</span>
@@ -822,7 +965,8 @@
         <div class="ios-step-item">
           <div class="ios-step-num">1</div>
           <div class="ios-step-text">
-            Bấm nút <strong>Chia sẻ</strong> <span class="ios-share-icon"><i data-lucide="share"></i></span> trên thanh dưới Safari.
+            Bấm nút <strong>Chia sẻ</strong> <span class="ios-share-icon"><i data-lucide="share"></i></span> trên thanh
+            dưới Safari.
           </div>
         </div>
         <div class="ios-step-item">
@@ -844,13 +988,171 @@
     </div>
   </div>
 
+  <!-- MODAL: CHỌN QUÁN TỪ DỮ LIỆU VÀO LỊCH TRÌNH -->
+  <div class="modal-overlay" id="planPickPlaceModal" style="display: none;">
+    <div class="modal-card plan-pick-modal-card" role="dialog" aria-labelledby="planPickModalTitle">
+      <button class="modal-close-btn" id="planPickModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="store"></i>
+        </div>
+        <h3 class="modal-title" id="planPickModalTitle">CHỌN QUÁN VÀO KẾ HOẠCH</h3>
+        <p class="modal-desc">Chọn quán từ danh sách địa điểm đã được đóng góp để thêm vào mốc thời gian.</p>
+      </div>
+
+      <!-- Filters within Modal -->
+      <div class="modal-filter-bar">
+        <div class="input-with-icon flex-1">
+          <i data-lucide="search"></i>
+          <input type="text" id="modalPickSearch" placeholder="Tìm tên quán, địa chỉ...">
+        </div>
+        <select id="modalPickCategory" class="modal-select-cat">
+          <option value="all">Tất cả loại hình</option>
+          <option value="food">Chỉ Quán Ăn</option>
+          <option value="cafe">Chỉ Quán Cafe</option>
+        </select>
+      </div>
+
+      <!-- Places Picker Grid -->
+      <div class="modal-places-picker-grid" id="modalPlacesPickerGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: THÊM ĐỊA ĐIỂM TỰ DO -->
+  <div class="modal-overlay" id="planAddCustomModal" style="display: none;">
+    <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="planCustomModalTitle">
+      <button class="modal-close-btn" id="planCustomModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="map-pin"></i>
+        </div>
+        <h3 class="modal-title" id="planCustomModalTitle">THÊM ĐỊA ĐIỂM TỰ DO</h3>
+        <p class="modal-desc">Thêm bất kỳ điểm đến nào: rạp chiếu phim, công viên, trung tâm thương mại...</p>
+      </div>
+
+      <form id="planCustomForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <label for="customStopName" class="form-label">Tên địa điểm / Hoạt động <span class="required">*</span></label>
+          <div class="input-with-icon">
+            <i data-lucide="flag"></i>
+            <input type="text" id="customStopName" placeholder="Ví dụ: Phố Đi Bộ Hồ Gươm, Lotte Mall..." required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="clock"></i>
+              <input type="text" id="customStopTime" placeholder="Ví dụ: 15:00 - 17:30" required>
+            </div>
+          </div>
+
+          <div class="form-group flex-1">
+            <label for="customStopPeriod" class="form-label">Buổi</label>
+            <div class="input-with-icon">
+              <i data-lucide="sun"></i>
+              <select id="customStopPeriod">
+                <option value="Sáng">Buổi Sáng</option>
+                <option value="Trưa">Buổi Trưa</option>
+                <option value="Chiều" selected>Buổi Chiều</option>
+                <option value="Tối">Buổi Tối</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customStopCategory" class="form-label">Loại hình</label>
+          <div class="input-with-icon">
+            <i data-lucide="tag"></i>
+            <select id="customStopCategory">
+              <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
+              <option value="food">🍜 Ăn uống / Quán ăn</option>
+              <option value="cafe">☕ Cà phê / Trà sữa</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customStopAddress" class="form-label">Địa chỉ</label>
+          <div class="input-with-icon">
+            <i data-lucide="navigation"></i>
+            <input type="text" id="customStopAddress" placeholder="Ví dụ: Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customStopDish" class="form-label">Điểm đặc sắc / Món nổi bật</label>
+          <div class="input-with-icon">
+            <i data-lucide="sparkles"></i>
+            <input type="text" id="customStopDish" placeholder="Ví dụ: Kem Tràng Tiền, chụp ảnh ngắm hoàng hôn...">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customStopPrice" class="form-label">Chi phí dự kiến</label>
+          <div class="input-with-icon">
+            <i data-lucide="coins"></i>
+            <input type="text" id="customStopPrice" placeholder="Ví dụ: 30.000đ - 60.000đ">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="customStopNote" class="form-label">Ghi chú riêng</label>
+          <textarea id="customStopNote" class="form-textarea" rows="2" placeholder="Ghi chú hẹn nhau, gửi xe, góc chụp đẹp..."></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          <i data-lucide="plus"></i> THÊM VÀO LỊCH TRÌNH
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CHIA SẺ KẾ HOẠCH -->
+  <div class="modal-overlay" id="planShareModal" style="display: none;">
+    <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="planShareModalTitle">
+      <button class="modal-close-btn" id="planShareModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="share-2"></i>
+        </div>
+        <h3 class="modal-title" id="planShareModalTitle">CHIA SẺ LỊCH TRÌNH</h3>
+        <p class="modal-desc">Sao chép văn bản lịch trình để gửi nhanh qua Zalo, Messenger hoặc nhóm chat.</p>
+      </div>
+
+      <div class="share-preview-box">
+        <textarea id="planShareTextarea" class="share-textarea" readonly rows="9"></textarea>
+      </div>
+
+      <div class="share-modal-actions">
+        <button class="btn btn-primary btn-full" id="btnCopyShareText">
+          <i data-lucide="copy"></i> SAO CHÉP LỊCH TRÌNH
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.4"></script>
-  <script src="js/services/apiService.js?v=3.4"></script>
-  <script src="js/views/view.js?v=3.4"></script>
-  <script src="js/controllers/appController.js?v=3.4"></script>
+  <script src="js/models/state.js?v=3.5"></script>
+  <script src="js/services/apiService.js?v=3.5"></script>
+  <script src="js/views/view.js?v=3.5"></script>
+  <script src="js/controllers/appController.js?v=3.5"></script>
 </body>
+
 </html>
