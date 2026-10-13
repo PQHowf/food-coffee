@@ -180,8 +180,6 @@ const view = {
       planHeroSubtitle: document.getElementById('planHeroSubtitle'),
       btnPlanPickFromDb: document.getElementById('btnPlanPickFromDb'),
       btnPlanAddCustom: document.getElementById('btnPlanAddCustom'),
-      btnPlanResetDemo: document.getElementById('btnPlanResetDemo'),
-      btnPlanShare: document.getElementById('btnPlanShare'),
       btnPlanClear: document.getElementById('btnPlanClear'),
       statPlanStops: document.getElementById('statPlanStops'),
       statPlanDuration: document.getElementById('statPlanDuration'),
@@ -189,8 +187,8 @@ const view = {
       statPlanProgress: document.getElementById('statPlanProgress'),
       planTimelineList: document.getElementById('planTimelineList'),
       planEmptyState: document.getElementById('planEmptyState'),
-      btnEmptyResetDemo: document.getElementById('btnEmptyResetDemo'),
       btnEmptyPickPlace: document.getElementById('btnEmptyPickPlace'),
+      btnEmptyAddCustom: document.getElementById('btnEmptyAddCustom'),
       sidebarPlaceSearch: document.getElementById('sidebarPlaceSearch'),
       sidebarPlacesList: document.getElementById('sidebarPlacesList'),
       planPickPlaceModal: document.getElementById('planPickPlaceModal'),
@@ -209,10 +207,18 @@ const view = {
       customStopDish: document.getElementById('customStopDish'),
       customStopPrice: document.getElementById('customStopPrice'),
       customStopNote: document.getElementById('customStopNote'),
-      planShareModal: document.getElementById('planShareModal'),
-      planShareModalClose: document.getElementById('planShareModalClose'),
-      planShareTextarea: document.getElementById('planShareTextarea'),
-      btnCopyShareText: document.getElementById('btnCopyShareText')
+      planEditStopModal: document.getElementById('planEditStopModal'),
+      planEditStopModalClose: document.getElementById('planEditStopModalClose'),
+      planEditStopForm: document.getElementById('planEditStopForm'),
+      editStopId: document.getElementById('editStopId'),
+      editStopName: document.getElementById('editStopName'),
+      editStopTime: document.getElementById('editStopTime'),
+      editStopPeriod: document.getElementById('editStopPeriod'),
+      editStopCategory: document.getElementById('editStopCategory'),
+      editStopAddress: document.getElementById('editStopAddress'),
+      editStopDish: document.getElementById('editStopDish'),
+      editStopPrice: document.getElementById('editStopPrice'),
+      editStopNote: document.getElementById('editStopNote')
     };
   },
 
@@ -554,7 +560,7 @@ const view = {
   // ==========================================================================
   // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) RENDERING
   // ==========================================================================
-  renderTripPlan(plan, onToggleComplete, onDeleteStop) {
+  renderTripPlan(plan, onToggleComplete, onDeleteStop, onEditStop) {
     if (!this.dom.planTimelineList) return;
 
     const items = (plan && Array.isArray(plan.items)) ? plan.items : [];
@@ -591,16 +597,39 @@ const view = {
       this.dom.statPlanDuration.textContent = `${firstTime} - ${lastTime}`;
     }
 
+    // Dự toán chi phí tự động từ các loại chi phí DB
+    let minCost = 0;
+    let maxCost = 0;
+    let hasCost = false;
+    items.forEach(it => {
+      const p = it.priceRange || '';
+      if (p === '<100K') { minCost += 30; maxCost += 80; hasCost = true; }
+      else if (p === '100K-200K') { minCost += 100; maxCost += 200; hasCost = true; }
+      else if (p === '200K-300K') { minCost += 200; maxCost += 300; hasCost = true; }
+      else if (p === '>300K') { minCost += 300; maxCost += 450; hasCost = true; }
+    });
+    if (this.dom.statPlanBudget) {
+      this.dom.statPlanBudget.textContent = hasCost ? `~${minCost}K - ${maxCost}K / người` : 'Chưa xác định';
+    }
+
     // Hiển thị danh sách chặng
     let html = '';
     items.forEach((item, index) => {
       const isDone = !!item.isCompleted;
       const isLast = index === items.length - 1;
-      const catBadge = item.category === 'cafe' ? '☕ Cafe' : (item.category === 'food' ? '🍜 Quán ăn' : '🎡 Điểm chill');
-      const thumb = item.image || this.getFallbackImage({ category: item.category, name: item.placeName });
+      
+      let catBadgeText = 'Vui chơi';
+      let catBadgeIcon = 'compass';
+      if (item.category === 'cafe') {
+        catBadgeText = 'Quán Cafe';
+        catBadgeIcon = 'coffee';
+      } else if (item.category === 'food') {
+        catBadgeText = 'Quán Ăn';
+        catBadgeIcon = 'utensils';
+      }
 
       // Link Google Maps
-      const mapsQuery = encodeURIComponent(`${item.placeName || ''} ${item.address || ''}`);
+      const mapsQuery = encodeURIComponent(`${item.placeName || item.title || ''} ${item.address || ''}`);
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
       html += `
@@ -613,19 +642,19 @@ const view = {
             <span class="timeline-period-badge">${this.escapeHTML(item.period || 'Chặng')}</span>
           </div>
 
-          <!-- Right Place Card -->
+          <!-- Right Place Card (Không hiển thị ảnh) -->
           <div class="timeline-place-card">
             <div class="card-top-header">
-              <div class="card-thumb-wrap">
-                <img src="${this.escapeHTML(thumb)}" alt="${this.escapeHTML(item.placeName || item.title)}" class="card-thumb-img" loading="lazy">
-                <span class="card-thumb-badge">${catBadge}</span>
-              </div>
-
               <div class="card-main-meta">
                 <div class="card-time-row">
-                  <span class="card-time-tag">
-                    <i data-lucide="clock"></i> ${this.escapeHTML(item.time || 'Linh hoạt')}
-                  </span>
+                  <div class="card-header-tags">
+                    <span class="card-time-tag">
+                      <i data-lucide="clock"></i> ${this.escapeHTML(item.time || 'Linh hoạt')}
+                    </span>
+                    <span class="card-cat-tag ${item.category || 'custom'}">
+                      <i data-lucide="${catBadgeIcon}"></i> ${catBadgeText}
+                    </span>
+                  </div>
                   <span class="card-status-badge ${isDone ? 'done' : 'pending'}">
                     ${isDone ? '<i data-lucide="check-circle-2"></i> Đã ghé' : '<i data-lucide="circle"></i> Dự kiến'}
                   </span>
@@ -646,7 +675,7 @@ const view = {
                   ` : ''}
                   ${item.priceRange ? `
                     <span class="card-info-pill" title="Mức giá">
-                      <i data-lucide="coins"></i> ${this.escapeHTML(item.priceRange)}
+                      <i data-lucide="banknote"></i> ${this.escapeHTML(item.priceRange)}
                     </span>
                   ` : ''}
                 </div>
@@ -663,10 +692,13 @@ const view = {
             <div class="card-actions-footer">
               <button type="button" class="btn-complete-toggle ${isDone ? 'checked' : ''}" data-action="toggle-complete" data-id="${item.id}">
                 <i data-lucide="${isDone ? 'check-square' : 'square'}"></i>
-                <span>${isDone ? 'Đã hoàn thành' : 'Đánh dấu đã ghé'}</span>
+                <span>${isDone ? 'Đã ghé quán' : 'Đánh dấu đã ghé'}</span>
               </button>
 
               <div class="card-action-btns-right">
+                <button type="button" class="btn-card-action btn-edit-action" data-action="edit-stop" data-id="${item.id}" title="Chỉnh sửa chặng này">
+                  <i data-lucide="edit-3"></i>
+                </button>
                 <a href="${mapsUrl}" target="_blank" rel="noopener noreferrer" class="btn-card-action" title="Chỉ đường trên Google Maps">
                   <i data-lucide="navigation"></i>
                 </a>
@@ -695,6 +727,14 @@ const view = {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         onToggleComplete(id);
+      });
+    });
+
+    this.dom.planTimelineList.querySelectorAll('[data-action="edit-stop"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onEditStop) onEditStop(id);
       });
     });
 

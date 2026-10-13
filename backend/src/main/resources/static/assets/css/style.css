@@ -3921,43 +3921,72 @@ button {
 }
 
 .timeline-stop-item.completed .timeline-place-card {
-  border-left: 4px solid #10b981;
-  background: #fcfdfd;
+  border: 2.5px solid #10b981 !important;
+  background: #f0fdf4 !important;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2) !important;
+}
+
+.timeline-stop-item.completed .card-place-title {
+  color: #065f46;
+}
+
+.timeline-stop-item.completed .timeline-marker-circle {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.25) !important;
+}
+
+.timeline-stop-item.completed .btn-complete-toggle {
+  background: #10b981 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
 }
 
 .card-top-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 16px 18px 12px;
+  padding: 16px 18px 10px;
 }
 
-.card-thumb-wrap {
-  width: 110px;
-  height: 80px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  position: relative;
-  flex-shrink: 0;
+.card-header-tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.card-cat-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.725rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
   background: #f1f5f9;
+  color: #475569;
 }
 
-.card-thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.card-cat-tag.cafe {
+  background: #fef3c7;
+  color: #b45309;
 }
 
-.card-thumb-badge {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  font-size: 0.6rem;
-  font-weight: 800;
-  padding: 2px 5px;
-  border-radius: 4px;
-  color: #fff;
-  background: rgba(15, 23, 42, 0.75);
+.card-cat-tag.food {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.card-cat-tag.custom {
+  background: #ede9fe;
+  color: #6b21a8;
+}
+
+.card-cat-tag i,
+.card-cat-tag svg {
+  width: 13px;
+  height: 13px;
 }
 
 .card-main-meta {
@@ -4117,6 +4146,12 @@ button {
   color: var(--primary);
   border-color: var(--primary);
   background: #fff7ed;
+}
+
+.btn-card-action.btn-edit-action:hover {
+  color: #2563eb;
+  border-color: #93c5fd;
+  background: #eff6ff;
 }
 
 .btn-card-action.btn-del-action:hover {
@@ -4439,23 +4474,41 @@ button {
   flex-wrap: wrap;
 }
 
-/* Share preview box */
-.share-preview-box {
-  margin-bottom: 16px;
+/* Custom stop & edit stop note textarea */
+.input-with-icon.textarea-icon-wrap {
+  align-items: flex-start;
 }
 
-.share-textarea {
+.input-with-icon.textarea-icon-wrap i,
+.input-with-icon.textarea-icon-wrap svg {
+  top: 15px;
+  transform: none;
+}
+
+.plan-form-textarea {
   width: 100%;
-  background: #f8fafc;
-  border: 1px solid var(--border-subtle);
+  min-height: 85px;
+  padding: 12px 16px 12px 48px;
   border-radius: var(--radius-md);
-  padding: 14px;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--text-main);
-  box-sizing: border-box;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
   font-family: inherit;
-  resize: none;
+  font-size: 0.925rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  resize: vertical;
+  transition: all var(--transition-fast);
+}
+
+.plan-form-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.plan-note-group {
+  margin-top: 4px;
+  margin-bottom: 8px;
 }
 
 /* Responsive styles for Trip Planner */
@@ -4508,12 +4561,7 @@ button {
     padding: 4px 10px;
   }
   .card-top-header {
-    flex-direction: column;
-    padding: 14px;
-  }
-  .card-thumb-wrap {
-    width: 100%;
-    height: 140px;
+    padding: 14px 14px 8px;
   }
   .card-note-box {
     margin: 0 14px 12px;

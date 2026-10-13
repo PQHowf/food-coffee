@@ -509,7 +509,8 @@ const appController = {
     view.renderTripPlan(
       model.tripPlan,
       (stopId) => this.handleTogglePlanStop(stopId),
-      (stopId) => this.handleDeletePlanStop(stopId)
+      (stopId) => this.handleDeletePlanStop(stopId),
+      (stopId) => this.handleEditPlanStop(stopId)
     );
 
     // 2. Render Sidebar Quán Gợi Ý
@@ -648,7 +649,7 @@ const appController = {
     const category = view.dom.customStopCategory?.value || 'custom';
     const address = view.dom.customStopAddress?.value.trim() || '';
     const dish = view.dom.customStopDish?.value.trim() || '';
-    const price = view.dom.customStopPrice?.value.trim() || '';
+    const price = view.dom.customStopPrice?.value || '<100K';
     const note = view.dom.customStopNote?.value.trim() || '';
 
     const stop = {
@@ -672,69 +673,71 @@ const appController = {
     view.showToast(`🎉 Đã thêm "${name}" vào lịch trình!`, 'success');
   },
 
-  // Modal Chia sẻ lịch trình
-  openPlanShareModal() {
-    if (!view.dom.planShareModal) return;
-    const plan = model.tripPlan;
-    if (!plan || !plan.items || plan.items.length === 0) {
-      view.showToast('Lịch trình hiện đang trống! Hãy thêm địa điểm trước khi chia sẻ.', 'warning');
-      return;
-    }
+  // Modal Chỉnh sửa điểm dừng
+  handleEditPlanStop(stopId) {
+    const item = model.tripPlan?.items?.find(i => String(i.id) === String(stopId));
+    if (!item) return;
 
-    let text = `📋 LỊCH TRÌNH ĐI CHƠI: ${plan.title || 'CofFood Plan'}\n`;
-    text += `🗓️ Thời gian: ${plan.date || 'Cuối tuần'}\n`;
-    if (plan.note) text += `💡 Lưu ý: ${plan.note}\n`;
-    text += `-----------------------------------------\n\n`;
-
-    plan.items.forEach((item, index) => {
-      const icon = item.category === 'cafe' ? '☕' : (item.category === 'food' ? '🍜' : '🎡');
-      text += `${index + 1}. [${item.time || 'Linh hoạt'}] ${icon} ${item.placeName || item.title}\n`;
-      if (item.address) text += `   📍 Địa chỉ: ${item.address}\n`;
-      if (item.recommendedDish) text += `   ⭐ Món nổi bật: ${item.recommendedDish}\n`;
-      if (item.priceRange) text += `   💰 Giá: ${item.priceRange}\n`;
-      if (item.note) text += `   📝 Ghi chú: ${item.note}\n`;
-      if (item.travelDuration && index < plan.items.length - 1) {
-        text += `   🚗 Di chuyển tiếp theo: ${item.travelDuration}\n`;
+    if (view.dom.editStopId) view.dom.editStopId.value = item.id;
+    if (view.dom.editStopName) view.dom.editStopName.value = item.placeName || item.title || '';
+    if (view.dom.editStopTime) view.dom.editStopTime.value = item.time || '';
+    if (view.dom.editStopPeriod) view.dom.editStopPeriod.value = item.period || 'Chiều';
+    if (view.dom.editStopCategory) view.dom.editStopCategory.value = item.category || 'custom';
+    if (view.dom.editStopAddress) view.dom.editStopAddress.value = item.address || '';
+    if (view.dom.editStopDish) view.dom.editStopDish.value = item.recommendedDish || '';
+    if (view.dom.editStopPrice) {
+      const p = item.priceRange || '<100K';
+      if (['<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
+        view.dom.editStopPrice.value = p;
+      } else {
+        view.dom.editStopPrice.value = '<100K';
       }
-      text += `\n`;
-    });
-
-    text += `-----------------------------------------\n`;
-    text += `✨ Lập lịch trình qua CofFood: https://coffood.com (Gợi ý Quán Ăn & Cafe Chill)`;
-
-    if (view.dom.planShareTextarea) {
-      view.dom.planShareTextarea.value = text;
     }
+    if (view.dom.editStopNote) view.dom.editStopNote.value = item.note || '';
 
-    view.dom.planShareModal.style.display = 'flex';
-    view.dom.planShareModal.removeAttribute('aria-hidden');
+    this.openPlanEditStopModal();
+  },
+
+  openPlanEditStopModal() {
+    if (!view.dom.planEditStopModal) return;
+    view.dom.planEditStopModal.style.display = 'flex';
+    view.dom.planEditStopModal.removeAttribute('aria-hidden');
     view.refreshIcons();
   },
 
-  closePlanShareModal() {
-    if (view.dom.planShareModal) {
-      view.dom.planShareModal.style.display = 'none';
-      view.dom.planShareModal.setAttribute('aria-hidden', 'true');
+  closePlanEditStopModal() {
+    if (view.dom.planEditStopModal) {
+      view.dom.planEditStopModal.style.display = 'none';
+      view.dom.planEditStopModal.setAttribute('aria-hidden', 'true');
     }
   },
 
-  async handleCopyShareText() {
-    if (!view.dom.planShareTextarea) return;
-    const text = view.dom.planShareTextarea.value;
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-      } else {
-        view.dom.planShareTextarea.select();
-        document.execCommand('copy');
-      }
-      view.showToast('✅ Đã sao chép toàn bộ lịch trình! Bạn có thể dán ngay vào Zalo/Messenger.', 'success');
-      this.closePlanShareModal();
-    } catch (e) {
-      view.dom.planShareTextarea.select();
-      document.execCommand('copy');
-      view.showToast('✅ Đã sao chép lịch trình!', 'success');
+  handleEditStopSubmit(e) {
+    e.preventDefault();
+    const id = view.dom.editStopId?.value;
+    const name = view.dom.editStopName?.value.trim();
+    const time = view.dom.editStopTime?.value.trim();
+    if (!name || !time) {
+      view.showToast('Vui lòng nhập tên địa điểm và khung giờ!', 'warning');
+      return;
     }
+
+    const updatedData = {
+      title: name,
+      placeName: name,
+      time: time,
+      period: view.dom.editStopPeriod?.value || 'Chiều',
+      category: view.dom.editStopCategory?.value || 'custom',
+      address: view.dom.editStopAddress?.value.trim() || '',
+      recommendedDish: view.dom.editStopDish?.value.trim() || '',
+      priceRange: view.dom.editStopPrice?.value || '<100K',
+      note: view.dom.editStopNote?.value.trim() || ''
+    };
+
+    model.updatePlanStop(id, updatedData);
+    this.closePlanEditStopModal();
+    this.renderPlanTab();
+    view.showToast('✨ Đã cập nhật thông tin chặng đi chơi!', 'success');
   },
 
   renderAddTabContent() {
@@ -1839,16 +1842,7 @@ const appController = {
     view.dom.btnPlanPickFromDb?.addEventListener('click', () => this.openPlanPickPlaceModal());
     view.dom.btnEmptyPickPlace?.addEventListener('click', () => this.openPlanPickPlaceModal());
     view.dom.btnPlanAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
-    view.dom.btnPlanResetDemo?.addEventListener('click', () => {
-      model.resetToDemoPlan();
-      this.renderPlanTab();
-      view.showToast('✨ Đã nạp lại lịch trình mẫu cực đẹp!', 'success');
-    });
-    view.dom.btnEmptyResetDemo?.addEventListener('click', () => {
-      model.resetToDemoPlan();
-      this.renderPlanTab();
-      view.showToast('✨ Đã nạp lại lịch trình mẫu cực đẹp!', 'success');
-    });
+    view.dom.btnEmptyAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
     view.dom.btnPlanClear?.addEventListener('click', () => {
       if (confirm('Bạn có chắc chắn muốn xóa tất cả địa điểm trong kế hoạch không?')) {
         model.clearPlan();
@@ -1856,8 +1850,6 @@ const appController = {
         view.showToast('Đã xóa tất cả điểm trong lịch trình.', 'info');
       }
     });
-    view.dom.btnPlanShare?.addEventListener('click', () => this.openPlanShareModal());
-    view.dom.btnCopyShareText?.addEventListener('click', () => this.handleCopyShareText());
 
     // Sidebar quick filter & search
     view.dom.sidebarPlaceSearch?.addEventListener('input', (e) => {
@@ -1876,14 +1868,15 @@ const appController = {
     // Plan Modals close
     view.dom.planPickModalClose?.addEventListener('click', () => this.closePlanPickPlaceModal());
     view.dom.planCustomModalClose?.addEventListener('click', () => this.closePlanAddCustomModal());
-    view.dom.planShareModalClose?.addEventListener('click', () => this.closePlanShareModal());
+    view.dom.planEditStopModalClose?.addEventListener('click', () => this.closePlanEditStopModal());
 
     // Modal pick filters
     view.dom.modalPickSearch?.addEventListener('input', () => this.renderModalPickList());
     view.dom.modalPickCategory?.addEventListener('change', () => this.renderModalPickList());
 
-    // Modal custom form submit
+    // Modal custom form submit & edit form submit
     view.dom.planCustomForm?.addEventListener('submit', (e) => this.handleCustomStopSubmit(e));
+    view.dom.planEditStopForm?.addEventListener('submit', (e) => this.handleEditStopSubmit(e));
 
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {
@@ -1894,7 +1887,7 @@ const appController = {
       if (e.target === view.dom.iosInstallModal) this.closePwaInstallModal();
       if (e.target === view.dom.planPickPlaceModal) this.closePlanPickPlaceModal();
       if (e.target === view.dom.planAddCustomModal) this.closePlanAddCustomModal();
-      if (e.target === view.dom.planShareModal) this.closePlanShareModal();
+      if (e.target === view.dom.planEditStopModal) this.closePlanEditStopModal();
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1905,7 +1898,7 @@ const appController = {
         this.closePwaInstallModal();
         this.closePlanPickPlaceModal();
         this.closePlanAddCustomModal();
-        this.closePlanShareModal();
+        this.closePlanEditStopModal();
       }
     });
   },
