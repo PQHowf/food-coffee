@@ -559,6 +559,36 @@ const appController = {
     }
   },
 
+  calculateTripDuration(startDateStr, endDateStr) {
+    if (!startDateStr || !endDateStr) {
+      return { totalDays: 1, tripType: '1 ngày', text: '1 ngày' };
+    }
+    const [y1, m1, d1] = startDateStr.split('-').map(Number);
+    const [y2, m2, d2] = endDateStr.split('-').map(Number);
+    const start = new Date(y1, m1 - 1, d1);
+    const end = new Date(y2, m2 - 1, d2);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+    
+    if (diffDays <= 0) {
+      return { totalDays: 1, tripType: '1 ngày', text: '1 ngày (Đi trong ngày)' };
+    }
+    const totalDays = diffDays + 1;
+    const nights = diffDays;
+    const tripType = `${totalDays}N${nights}Đ`;
+    const text = `${tripType} (${totalDays} ngày ${nights} đêm)`;
+    return { totalDays, tripType, text };
+  },
+
+  updateTripDurationPreview() {
+    const start = view.dom.newTripStartDate?.value;
+    const end = view.dom.newTripEndDate?.value;
+    if (start && end && view.dom.tripDurationPreviewVal) {
+      const calc = this.calculateTripDuration(start, end);
+      view.dom.tripDurationPreviewVal.textContent = calc.text;
+    }
+  },
+
   // Modal Tạo Kế Hoạch Chuyến Đi Mới
   openCreateTripModal() {
     if (!model.currentUser) {
@@ -567,9 +597,21 @@ const appController = {
       return;
     }
     if (view.dom.planCreateTripForm) view.dom.planCreateTripForm.reset();
+
+    const today = new Date().toISOString().split('T')[0];
+    const tomorrowDate = new Date();
+    tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+    const tomorrow = tomorrowDate.toISOString().split('T')[0];
+
     if (view.dom.newTripStartDate) {
-      view.dom.newTripStartDate.value = new Date().toISOString().split('T')[0];
+      view.dom.newTripStartDate.value = today;
     }
+    if (view.dom.newTripEndDate) {
+      view.dom.newTripEndDate.value = tomorrow;
+      view.dom.newTripEndDate.min = today;
+    }
+    this.updateTripDurationPreview();
+
     if (view.dom.planCreateTripModal) {
       view.dom.planCreateTripModal.style.display = 'flex';
       view.dom.planCreateTripModal.removeAttribute('aria-hidden');
@@ -599,18 +641,21 @@ const appController = {
       return;
     }
 
-    const totalDays = parseInt(view.dom.newTripDuration?.value, 10) || 2;
-    let tripType = '2N1Đ';
-    if (totalDays === 1) tripType = '1 ngày';
-    else tripType = `${totalDays}N${totalDays - 1}Đ`;
+    const startDate = view.dom.newTripStartDate?.value;
+    const endDate = view.dom.newTripEndDate?.value;
+    if (!startDate || !endDate) {
+      view.showToast('Vui lòng chọn ngày khởi hành và ngày về!', 'warning');
+      return;
+    }
 
-    const startDate = view.dom.newTripStartDate?.value || new Date().toISOString().split('T')[0];
+    const { totalDays, tripType } = this.calculateTripDuration(startDate, endDate);
 
     const newPlan = model.createNewPlan({
       title: title,
       tripType: tripType,
       totalDays: totalDays,
-      startDate: startDate
+      startDate: startDate,
+      endDate: endDate
     });
 
     this.closeCreateTripModal();
@@ -2079,6 +2124,25 @@ const appController = {
     view.dom.planCustomForm?.addEventListener('submit', (e) => this.handleCustomStopSubmit(e));
     view.dom.planEditStopForm?.addEventListener('submit', (e) => this.handleEditStopSubmit(e));
     view.dom.planCreateTripForm?.addEventListener('submit', (e) => this.handleCreateTripSubmit(e));
+
+    // Dynamic duration preview on date change
+    view.dom.newTripStartDate?.addEventListener('change', () => {
+      if (view.dom.newTripEndDate) {
+        view.dom.newTripEndDate.min = view.dom.newTripStartDate.value;
+        if (view.dom.newTripEndDate.value && view.dom.newTripEndDate.value < view.dom.newTripStartDate.value) {
+          view.dom.newTripEndDate.value = view.dom.newTripStartDate.value;
+        }
+      }
+      this.updateTripDurationPreview();
+    });
+    view.dom.newTripEndDate?.addEventListener('change', () => {
+      if (view.dom.newTripStartDate && view.dom.newTripStartDate.value) {
+        if (view.dom.newTripEndDate.value && view.dom.newTripEndDate.value < view.dom.newTripStartDate.value) {
+          view.dom.newTripStartDate.value = view.dom.newTripEndDate.value;
+        }
+      }
+      this.updateTripDurationPreview();
+    });
 
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {

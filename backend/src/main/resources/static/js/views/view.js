@@ -236,8 +236,10 @@ const view = {
       planCreateTripModalClose: document.getElementById('planCreateTripModalClose'),
       planCreateTripForm: document.getElementById('planCreateTripForm'),
       newTripTitle: document.getElementById('newTripTitle'),
-      newTripDuration: document.getElementById('newTripDuration'),
       newTripStartDate: document.getElementById('newTripStartDate'),
+      newTripEndDate: document.getElementById('newTripEndDate'),
+      tripDurationPreview: document.getElementById('tripDurationPreview'),
+      tripDurationPreviewVal: document.getElementById('tripDurationPreviewVal'),
       planManageTripsModal: document.getElementById('planManageTripsModal'),
       planManageTripsModalClose: document.getElementById('planManageTripsModalClose'),
       savedTripsList: document.getElementById('savedTripsList'),
@@ -934,7 +936,12 @@ const view = {
       const stopCount = p.items ? p.items.length : 0;
       const completedStops = p.items ? p.items.filter(i => i.isCompleted).length : 0;
       const durationText = p.tripType || (p.totalDays ? `${p.totalDays} ngày` : '2N1Đ');
-      const dateText = p.startDate ? `Khởi hành: ${this.escapeHTML(p.startDate)}` : 'Chưa đặt ngày';
+      let dateText = 'Chưa đặt ngày';
+      if (p.startDate && p.endDate) {
+        dateText = `${this.escapeHTML(p.startDate)} → ${this.escapeHTML(p.endDate)}`;
+      } else if (p.startDate) {
+        dateText = `Khởi hành: ${this.escapeHTML(p.startDate)}`;
+      }
 
       html += `
         <div class="saved-trip-item ${isActive ? 'active' : ''}" data-trip-id="${p.id}">

@@ -3996,6 +3996,35 @@ button {
   gap: 8px;
 }
 
+/* Trip Duration Preview Badge in Create Trip Modal */
+.trip-duration-calc-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.825rem;
+  font-weight: 600;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.trip-duration-calc-badge i,
+.trip-duration-calc-badge svg {
+  width: 16px;
+  height: 16px;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.trip-duration-calc-badge strong {
+  color: #1e40af;
+  font-weight: 800;
+}
+
 .plan-toolbar-actions {
   display: flex;
   flex-wrap: wrap;

@@ -131,7 +131,7 @@ const model = {
     return `food_coffee_user_plans_${uid}`;
   },
 
-  getEmptyPlan(title = 'Chuyến đi 2N1Đ', tripType = '2N1Đ', totalDays = 2, startDate = '') {
+  getEmptyPlan(title = 'Chuyến đi 2N1Đ', tripType = '2N1Đ', totalDays = 2, startDate = '', endDate = '') {
     const today = new Date().toISOString().split('T')[0];
     const days = parseInt(totalDays, 10) || 2;
     return {
@@ -141,6 +141,7 @@ const model = {
       tripType: tripType || (days === 1 ? '1 ngày' : `${days}N${days - 1}Đ`),
       totalDays: days,
       startDate: startDate || today,
+      endDate: endDate || '',
       status: 'active', // 'active' | 'completed'
       createdAt: Date.now(),
       items: []
@@ -220,8 +221,8 @@ const model = {
     this.saveUserPlans();
   },
 
-  createNewPlan({ title, tripType, totalDays, startDate }) {
-    const newPlan = this.getEmptyPlan(title, tripType, totalDays, startDate);
+  createNewPlan({ title, tripType, totalDays, startDate, endDate }) {
+    const newPlan = this.getEmptyPlan(title, tripType, totalDays, startDate, endDate);
     this.userPlans.unshift(newPlan);
     this.tripPlan = newPlan;
     this.currentPlanDayFilter = 'all';
