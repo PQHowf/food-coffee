@@ -980,58 +980,96 @@ const view = {
       return;
     }
 
+    const formatVNDate = (dStr) => {
+      if (!dStr) return '';
+      const parts = dStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return dStr;
+    };
+
     let html = '';
     userPlans.forEach(p => {
       const isActive = String(p.id) === String(activePlanId);
       const isCompleted = p.status === 'completed';
       const stopCount = p.items ? p.items.length : 0;
       const completedStops = p.items ? p.items.filter(i => i.isCompleted).length : 0;
+      const progressPercent = stopCount > 0 ? Math.round((completedStops / stopCount) * 100) : 0;
       const durationText = p.tripType || (p.totalDays ? `${p.totalDays} ngày` : '2N1Đ');
+
       let dateText = 'Chưa đặt ngày';
       if (p.startDate && p.endDate) {
-        dateText = `${this.escapeHTML(p.startDate)} → ${this.escapeHTML(p.endDate)}`;
+        if (p.startDate === p.endDate) {
+          dateText = formatVNDate(p.startDate);
+        } else {
+          dateText = `${formatVNDate(p.startDate)} – ${formatVNDate(p.endDate)}`;
+        }
       } else if (p.startDate) {
-        dateText = `Khởi hành: ${this.escapeHTML(p.startDate)}`;
+        dateText = `Khởi hành: ${formatVNDate(p.startDate)}`;
       }
 
       html += `
         <div class="saved-trip-item ${isActive ? 'active' : ''}" data-trip-id="${p.id}">
-          <div class="saved-trip-top">
-            <div>
-              <h4 class="saved-trip-title">
-                ${isActive ? '🎯 ' : ''}${this.escapeHTML(p.title)}
-              </h4>
-              <div class="saved-trip-meta">
-                <span class="saved-trip-badge ${isCompleted ? 'badge-completed' : 'badge-active'}">
-                  <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock'}"></i>
-                  ${isCompleted ? 'Đã hoàn thành chuyến đi' : 'Đang lên kế hoạch'}
+          <div class="saved-trip-header">
+            <div class="saved-trip-icon-wrap" title="${isCompleted ? 'Chuyến đi hoàn thành' : 'Kế hoạch chuyến đi'}">
+              <i data-lucide="${isCompleted ? 'award' : (isActive ? 'compass' : 'map-pin')}"></i>
+            </div>
+            <div class="saved-trip-title-group">
+              <div class="saved-trip-title-row">
+                <h4 class="saved-trip-title">${this.escapeHTML(p.title)}</h4>
+                ${isActive ? `
+                  <span class="trip-status-pill pill-current">
+                    <span class="pulse-dot"></span> Đang xem
+                  </span>
+                ` : ''}
+              </div>
+              <div class="saved-trip-badges-row">
+                <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
+                  <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
+                  ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
                 </span>
-                <span>• ${durationText}</span>
-                <span>• ${stopCount} điểm (${completedStops} đã ghé)</span>
-                <span>• ${dateText}</span>
+                <span class="trip-info-pill">
+                  <i data-lucide="hourglass"></i> ${durationText}
+                </span>
               </div>
             </div>
           </div>
 
+          <div class="saved-trip-details">
+            <div class="trip-detail-item" title="Thời gian chuyến đi">
+              <i data-lucide="calendar"></i>
+              <span class="trip-detail-label">${dateText}</span>
+            </div>
+            <div class="trip-detail-item" title="Tiến độ ghé các điểm">
+              <i data-lucide="map-pinned"></i>
+              <span class="trip-detail-label"><strong>${completedStops}/${stopCount}</strong> địa điểm ${stopCount > 0 ? `(${progressPercent}%)` : ''}</span>
+            </div>
+          </div>
+
+          ${stopCount > 0 ? `
+            <div class="saved-trip-progress-bar" title="Tiến độ: ${progressPercent}%">
+              <div class="saved-trip-progress-fill" style="width: ${progressPercent}%;"></div>
+            </div>
+          ` : ''}
+
           <div class="saved-trip-actions">
             <div class="saved-trip-btns-left">
               ${!isActive ? `
-                <button type="button" class="btn btn-sm btn-primary" data-action="switch-trip" data-id="${p.id}">
+                <button type="button" class="btn btn-sm btn-primary-soft" data-action="switch-trip" data-id="${p.id}">
                   <i data-lucide="arrow-right-circle"></i> Xem & Lên Lịch
                 </button>
               ` : `
-                <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary);">
-                  <i data-lucide="check"></i> Đang xem chuyến này
+                <span class="trip-viewing-tag">
+                  <i data-lucide="check-circle-2"></i> Đang mở chuyến này
                 </span>
               `}
-              <button type="button" class="btn btn-sm btn-secondary" data-action="toggle-status" data-id="${p.id}">
+              <button type="button" class="btn btn-sm btn-secondary-soft" data-action="toggle-status" data-id="${p.id}">
                 <i data-lucide="${isCompleted ? 'rotate-ccw' : 'check'}"></i>
                 ${isCompleted ? 'Mở lại' : 'Đánh dấu đã đi'}
               </button>
             </div>
 
             <div class="saved-trip-btns-right">
-              <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
+              <button type="button" class="btn-trip-delete" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
                 <i data-lucide="trash-2"></i>
               </button>
             </div>

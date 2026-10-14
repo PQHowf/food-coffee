@@ -3912,88 +3912,347 @@ button {
 .saved-trips-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 8px 4px;
+  gap: 14px;
+  padding: 4px 2px;
 }
 
 .saved-trip-item {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  background: var(--bg-subtle);
-  border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  transition: all var(--transition-fast);
+  gap: 12px;
+  background: var(--bg-surface, #ffffff);
+  border: 1.5px solid var(--border-subtle, #e2e8f0);
+  border-radius: 16px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.05), 0 1px 4px -1px rgba(15, 23, 42, 0.02);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .saved-trip-item:hover {
   border-color: #cbd5e1;
-  background: var(--bg-surface);
+  box-shadow: 0 8px 20px -4px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
 }
 
 .saved-trip-item.active {
   border-color: var(--primary);
-  background: #fff7ed;
+  background: linear-gradient(180deg, rgba(255, 107, 53, 0.04) 0%, var(--bg-surface, #ffffff) 100%);
+  box-shadow: 0 8px 24px -4px rgba(255, 107, 53, 0.16), 0 0 0 1px rgba(255, 107, 53, 0.25);
 }
 
-.saved-trip-top {
+.saved-trip-item.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary) 0%, #f97316 100%);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.saved-trip-header {
   display: flex;
   align-items: flex-start;
+  gap: 14px;
+}
+
+.saved-trip-icon-wrap {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  color: var(--text-muted, #64748b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.saved-trip-icon-wrap i,
+.saved-trip-icon-wrap svg {
+  width: 20px;
+  height: 20px;
+}
+
+.saved-trip-item.active .saved-trip-icon-wrap {
+  background: #fff1eb;
+  border-color: #ffedd5;
+  color: var(--primary);
+}
+
+.saved-trip-title-group {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.saved-trip-title-row {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
 }
 
 .saved-trip-title {
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  color: var(--secondary);
-  margin-bottom: 4px;
+  color: var(--secondary, #0f172a);
+  margin: 0;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
-.saved-trip-meta {
+.saved-trip-badges-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  font-size: 0.775rem;
-  color: var(--text-muted);
+  gap: 6px;
 }
 
-.saved-trip-badge {
+/* Status Pills */
+.trip-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.trip-status-pill i,
+.trip-status-pill svg {
+  width: 12px;
+  height: 12px;
+}
+
+.trip-status-pill.pill-active {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #dbeafe;
+}
+
+.trip-status-pill.pill-completed {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #dcfce7;
+}
+
+.trip-status-pill.pill-current {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.trip-status-pill .pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: inline-block;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.trip-info-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
+  background: var(--bg-subtle, #f1f5f9);
+  color: var(--text-secondary, #475569);
+  border: 1px solid var(--border-subtle, #e2e8f0);
   font-size: 0.725rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
-.saved-trip-badge.badge-active {
-  background: #dbeafe;
-  color: #1d4ed8;
+.trip-info-pill i,
+.trip-info-pill svg {
+  width: 12px;
+  height: 12px;
 }
 
-.saved-trip-badge.badge-completed {
-  background: #dcfce7;
-  color: #15803d;
+/* Key Details Row */
+.saved-trip-details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-subtle, #f1f5f9);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #475569);
 }
 
+.saved-trip-item.active .saved-trip-details {
+  background: rgba(255, 107, 53, 0.05);
+  border-color: rgba(255, 107, 53, 0.12);
+}
+
+.trip-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.trip-detail-item i,
+.trip-detail-item svg {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted, #94a3b8);
+  flex-shrink: 0;
+}
+
+.saved-trip-item.active .trip-detail-item i,
+.saved-trip-item.active .trip-detail-item svg {
+  color: var(--primary);
+}
+
+.trip-detail-label strong {
+  color: var(--secondary, #0f172a);
+}
+
+/* Progress bar inside card */
+.saved-trip-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-subtle, #f1f5f9);
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-top: -4px;
+}
+
+.saved-trip-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary) 0%, #10b981 100%);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+/* Footer & Actions */
 .saved-trip-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  border-top: 1px dashed var(--border-subtle);
-  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle, #f1f5f9);
+  padding-top: 12px;
+  margin-top: 2px;
 }
 
-.saved-trip-btns-left,
-.saved-trip-btns-right {
+.saved-trip-btns-left {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
+}
+
+.trip-viewing-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary);
+  padding: 6px 12px;
+  background: rgba(255, 107, 53, 0.1);
+  border: 1px solid rgba(255, 107, 53, 0.2);
+  border-radius: 8px;
+}
+
+.trip-viewing-tag i,
+.trip-viewing-tag svg {
+  width: 14px;
+  height: 14px;
+}
+
+.btn-primary-soft {
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-soft:hover {
+  background: var(--primary-hover, #ea580c);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.28);
+}
+
+.btn-secondary-soft {
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-secondary, #334155);
+  border: 1px solid var(--border-subtle, #cbd5e1);
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-soft:hover {
+  background: var(--bg-subtle, #f8fafc);
+  border-color: #94a3b8;
+  color: var(--secondary, #0f172a);
+}
+
+.btn-trip-delete {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted, #94a3b8);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-trip-delete i,
+.btn-trip-delete svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-trip-delete:hover {
+  background: #fef2f2;
+  border-color: #fee2e2;
+  color: #ef4444;
+  transform: scale(1.05);
 }
 
 /* Trip Duration Preview Badge in Create Trip Modal */
