@@ -19,7 +19,7 @@ const view = {
       tabCafe: document.getElementById('tabCafe'),
       tabAdd: document.getElementById('tabAdd'),
       tabPlan: document.getElementById('tabPlan'),
-      planBadgeCount: document.getElementById('planBadgeCount'),
+      planTabLockBadge: document.getElementById('planTabLockBadge'),
       foodCount: document.getElementById('foodCount'),
       cafeCount: document.getElementById('cafeCount'),
       tabLockBadge: document.getElementById('tabLockBadge'),
@@ -176,8 +176,14 @@ const view = {
 
       // Trip Planner (Kế hoạch đi chơi)
       planSection: document.getElementById('planSection'),
+      planGuestGateCard: document.getElementById('planGuestGateCard'),
+      btnPlanGateLogin: document.getElementById('btnPlanGateLogin'),
+      planContentContainer: document.getElementById('planContentContainer'),
       planHeroTitle: document.getElementById('planHeroTitle'),
-      planHeroSubtitle: document.getElementById('planHeroSubtitle'),
+      planTripSelect: document.getElementById('planTripSelect'),
+      btnPlanNewTrip: document.getElementById('btnPlanNewTrip'),
+      btnPlanManageTrips: document.getElementById('btnPlanManageTrips'),
+      savedTripsCount: document.getElementById('savedTripsCount'),
       btnPlanPickFromDb: document.getElementById('btnPlanPickFromDb'),
       btnPlanAddCustom: document.getElementById('btnPlanAddCustom'),
       btnPlanClear: document.getElementById('btnPlanClear'),
@@ -185,6 +191,9 @@ const view = {
       statPlanDuration: document.getElementById('statPlanDuration'),
       statPlanBudget: document.getElementById('statPlanBudget'),
       statPlanProgress: document.getElementById('statPlanProgress'),
+      planDaysContainer: document.getElementById('planDaysContainer'),
+      planDaysTabs: document.getElementById('planDaysTabs'),
+      planActiveDaysHint: document.getElementById('planActiveDaysHint'),
       planTimelineList: document.getElementById('planTimelineList'),
       planEmptyState: document.getElementById('planEmptyState'),
       btnEmptyPickPlace: document.getElementById('btnEmptyPickPlace'),
@@ -201,6 +210,7 @@ const view = {
       planCustomModalTitle: document.getElementById('planCustomModalTitle'),
       planCustomForm: document.getElementById('planCustomForm'),
       customStopName: document.getElementById('customStopName'),
+      customStopDay: document.getElementById('customStopDay'),
       customStopTime: document.getElementById('customStopTime'),
       customStopPeriod: document.getElementById('customStopPeriod'),
       customStopCategory: document.getElementById('customStopCategory'),
@@ -213,13 +223,25 @@ const view = {
       planEditStopForm: document.getElementById('planEditStopForm'),
       editStopId: document.getElementById('editStopId'),
       editStopName: document.getElementById('editStopName'),
+      editStopDay: document.getElementById('editStopDay'),
       editStopTime: document.getElementById('editStopTime'),
       editStopPeriod: document.getElementById('editStopPeriod'),
       editStopCategory: document.getElementById('editStopCategory'),
       editStopAddress: document.getElementById('editStopAddress'),
       editStopDish: document.getElementById('editStopDish'),
       editStopPrice: document.getElementById('editStopPrice'),
-      editStopNote: document.getElementById('editStopNote')
+      editStopNote: document.getElementById('editStopNote'),
+      // New Plan Modals
+      planCreateTripModal: document.getElementById('planCreateTripModal'),
+      planCreateTripModalClose: document.getElementById('planCreateTripModalClose'),
+      planCreateTripForm: document.getElementById('planCreateTripForm'),
+      newTripTitle: document.getElementById('newTripTitle'),
+      newTripDuration: document.getElementById('newTripDuration'),
+      newTripStartDate: document.getElementById('newTripStartDate'),
+      planManageTripsModal: document.getElementById('planManageTripsModal'),
+      planManageTripsModalClose: document.getElementById('planManageTripsModalClose'),
+      savedTripsList: document.getElementById('savedTripsList'),
+      btnOpenNewTripFromManage: document.getElementById('btnOpenNewTripFromManage')
     };
   },
 
@@ -517,6 +539,12 @@ const view = {
       this.dom.tabLockBadge.className = 'tab-auth-lock unlocked';
       this.dom.tabLockBadge.innerHTML = '<i data-lucide="unlock"></i>';
       this.dom.tabLockBadge.title = 'Đã đăng nhập - Sẵn sàng thêm quán';
+
+      if (this.dom.planTabLockBadge) {
+        this.dom.planTabLockBadge.className = 'tab-auth-lock unlocked';
+        this.dom.planTabLockBadge.innerHTML = '<i data-lucide="unlock"></i>';
+        this.dom.planTabLockBadge.title = 'Đã đăng nhập - Sẵn sàng lên kế hoạch';
+      }
     } else {
       this.dom.authSection.innerHTML = `
         <div class="guest-auth-group">
@@ -531,6 +559,12 @@ const view = {
       this.dom.tabLockBadge.className = 'tab-auth-lock';
       this.dom.tabLockBadge.innerHTML = '<i data-lucide="lock"></i>';
       this.dom.tabLockBadge.title = 'Yêu cầu đăng nhập để thêm quán';
+
+      if (this.dom.planTabLockBadge) {
+        this.dom.planTabLockBadge.className = 'tab-auth-lock';
+        this.dom.planTabLockBadge.innerHTML = '<i data-lucide="lock"></i>';
+        this.dom.planTabLockBadge.title = 'Yêu cầu đăng nhập để lên kế hoạch';
+      }
     }
     this.refreshIcons();
   },
@@ -561,10 +595,63 @@ const view = {
   // ==========================================================================
   // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) RENDERING
   // ==========================================================================
-  renderTripPlan(plan, onToggleComplete, onDeleteStop, onEditStop) {
+  getDateForDay(startDateStr, dayNumber) {
+    if (!startDateStr) return '';
+    try {
+      const parts = startDateStr.split('-').map(Number);
+      if (parts.length < 3) return '';
+      const [y, m, d] = parts;
+      const date = new Date(y, m - 1, d + (dayNumber - 1));
+      const dd = String(date.getDate()).padStart(2, '0');
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      return `${dd}/${mm}`;
+    } catch (e) {
+      return '';
+    }
+  },
+
+  populateDaySelectOptions(selectElem, totalDays, startDate, selectedDay = 1) {
+    if (!selectElem) return;
+    let html = '';
+    const count = Math.max(1, parseInt(totalDays, 10) || 1);
+    for (let d = 1; d <= count; d++) {
+      const dateStr = this.getDateForDay(startDate, d);
+      const label = dateStr ? `Ngày ${d} (${dateStr})` : `Ngày ${d}`;
+      html += `<option value="${d}" ${d === parseInt(selectedDay, 10) ? 'selected' : ''}>${label}</option>`;
+    }
+    selectElem.innerHTML = html;
+  },
+
+  renderTripPlan(plan, userPlans, activeDayFilter, onToggleComplete, onDeleteStop, onEditStop, onSelectDayFilter) {
     if (!this.dom.planTimelineList) return;
 
-    const items = (plan && Array.isArray(plan.items)) ? plan.items : [];
+    if (!plan) {
+      if (this.dom.planTimelineList) this.dom.planTimelineList.style.display = 'none';
+      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
+      return;
+    }
+
+    if (this.dom.planHeroTitle) {
+      this.dom.planHeroTitle.textContent = (plan.title || 'KẾ HOẠCH ĐI CHƠI CỦA BẠN').toUpperCase();
+    }
+
+    // Populate Trip selector dropdown
+    if (this.dom.planTripSelect && Array.isArray(userPlans)) {
+      let optionsHtml = '';
+      userPlans.forEach(p => {
+        const isSel = String(p.id) === String(plan.id);
+        const icon = p.status === 'completed' ? '🏁 [Đã đi]' : '🎯';
+        const count = p.items ? p.items.length : 0;
+        optionsHtml += `<option value="${p.id}" ${isSel ? 'selected' : ''}>${icon} ${this.escapeHTML(p.title)} (${p.tripType || p.totalDays + 'N'} • ${count} điểm)</option>`;
+      });
+      this.dom.planTripSelect.innerHTML = optionsHtml;
+    }
+
+    if (this.dom.savedTripsCount) {
+      this.dom.savedTripsCount.textContent = Array.isArray(userPlans) ? userPlans.length : 0;
+    }
+
+    const items = Array.isArray(plan.items) ? plan.items : [];
     const total = items.length;
     const completedCount = items.filter(i => i.isCompleted).length;
 
@@ -575,27 +662,8 @@ const view = {
     if (this.dom.statPlanProgress) {
       this.dom.statPlanProgress.textContent = `${completedCount}/${total} đã ghé`;
     }
-    if (this.dom.planBadgeCount) {
-      this.dom.planBadgeCount.textContent = total > 0 ? `${total} điểm` : 'Mới';
-    }
-
-    if (total === 0) {
-      this.dom.planTimelineList.style.display = 'none';
-      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
-      if (this.dom.statPlanDuration) this.dom.statPlanDuration.textContent = '0 tiếng';
-      if (this.dom.statPlanBudget) this.dom.statPlanBudget.textContent = '0đ';
-      this.refreshIcons();
-      return;
-    }
-
-    this.dom.planTimelineList.style.display = 'block';
-    if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'none';
-
-    // Tính thời lượng
-    const firstTime = items[0].time ? items[0].time.split('-')[0].trim() : '08:00';
-    const lastTime = items[items.length - 1].time ? (items[items.length - 1].time.split('-')[1] || items[items.length - 1].time).trim() : '21:00';
     if (this.dom.statPlanDuration) {
-      this.dom.statPlanDuration.textContent = `${firstTime} - ${lastTime}`;
+      this.dom.statPlanDuration.textContent = plan.tripType || (plan.totalDays ? `${plan.totalDays} ngày` : '1 ngày');
     }
 
     // Dự toán chi phí tự động từ các loại chi phí DB
@@ -610,14 +678,95 @@ const view = {
       else if (p === '>300K') { minCost += 300; maxCost += 450; hasCost = true; }
     });
     if (this.dom.statPlanBudget) {
-      this.dom.statPlanBudget.textContent = hasCost ? `~${minCost}K - ${maxCost}K / người` : 'Chưa xác định';
+      this.dom.statPlanBudget.textContent = hasCost ? `~${minCost}K - ${maxCost}K / người` : '0đ';
+    }
+
+    // Render Day Filter Tabs Bar
+    if (this.dom.planDaysTabs) {
+      const totalDays = Math.max(1, parseInt(plan.totalDays, 10) || 1);
+      let tabsHtml = `
+        <button type="button" class="plan-day-tab ${activeDayFilter === 'all' ? 'active' : ''}" data-day="all">
+          <i data-lucide="layers"></i>
+          <span>Tất cả các ngày</span>
+          <span class="day-count-badge">${total}</span>
+        </button>
+      `;
+
+      for (let d = 1; d <= totalDays; d++) {
+        const dayCount = items.filter(it => (parseInt(it.day, 10) || 1) === d).length;
+        const dateStr = this.getDateForDay(plan.startDate, d);
+        tabsHtml += `
+          <button type="button" class="plan-day-tab ${activeDayFilter === d ? 'active' : ''}" data-day="${d}">
+            <span>Ngày ${d}</span>
+            ${dateStr ? `<small class="day-tab-date">(${dateStr})</small>` : ''}
+            <span class="day-count-badge">${dayCount}</span>
+          </button>
+        `;
+      }
+      this.dom.planDaysTabs.innerHTML = tabsHtml;
+
+      this.dom.planDaysTabs.querySelectorAll('.plan-day-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const rawDay = btn.getAttribute('data-day');
+          const dayVal = rawDay === 'all' ? 'all' : parseInt(rawDay, 10);
+          if (onSelectDayFilter) onSelectDayFilter(dayVal);
+        });
+      });
+    }
+
+    if (total === 0) {
+      this.dom.planTimelineList.style.display = 'none';
+      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
+      this.refreshIcons();
+      return;
+    }
+
+    this.dom.planTimelineList.style.display = 'block';
+    if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'none';
+
+    // Lọc và sắp xếp các chặng hiển thị
+    let displayItems = [...items];
+    if (activeDayFilter !== 'all') {
+      displayItems = items.filter(it => (parseInt(it.day, 10) || 1) === activeDayFilter);
+    } else {
+      displayItems.sort((a, b) => (parseInt(a.day, 10) || 1) - (parseInt(b.day, 10) || 1));
+    }
+
+    if (displayItems.length === 0) {
+      this.dom.planTimelineList.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; background: var(--bg-surface); border: 1.5px dashed var(--border-subtle); border-radius: var(--radius-xl); margin: 20px 0;">
+          <i data-lucide="calendar-plus" style="width: 38px; height: 38px; color: var(--primary); margin-bottom: 8px;"></i>
+          <h4 style="font-size: 1rem; color: var(--secondary); margin-bottom: 6px;">Chưa có địa điểm nào trong Ngày ${activeDayFilter}</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Hãy bấm chọn quán bên phải hoặc "Thêm Điểm Tự Do" để xếp lịch cho ngày này!</p>
+        </div>
+      `;
+      this.refreshIcons();
+      return;
     }
 
     // Hiển thị danh sách chặng
     let html = '';
-    items.forEach((item, index) => {
+    let lastRenderedDay = null;
+
+    displayItems.forEach((item, index) => {
       const isDone = !!item.isCompleted;
-      const isLast = index === items.length - 1;
+      const isLast = index === displayItems.length - 1;
+      const itemDay = parseInt(item.day, 10) || 1;
+
+      // Divider ngày khi đang xem Tất cả
+      if (activeDayFilter === 'all' && itemDay !== lastRenderedDay) {
+        lastRenderedDay = itemDay;
+        const dateStr = this.getDateForDay(plan.startDate, itemDay);
+        html += `
+          <div class="timeline-day-divider">
+            <div class="day-divider-pill">
+              <i data-lucide="calendar"></i>
+              <span>NGÀY ${itemDay}</span>
+              ${dateStr ? `<small class="day-divider-date">(${dateStr})</small>` : ''}
+            </div>
+          </div>
+        `;
+      }
       
       let catBadgeText = 'Vui chơi';
       let catBadgeIcon = 'compass';
@@ -649,6 +798,9 @@ const view = {
               <div class="card-main-meta">
                 <div class="card-time-row">
                   <div class="card-header-tags">
+                    <span class="card-day-tag">
+                      <i data-lucide="calendar"></i> Ngày ${itemDay}
+                    </span>
                     <span class="card-time-tag">
                       <i data-lucide="clock"></i> ${this.escapeHTML(item.time || 'Linh hoạt')}
                     </span>
@@ -756,6 +908,105 @@ const view = {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         onDeleteStop(id);
+      });
+    });
+
+    this.refreshIcons();
+  },
+
+  renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete) {
+    if (!this.dom.savedTripsList) return;
+    if (!userPlans || userPlans.length === 0) {
+      this.dom.savedTripsList.innerHTML = `
+        <div style="text-align: center; padding: 36px 20px; color: var(--text-muted);">
+          <i data-lucide="folder-open" style="width: 36px; height: 36px; margin-bottom: 10px; color: #94a3b8;"></i>
+          <p>Chưa có kế hoạch nào được lưu. Bấm nút bên dưới để tạo chuyến đi đầu tiên!</p>
+        </div>
+      `;
+      this.refreshIcons();
+      return;
+    }
+
+    let html = '';
+    userPlans.forEach(p => {
+      const isActive = String(p.id) === String(activePlanId);
+      const isCompleted = p.status === 'completed';
+      const stopCount = p.items ? p.items.length : 0;
+      const completedStops = p.items ? p.items.filter(i => i.isCompleted).length : 0;
+      const durationText = p.tripType || (p.totalDays ? `${p.totalDays} ngày` : '2N1Đ');
+      const dateText = p.startDate ? `Khởi hành: ${this.escapeHTML(p.startDate)}` : 'Chưa đặt ngày';
+
+      html += `
+        <div class="saved-trip-item ${isActive ? 'active' : ''}" data-trip-id="${p.id}">
+          <div class="saved-trip-top">
+            <div>
+              <h4 class="saved-trip-title">
+                ${isActive ? '🎯 ' : ''}${this.escapeHTML(p.title)}
+              </h4>
+              <div class="saved-trip-meta">
+                <span class="saved-trip-badge ${isCompleted ? 'badge-completed' : 'badge-active'}">
+                  <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock'}"></i>
+                  ${isCompleted ? 'Đã hoàn thành chuyến đi' : 'Đang lên kế hoạch'}
+                </span>
+                <span>• ${durationText}</span>
+                <span>• ${stopCount} điểm (${completedStops} đã ghé)</span>
+                <span>• ${dateText}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="saved-trip-actions">
+            <div class="saved-trip-btns-left">
+              ${!isActive ? `
+                <button type="button" class="btn btn-sm btn-primary" data-action="switch-trip" data-id="${p.id}">
+                  <i data-lucide="arrow-right-circle"></i> Xem & Lên Lịch
+                </button>
+              ` : `
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary);">
+                  <i data-lucide="check"></i> Đang xem chuyến này
+                </span>
+              `}
+              <button type="button" class="btn btn-sm btn-secondary" data-action="toggle-status" data-id="${p.id}">
+                <i data-lucide="${isCompleted ? 'rotate-ccw' : 'check'}"></i>
+                ${isCompleted ? 'Mở lại' : 'Đánh dấu đã đi'}
+              </button>
+            </div>
+
+            <div class="saved-trip-btns-right">
+              ${userPlans.length > 1 ? `
+                <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
+                  <i data-lucide="trash-2"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    this.dom.savedTripsList.innerHTML = html;
+
+    this.dom.savedTripsList.querySelectorAll('[data-action="switch-trip"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onSwitch) onSwitch(id);
+      });
+    });
+
+    this.dom.savedTripsList.querySelectorAll('[data-action="toggle-status"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onToggleStatus) onToggleStatus(id);
+      });
+    });
+
+    this.dom.savedTripsList.querySelectorAll('[data-action="delete-trip"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onDelete) onDelete(id);
       });
     });
 

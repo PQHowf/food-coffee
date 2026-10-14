@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=3.5">
+  <link rel="stylesheet" href="assets/css/style.css?v=3.9">
 </head>
 
 <body>
@@ -105,7 +105,9 @@
           <button class="tab-btn" id="tabPlan" data-tab="plan">
             <span class="tab-icon"><i data-lucide="map-pinned"></i></span>
             <span class="tab-label">KẾ HOẠCH ĐI CHƠI</span>
-            <span class="tab-badge-new" id="planBadgeCount">Demo</span>
+            <span class="tab-auth-lock" id="planTabLockBadge" title="Yêu cầu đăng nhập">
+              <i data-lucide="lock"></i>
+            </span>
           </button>
         </div>
       </nav>
@@ -389,135 +391,190 @@
 
     <!-- TAB 4: TRIP PLANNER VIEW (LÊN KẾ HOẠCH ĐI CHƠI) -->
     <section class="plan-section" id="planSection" style="display: none;">
-      <!-- Plan Hero Banner & Control Toolbar -->
-      <div class="plan-hero-banner">
-        <div class="plan-hero-text">
-          <div class="plan-badge-pill">
-            <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
-          </div>
-          <h2 class="plan-title" id="planHeroTitle">KẾ HOẠCH ĐI CHƠI CỦA BẠN</h2>
-          <p class="plan-subtitle" id="planHeroSubtitle">
-            Sắp xếp lộ trình theo dòng thời gian (timeline), kết hợp các món ngon, góc cafe chill và địa điểm vui chơi cho một ngày trọn vẹn.
-          </p>
-        </div>
 
-        <div class="plan-toolbar-actions">
-          <button class="btn btn-primary" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
-            <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
-          </button>
-          <button class="btn btn-secondary" id="btnPlanAddCustom" title="Thêm địa điểm bất kỳ (rạp phim, bờ hồ...)">
-            <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
-          </button>
-          <button class="btn btn-outline-danger" id="btnPlanClear" title="Xóa toàn bộ điểm dừng">
-            <i data-lucide="trash-2"></i>
+      <!-- STATE 1: GUEST RESTRICTION (Yêu cầu đăng nhập) -->
+      <div class="guest-gate-card" id="planGuestGateCard" style="display: none;">
+        <div class="lock-illustration">
+          <div class="lock-circle">
+            <i data-lucide="shield-alert"></i>
+          </div>
+        </div>
+        <h2 class="gate-title">KẾ HOẠCH ĐI CHƠI YÊU CẦU ĐĂNG NHẬP</h2>
+        <p class="gate-desc">
+          Bạn đang ở chế độ <strong>Khách tham quan</strong>. Để tạo lịch trình chi tiết (1 ngày, 2N1Đ, 3N2Đ...), sắp xếp lộ trình theo các ngày và lưu lại các kế hoạch chuyến đi đã đi trước đó, vui lòng đăng nhập tài khoản.
+        </p>
+        <div class="gate-actions">
+          <button type="button" class="btn btn-primary btn-lg" id="btnPlanGateLogin">
+            <i data-lucide="log-in"></i> ĐĂNG NHẬP NGAY
           </button>
         </div>
       </div>
 
-      <!-- Quick Statistics Grid -->
-      <div class="plan-stats-grid">
-        <div class="plan-stat-card">
-          <div class="stat-icon-wrap stat-icon-orange">
-            <i data-lucide="map-pin"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Tổng Điểm Đến</span>
-            <strong class="stat-val" id="statPlanStops">5 địa điểm</strong>
-          </div>
-        </div>
+      <!-- STATE 2: LOGGED-IN PLANNER CONTAINER -->
+      <div class="plan-content-container" id="planContentContainer">
 
-        <div class="plan-stat-card">
-          <div class="stat-icon-wrap stat-icon-blue">
-            <i data-lucide="clock"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Thời Lượng Dự Kiến</span>
-            <strong class="stat-val" id="statPlanDuration">~13 tiếng (08:00 - 21:00)</strong>
-          </div>
-        </div>
-
-        <div class="plan-stat-card">
-          <div class="stat-icon-wrap stat-icon-green">
-            <i data-lucide="coins"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Dự Toán Chi Phí</span>
-            <strong class="stat-val" id="statPlanBudget">~350K - 520K / người</strong>
-          </div>
-        </div>
-
-        <div class="plan-stat-card">
-          <div class="stat-icon-wrap stat-icon-purple">
-            <i data-lucide="check-circle-2"></i>
-          </div>
-          <div class="stat-info">
-            <span class="stat-label">Tiến Độ Trải Nghiệm</span>
-            <strong class="stat-val" id="statPlanProgress">1/5 đã ghé</strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Plan Content (Split Layout: Timeline on Left, Quick Place Discovery on Right) -->
-      <div class="plan-layout-grid">
-        <!-- Left Column: Vertical Timeline & Place Cards -->
-        <div class="plan-timeline-column">
-          <div class="timeline-header-strip">
-            <div class="timeline-strip-title">
-              <i data-lucide="list-ordered"></i>
-              <span>DÒNG THỜI GIAN LỊCH TRÌNH</span>
+        <!-- Plan Hero Banner & Control Toolbar -->
+        <div class="plan-hero-banner">
+          <div class="plan-hero-text">
+            <div class="plan-badge-pill">
+              <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
             </div>
-            <span class="timeline-strip-hint">Chạm vào nút hoàn thành khi bạn đã ghé quán</span>
+            <h2 class="plan-title" id="planHeroTitle">KẾ HOẠCH ĐI CHƠI CỦA BẠN</h2>
+            <!-- Đã xoá phần description theo yêu cầu -->
           </div>
 
-          <div class="timeline-wrapper" id="planTimelineList">
-            <!-- Dynamic timeline items rendered by JavaScript -->
-          </div>
-
-          <!-- Empty state when plan is cleared -->
-          <div class="plan-empty-state" id="planEmptyState" style="display: none;">
-            <div class="plan-empty-icon">
-              <i data-lucide="calendar-x"></i>
+          <!-- Trip Switcher & History Bar -->
+          <div class="plan-trip-bar">
+            <div class="plan-trip-selector-wrap">
+              <label for="planTripSelect" class="plan-trip-label">
+                <i data-lucide="compass"></i> Kế hoạch:
+              </label>
+              <select id="planTripSelect" class="plan-trip-select" aria-label="Chọn kế hoạch chuyến đi">
+                <!-- Injected dynamically by JS -->
+              </select>
             </div>
-            <h3>Chưa có địa điểm nào trong kế hoạch</h3>
-            <p>Hãy thêm quán từ danh sách gợi ý bên phải hoặc bấm chọn từ kho quán để lên lịch trình ngay!</p>
-            <div class="plan-empty-actions">
-              <button class="btn btn-primary" id="btnEmptyPickPlace">
-                <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
+            <div class="plan-trip-actions">
+              <button type="button" class="btn btn-trip-action btn-trip-new" id="btnPlanNewTrip" title="Tạo kế hoạch chuyến đi mới">
+                <i data-lucide="plus"></i> Tạo Kế Hoạch Mới
               </button>
-              <button class="btn btn-secondary" id="btnEmptyAddCustom">
-                <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
+              <button type="button" class="btn btn-trip-action btn-trip-history" id="btnPlanManageTrips" title="Xem các kế hoạch đã đi trước đó">
+                <i data-lucide="folder-clock"></i> Kế Hoạch Đã Đi (<span id="savedTripsCount">0</span>)
               </button>
             </div>
           </div>
+
+          <div class="plan-toolbar-actions">
+            <button class="btn btn-primary" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
+              <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
+            </button>
+            <button class="btn btn-secondary" id="btnPlanAddCustom" title="Thêm địa điểm bất kỳ (rạp phim, bờ hồ...)">
+              <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
+            </button>
+            <button class="btn btn-outline-danger" id="btnPlanClear" title="Xóa toàn bộ điểm dừng của kế hoạch hiện tại">
+              <i data-lucide="trash-2"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Right Column: Quick Add Sidebar (Kho Quán Gợi Ý) -->
-        <aside class="plan-sidebar-column">
-          <div class="plan-sidebar-card">
-            <div class="sidebar-card-header">
-              <div class="sidebar-title-wrap">
-                <i data-lucide="compass"></i>
-                <h3 class="sidebar-title">GỢI Ý QUÁN THÊM NHANH</h3>
+        <!-- Quick Statistics Grid -->
+        <div class="plan-stats-grid">
+          <div class="plan-stat-card">
+            <div class="stat-icon-wrap stat-icon-orange">
+              <i data-lucide="map-pin"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Tổng Điểm Đến</span>
+              <strong class="stat-val" id="statPlanStops">0 địa điểm</strong>
+            </div>
+          </div>
+
+          <div class="plan-stat-card">
+            <div class="stat-icon-wrap stat-icon-blue">
+              <i data-lucide="clock"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Thời Lượng Dự Kiến</span>
+              <strong class="stat-val" id="statPlanDuration">2N1Đ</strong>
+            </div>
+          </div>
+
+          <div class="plan-stat-card">
+            <div class="stat-icon-wrap stat-icon-green">
+              <i data-lucide="coins"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Dự Toán Chi Phí</span>
+              <strong class="stat-val" id="statPlanBudget">0đ</strong>
+            </div>
+          </div>
+
+          <div class="plan-stat-card">
+            <div class="stat-icon-wrap stat-icon-purple">
+              <i data-lucide="check-circle-2"></i>
+            </div>
+            <div class="stat-info">
+              <span class="stat-label">Tiến Độ Trải Nghiệm</span>
+              <strong class="stat-val" id="statPlanProgress">0/0 đã ghé</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day Filter Tabs Bar (Dành cho chuyến đi dài ngày 1 ngày, 2N1Đ, 3N2Đ...) -->
+        <div class="plan-days-container" id="planDaysContainer">
+          <div class="plan-days-header">
+            <div class="plan-days-title">
+              <i data-lucide="calendar-days"></i>
+              <span>LỊCH TRÌNH THEO NGÀY</span>
+            </div>
+            <span class="plan-days-hint" id="planActiveDaysHint">Chọn ngày để xem hoặc lọc lộ trình</span>
+          </div>
+          <div class="plan-days-tabs" id="planDaysTabs">
+            <!-- Dynamic day tabs injected by JS: [Tất cả] [Ngày 1] [Ngày 2]... -->
+          </div>
+        </div>
+
+        <!-- Main Plan Content (Split Layout: Timeline on Left, Quick Place Discovery on Right) -->
+        <div class="plan-layout-grid">
+          <!-- Left Column: Vertical Timeline & Place Cards -->
+          <div class="plan-timeline-column">
+            <div class="timeline-header-strip">
+              <div class="timeline-strip-title">
+                <i data-lucide="list-ordered"></i>
+                <span>DÒNG THỜI GIAN LỊCH TRÌNH</span>
               </div>
-              <span class="sidebar-desc">Bấm <strong>"+ Thêm"</strong> để đưa vào lịch trình ngay</span>
+              <span class="timeline-strip-hint">Chạm vào nút hoàn thành khi bạn đã ghé quán</span>
             </div>
 
-            <div class="sidebar-search-box">
-              <i data-lucide="search"></i>
-              <input type="text" id="sidebarPlaceSearch" placeholder="Tìm nhanh quán ăn, cafe...">
+            <div class="timeline-wrapper" id="planTimelineList">
+              <!-- Dynamic timeline items rendered by JavaScript -->
             </div>
 
-            <div class="sidebar-category-filter">
-              <button class="sidebar-cat-btn active" data-cat="all">Tất cả</button>
-              <button class="sidebar-cat-btn" data-cat="food">Quán Ăn</button>
-              <button class="sidebar-cat-btn" data-cat="cafe">Quán Cafe</button>
-            </div>
-
-            <div class="sidebar-places-list" id="sidebarPlacesList">
-              <!-- Rendered dynamically by JS -->
+            <!-- Empty state when plan is cleared -->
+            <div class="plan-empty-state" id="planEmptyState" style="display: none;">
+              <div class="plan-empty-icon">
+                <i data-lucide="calendar-x"></i>
+              </div>
+              <h3>Chưa có địa điểm nào trong kế hoạch</h3>
+              <p>Hãy thêm quán từ danh sách gợi ý bên phải hoặc bấm chọn từ kho quán để lên lịch trình ngay!</p>
+              <div class="plan-empty-actions">
+                <button class="btn btn-primary" id="btnEmptyPickPlace">
+                  <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
+                </button>
+                <button class="btn btn-secondary" id="btnEmptyAddCustom">
+                  <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
+                </button>
+              </div>
             </div>
           </div>
-        </aside>
+
+          <!-- Right Column: Quick Add Sidebar (Kho Quán Gợi Ý) -->
+          <aside class="plan-sidebar-column">
+            <div class="plan-sidebar-card">
+              <div class="sidebar-card-header">
+                <div class="sidebar-title-wrap">
+                  <i data-lucide="compass"></i>
+                  <h3 class="sidebar-title">GỢI Ý QUÁN THÊM NHANH</h3>
+                </div>
+                <span class="sidebar-desc">Bấm <strong>"+ Thêm"</strong> để đưa vào lịch trình ngay</span>
+              </div>
+
+              <div class="sidebar-search-box">
+                <i data-lucide="search"></i>
+                <input type="text" id="sidebarPlaceSearch" placeholder="Tìm nhanh quán ăn, cafe...">
+              </div>
+
+              <div class="sidebar-category-filter">
+                <button class="sidebar-cat-btn active" data-cat="all">Tất cả</button>
+                <button class="sidebar-cat-btn" data-cat="food">Quán Ăn</button>
+                <button class="sidebar-cat-btn" data-cat="cafe">Quán Cafe</button>
+              </div>
+
+              <div class="sidebar-places-list" id="sidebarPlacesList">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
     </section>
 
@@ -1043,10 +1100,12 @@
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+              <label for="customStopDay" class="form-label">Dành cho ngày <span class="required">*</span></label>
               <div class="input-with-icon">
-                <i data-lucide="clock"></i>
-                <input type="text" id="customStopTime" placeholder="Ví dụ: 15:00 - 17:30" required>
+                <i data-lucide="calendar"></i>
+                <select id="customStopDay">
+                  <!-- Dynamically injected -->
+                </select>
               </div>
             </div>
 
@@ -1061,6 +1120,14 @@
                   <option value="Tối">Buổi Tối</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="clock"></i>
+              <input type="text" id="customStopTime" placeholder="Ví dụ: 08:30 - 10:00 hoặc 15:00 - 17:30" required>
             </div>
           </div>
 
@@ -1151,10 +1218,12 @@
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+              <label for="editStopDay" class="form-label">Dành cho ngày <span class="required">*</span></label>
               <div class="input-with-icon">
-                <i data-lucide="clock"></i>
-                <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
+                <i data-lucide="calendar"></i>
+                <select id="editStopDay">
+                  <!-- Dynamically injected -->
+                </select>
               </div>
             </div>
 
@@ -1169,6 +1238,14 @@
                   <option value="Tối">Buổi Tối</option>
                 </select>
               </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="clock"></i>
+              <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
             </div>
           </div>
 
@@ -1231,14 +1308,100 @@
     </div>
   </div>
 
+  <!-- MODAL: TẠO KẾ HOẠCH CHUYẾN ĐI MỚI (Hỗ trợ chuyến dài ngày 1 ngày, 2N1Đ, 3N2Đ...) -->
+  <div class="modal-overlay" id="planCreateTripModal" style="display: none;">
+    <div class="modal-card auth-modal-card plan-modal-card" role="dialog" aria-labelledby="planCreateTripTitle">
+      <button class="modal-close-btn" id="planCreateTripModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header modal-header-pinned">
+        <div class="modal-icon-badge">
+          <i data-lucide="calendar-plus"></i>
+        </div>
+        <h3 class="modal-title" id="planCreateTripTitle">TẠO KẾ HOẠCH CHUYẾN ĐI MỚI</h3>
+      </div>
+
+      <form id="planCreateTripForm" class="auth-form plan-modal-form" novalidate>
+        <div class="modal-scroll-content">
+          <div class="form-group">
+            <label for="newTripTitle" class="form-label">Tên kế hoạch chuyến đi <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="flag"></i>
+              <input type="text" id="newTripTitle" placeholder="Ví dụ: Du lịch Hà Nội 2N1Đ, Khám phá Đà Lạt 3N2Đ..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="newTripDuration" class="form-label">Thời lượng chuyến đi <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="clock"></i>
+                <select id="newTripDuration">
+                  <option value="1">1 ngày (Đi trong ngày)</option>
+                  <option value="2" selected>2N1Đ (2 ngày 1 đêm)</option>
+                  <option value="3">3N2Đ (3 ngày 2 đêm)</option>
+                  <option value="4">4N3Đ (4 ngày 3 đêm)</option>
+                  <option value="5">5N4Đ (5 ngày 4 đêm)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="newTripStartDate" class="form-label">Ngày khởi hành</label>
+              <div class="input-with-icon">
+                <i data-lucide="calendar"></i>
+                <input type="date" id="newTripStartDate">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-pinned">
+          <button type="submit" class="btn btn-primary btn-full">
+            <i data-lucide="sparkles"></i> BẮT ĐẦU LÊN KẾ HOẠCH
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DANH SÁCH CÁC KẾ HOẠCH ĐÃ ĐI TRƯỚC ĐÓ / LỊCH SỬ CHUYẾN ĐI -->
+  <div class="modal-overlay" id="planManageTripsModal" style="display: none;">
+    <div class="modal-card auth-modal-card plan-modal-card manage-trips-modal-card" role="dialog" aria-labelledby="planManageTripsTitle">
+      <button class="modal-close-btn" id="planManageTripsModalClose" title="Đóng">
+        <i data-lucide="x"></i>
+      </button>
+
+      <div class="modal-header modal-header-pinned">
+        <div class="modal-icon-badge">
+          <i data-lucide="folder-clock"></i>
+        </div>
+        <h3 class="modal-title" id="planManageTripsTitle">CÁC KẾ HOẠCH ĐÃ LƯU</h3>
+      </div>
+
+      <div class="modal-scroll-content">
+        <div class="saved-trips-list" id="savedTripsList">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+
+      <div class="modal-footer-pinned">
+        <button type="button" class="btn btn-primary btn-full" id="btnOpenNewTripFromManage">
+          <i data-lucide="plus-circle"></i> + TẠO KẾ HOẠCH MỚI
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.8"></script>
-  <script src="js/services/apiService.js?v=3.8"></script>
-  <script src="js/views/view.js?v=3.8"></script>
-  <script src="js/controllers/appController.js?v=3.8"></script>
+  <script src="js/models/state.js?v=3.9"></script>
+  <script src="js/services/apiService.js?v=3.9"></script>
+  <script src="js/views/view.js?v=3.9"></script>
+  <script src="js/controllers/appController.js?v=3.9"></script>
 </body>
 
 </html>

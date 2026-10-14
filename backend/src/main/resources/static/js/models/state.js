@@ -122,50 +122,153 @@ const model = {
   // ==========================================================================
   // KẾ HOẠCH ĐI CHƠI (TRIP PLANNER) STATE
   // ==========================================================================
-  getEmptyPlan() {
+  userPlans: [],
+  tripPlan: null,
+  currentPlanDayFilter: 'all',
+
+  getUserPlansKey() {
+    const uid = this.currentUser ? (this.currentUser.id || this.currentUser.username || 'user') : 'guest';
+    return `food_coffee_user_plans_${uid}`;
+  },
+
+  getEmptyPlan(title = 'Chuyến đi 2N1Đ', tripType = '2N1Đ', totalDays = 2, startDate = '') {
+    const today = new Date().toISOString().split('T')[0];
+    const days = parseInt(totalDays, 10) || 2;
     return {
-      title: "Kế hoạch đi chơi",
-      date: "Hôm nay",
+      id: 'plan_' + Date.now(),
+      userId: this.currentUser ? (this.currentUser.id || this.currentUser.username) : null,
+      title: title || 'Chuyến đi ' + (tripType || '2N1Đ'),
+      tripType: tripType || (days === 1 ? '1 ngày' : `${days}N${days - 1}Đ`),
+      totalDays: days,
+      startDate: startDate || today,
+      status: 'active', // 'active' | 'completed'
+      createdAt: Date.now(),
       items: []
     };
   },
 
   initTripPlan() {
-    const saved = localStorage.getItem(STORAGE_KEYS.TRIP_PLAN);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && Array.isArray(parsed.items)) {
-          // Xoá bỏ dữ liệu demo cũ nếu có
-          const hasOldDemo = parsed.items.some(i => i.id === 'stop_1' || i.id === 'stop_2');
-          if (!hasOldDemo) {
-            // Dọn sạch 'Gợi ý bởi...' nếu có từ trước
-            parsed.items.forEach(item => {
-              if (item.note && item.note.startsWith('Gợi ý bởi')) {
-                item.note = '';
-              }
-            });
-            this.tripPlan = parsed;
-            this.saveTripPlan();
-            return;
-          }
-        }
-      } catch (e) {}
+    if (!this.currentUser) {
+      this.tripPlan = null;
+      this.userPlans = [];
+      return;
     }
-    this.tripPlan = this.getEmptyPlan();
-    this.saveTripPlan();
+
+    const key = this.getUserPlansKey();
+    let plans = [];
+    try {
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        plans = JSON.parse(saved);
+        if (!Array.isArray(plans)) plans = [];
+      }
+    } catch (e) {
+      plans = [];
+    }
+
+    // Tự động chuyển đổi từ dữ liệu kế hoạch cũ nếu có
+    if (plans.length === 0) {
+      const oldPlanSaved = localStorage.getItem(STORAGE_KEYS.TRIP_PLAN);
+      if (oldPlanSaved) {
+        try {
+          const oldPlan = JSON.parse(oldPlanSaved);
+          if (oldPlan && Array.isArray(oldPlan.items) && oldPlan.items.length > 0) {
+            oldPlan.id = oldPlan.id || ('plan_' + Date.now());
+            oldPlan.title = oldPlan.title || 'Chuyến đi 2N1Đ';
+            oldPlan.tripType = oldPlan.tripType || '2N1Đ';
+            oldPlan.totalDays = oldPlan.totalDays || 2;
+            oldPlan.startDate = oldPlan.startDate || new Date().toISOString().split('T')[0];
+            oldPlan.status = oldPlan.status || 'active';
+            oldPlan.items.forEach(it => {
+              if (!it.day) it.day = 1;
+            });
+            plans.push(oldPlan);
+          }
+        } catch (e) {}
+      }
+    }
+
+    // Nếu vẫn chưa có kế hoạch nào, tạo mặc định chuyến 2N1Đ
+    if (plans.length === 0) {
+      const defaultPlan = this.getEmptyPlan('Chuyến đi 2N1Đ', '2N1Đ', 2);
+      plans.push(defaultPlan);
+    }
+
+    this.userPlans = plans;
+    // Chọn kế hoạch đang active hoặc kế hoạch đầu tiên
+    const active = plans.find(p => p.status === 'active') || plans[0];
+    this.tripPlan = active;
+    this.currentPlanDayFilter = 'all';
+    this.saveUserPlans();
+  },
+
+  saveUserPlans() {
+    if (!this.currentUser) return;
+    const key = this.getUserPlansKey();
+    if (this.tripPlan) {
+      const idx = this.userPlans.findIndex(p => String(p.id) === String(this.tripPlan.id));
+      if (idx > -1) {
+        this.userPlans[idx] = this.tripPlan;
+      } else {
+        this.userPlans.unshift(this.tripPlan);
+      }
+    }
+    localStorage.setItem(key, JSON.stringify(this.userPlans));
   },
 
   saveTripPlan() {
-    if (this.tripPlan) {
-      localStorage.setItem(STORAGE_KEYS.TRIP_PLAN, JSON.stringify(this.tripPlan));
+    this.saveUserPlans();
+  },
+
+  createNewPlan({ title, tripType, totalDays, startDate }) {
+    const newPlan = this.getEmptyPlan(title, tripType, totalDays, startDate);
+    this.userPlans.unshift(newPlan);
+    this.tripPlan = newPlan;
+    this.currentPlanDayFilter = 'all';
+    this.saveUserPlans();
+    return newPlan;
+  },
+
+  switchActivePlan(planId) {
+    const plan = this.userPlans.find(p => String(p.id) === String(planId));
+    if (plan) {
+      this.tripPlan = plan;
+      this.currentPlanDayFilter = 'all';
+      this.saveUserPlans();
+      return plan;
     }
+    return null;
+  },
+
+  deletePlan(planId) {
+    this.userPlans = this.userPlans.filter(p => String(p.id) !== String(planId));
+    if (this.tripPlan && String(this.tripPlan.id) === String(planId)) {
+      this.tripPlan = this.userPlans[0] || this.createNewPlan({
+        title: 'Chuyến đi 2N1Đ',
+        tripType: '2N1Đ',
+        totalDays: 2
+      });
+    }
+    this.saveUserPlans();
+  },
+
+  togglePlanStatus(planId) {
+    const plan = this.userPlans.find(p => String(p.id) === String(planId));
+    if (plan) {
+      plan.status = plan.status === 'completed' ? 'active' : 'completed';
+      this.saveUserPlans();
+      return plan.status;
+    }
+    return null;
   },
 
   addPlanStop(stop) {
-    if (!this.tripPlan) this.tripPlan = this.getEmptyPlan();
+    if (!this.tripPlan) {
+      this.tripPlan = this.getEmptyPlan();
+    }
     if (!this.tripPlan.items) this.tripPlan.items = [];
     stop.id = 'stop_' + Date.now();
+    stop.day = parseInt(stop.day, 10) || 1;
     this.tripPlan.items.push(stop);
     this.saveTripPlan();
     return stop;
@@ -192,13 +295,17 @@ const model = {
     if (!this.tripPlan || !this.tripPlan.items) return;
     const item = this.tripPlan.items.find(i => String(i.id) === String(stopId));
     if (item) {
+      if (updatedData.day) {
+        updatedData.day = parseInt(updatedData.day, 10) || 1;
+      }
       Object.assign(item, updatedData);
       this.saveTripPlan();
     }
   },
 
   clearPlan() {
-    this.tripPlan = this.getEmptyPlan();
+    if (!this.tripPlan) return;
+    this.tripPlan.items = [];
     this.saveTripPlan();
   }
 };

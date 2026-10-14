@@ -152,6 +152,10 @@ const appController = {
     if (model.currentTab === 'add') {
       this.renderAddTabContent();
     }
+    // Cập nhật tab Kế Hoạch nếu đang mở
+    if (model.currentTab === 'plan') {
+      this.renderPlanTab();
+    }
   },
 
   renderCurrentPlaces(resetPagination = true) {
@@ -501,19 +505,32 @@ const appController = {
   planSidebarSearchQuery: '',
 
   renderPlanTab() {
+    // 1. Kiểm tra trạng thái đăng nhập (Yêu cầu đăng nhập mới được lên kế hoạch)
+    if (!model.currentUser) {
+      if (view.dom.planGuestGateCard) view.dom.planGuestGateCard.style.display = 'block';
+      if (view.dom.planContentContainer) view.dom.planContentContainer.style.display = 'none';
+      return;
+    }
+
+    if (view.dom.planGuestGateCard) view.dom.planGuestGateCard.style.display = 'none';
+    if (view.dom.planContentContainer) view.dom.planContentContainer.style.display = 'block';
+
     if (!model.tripPlan) {
       model.initTripPlan();
     }
 
-    // 1. Render Timeline
+    // 2. Render Timeline & Multi-Day Tabs
     view.renderTripPlan(
       model.tripPlan,
+      model.userPlans,
+      model.currentPlanDayFilter,
       (stopId) => this.handleTogglePlanStop(stopId),
       (stopId) => this.handleDeletePlanStop(stopId),
-      (stopId) => this.handleEditPlanStop(stopId)
+      (stopId) => this.handleEditPlanStop(stopId),
+      (day) => this.handleSelectPlanDay(day)
     );
 
-    // 2. Render Sidebar Quán Gợi Ý
+    // 3. Render Sidebar Quán Gợi Ý
     let sidebarPlaces = [...model.places];
     if (this.planSidebarFilterCat !== 'all') {
       sidebarPlaces = sidebarPlaces.filter(p => p.category === this.planSidebarFilterCat);
@@ -527,6 +544,123 @@ const appController = {
       );
     }
     view.renderPlanSidebarPlaces(sidebarPlaces, (place) => this.handleQuickAddPlaceToPlan(place));
+  },
+
+  handleSelectPlanDay(day) {
+    model.currentPlanDayFilter = day;
+    this.renderPlanTab();
+  },
+
+  handleSwitchPlan(planId) {
+    const plan = model.switchActivePlan(planId);
+    if (plan) {
+      this.renderPlanTab();
+      view.showToast(`🎯 Đã chuyển sang kế hoạch: ${plan.title}`, 'info');
+    }
+  },
+
+  // Modal Tạo Kế Hoạch Chuyến Đi Mới
+  openCreateTripModal() {
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      view.showToast('Vui lòng đăng nhập để tạo kế hoạch chuyến đi!', 'warning');
+      return;
+    }
+    if (view.dom.planCreateTripForm) view.dom.planCreateTripForm.reset();
+    if (view.dom.newTripStartDate) {
+      view.dom.newTripStartDate.value = new Date().toISOString().split('T')[0];
+    }
+    if (view.dom.planCreateTripModal) {
+      view.dom.planCreateTripModal.style.display = 'flex';
+      view.dom.planCreateTripModal.removeAttribute('aria-hidden');
+    }
+    view.refreshIcons();
+    setTimeout(() => {
+      view.dom.newTripTitle?.focus();
+    }, 120);
+  },
+
+  closeCreateTripModal() {
+    if (view.dom.planCreateTripModal) {
+      view.dom.planCreateTripModal.style.display = 'none';
+      view.dom.planCreateTripModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  handleCreateTripSubmit(e) {
+    e.preventDefault();
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      return;
+    }
+    const title = view.dom.newTripTitle?.value.trim();
+    if (!title) {
+      view.showToast('Vui lòng nhập tên chuyến đi!', 'warning');
+      return;
+    }
+
+    const totalDays = parseInt(view.dom.newTripDuration?.value, 10) || 2;
+    let tripType = '2N1Đ';
+    if (totalDays === 1) tripType = '1 ngày';
+    else tripType = `${totalDays}N${totalDays - 1}Đ`;
+
+    const startDate = view.dom.newTripStartDate?.value || new Date().toISOString().split('T')[0];
+
+    const newPlan = model.createNewPlan({
+      title: title,
+      tripType: tripType,
+      totalDays: totalDays,
+      startDate: startDate
+    });
+
+    this.closeCreateTripModal();
+    this.renderPlanTab();
+    view.showToast(`🎉 Đã tạo thành công kế hoạch "${newPlan.title}" (${tripType})!`, 'success');
+  },
+
+  // Modal Quản Lý Các Chuyến Đi Đã Lưu
+  openManageTripsModal() {
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      view.showToast('Vui lòng đăng nhập để xem danh sách chuyến đi!', 'warning');
+      return;
+    }
+
+    view.renderSavedTrips(
+      model.userPlans,
+      model.tripPlan?.id,
+      (planId) => {
+        this.handleSwitchPlan(planId);
+        this.closeManageTripsModal();
+      },
+      (planId) => {
+        const newStatus = model.togglePlanStatus(planId);
+        this.renderPlanTab();
+        this.openManageTripsModal();
+        view.showToast(newStatus === 'completed' ? '🏁 Đã đánh dấu chuyến đi hoàn thành!' : 'Đã mở lại chuyến đi.', 'info');
+      },
+      (planId) => {
+        if (confirm('Bạn có chắc chắn muốn xóa kế hoạch này khỏi danh sách?')) {
+          model.deletePlan(planId);
+          this.renderPlanTab();
+          this.openManageTripsModal();
+          view.showToast('Đã xóa kế hoạch chuyến đi.', 'info');
+        }
+      }
+    );
+
+    if (view.dom.planManageTripsModal) {
+      view.dom.planManageTripsModal.style.display = 'flex';
+      view.dom.planManageTripsModal.removeAttribute('aria-hidden');
+    }
+    view.refreshIcons();
+  },
+
+  closeManageTripsModal() {
+    if (view.dom.planManageTripsModal) {
+      view.dom.planManageTripsModal.style.display = 'none';
+      view.dom.planManageTripsModal.setAttribute('aria-hidden', 'true');
+    }
   },
 
   handleTogglePlanStop(stopId) {
@@ -546,6 +680,12 @@ const appController = {
   },
 
   openPlanAddWithPlace(place) {
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      view.showToast('Vui lòng đăng nhập để thêm quán vào kế hoạch đi chơi!', 'warning');
+      return;
+    }
+
     if (!view.dom.planAddCustomModal) return;
     if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
 
@@ -568,6 +708,10 @@ const appController = {
 
     // Khung giờ để trống để người dùng tự nhập giờ mong muốn
     if (view.dom.customStopTime) view.dom.customStopTime.value = '';
+
+    // Gợi ý ngày mặc định theo bộ lọc ngày đang chọn
+    const activeDay = model.currentPlanDayFilter !== 'all' ? model.currentPlanDayFilter : 1;
+    view.populateDaySelectOptions(view.dom.customStopDay, model.tripPlan?.totalDays, model.tripPlan?.startDate, activeDay);
 
     // Gợi ý buổi mặc định theo số lượng chặng hiện có
     const count = model.tripPlan?.items?.length || 0;
@@ -593,6 +737,11 @@ const appController = {
 
   // Modal Chọn quán từ dữ liệu
   openPlanPickPlaceModal() {
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      view.showToast('Vui lòng đăng nhập để chọn quán vào kế hoạch đi chơi!', 'warning');
+      return;
+    }
     if (!view.dom.planPickPlaceModal) return;
     this.renderModalPickList();
     view.dom.planPickPlaceModal.style.display = 'flex';
@@ -630,8 +779,18 @@ const appController = {
 
   // Modal Thêm điểm tự do
   openPlanAddCustomModal() {
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      view.showToast('Vui lòng đăng nhập để thêm địa điểm vào kế hoạch!', 'warning');
+      return;
+    }
+
     if (!view.dom.planAddCustomModal) return;
     if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
+
+    // Gợi ý ngày mặc định theo ngày đang lọc
+    const activeDay = model.currentPlanDayFilter !== 'all' ? model.currentPlanDayFilter : 1;
+    view.populateDaySelectOptions(view.dom.customStopDay, model.tripPlan?.totalDays, model.tripPlan?.startDate, activeDay);
 
     if (view.dom.planCustomModalTitle) {
       view.dom.planCustomModalTitle.textContent = 'THÊM ĐỊA ĐIỂM TỰ DO';
@@ -655,6 +814,11 @@ const appController = {
 
   handleCustomStopSubmit(e) {
     e.preventDefault();
+    if (!model.currentUser) {
+      this.openAuthModal('login');
+      return;
+    }
+
     const name = view.dom.customStopName?.value.trim();
     const time = view.dom.customStopTime?.value.trim();
     if (!name || !time) {
@@ -662,6 +826,7 @@ const appController = {
       return;
     }
 
+    const day = parseInt(view.dom.customStopDay?.value, 10) || 1;
     const period = view.dom.customStopPeriod?.value || 'Chiều';
     const category = view.dom.customStopCategory?.value || 'custom';
     const address = view.dom.customStopAddress?.value.trim() || '';
@@ -670,6 +835,7 @@ const appController = {
     const note = view.dom.customStopNote?.value.trim() || '';
 
     const stop = {
+      day: day,
       time: time,
       period: period,
       title: name,
@@ -687,7 +853,7 @@ const appController = {
     model.addPlanStop(stop);
     this.closePlanAddCustomModal();
     this.renderPlanTab();
-    view.showToast(`🎉 Đã thêm "${name}" vào lịch trình!`, 'success');
+    view.showToast(`🎉 Đã thêm "${name}" vào Ngày ${day}!`, 'success');
   },
 
   // Modal Chỉnh sửa điểm dừng
@@ -711,6 +877,9 @@ const appController = {
       }
     }
     if (view.dom.editStopNote) view.dom.editStopNote.value = item.note || '';
+
+    // Populate Day select
+    view.populateDaySelectOptions(view.dom.editStopDay, model.tripPlan?.totalDays, model.tripPlan?.startDate, item.day || 1);
 
     this.openPlanEditStopModal();
   },
@@ -740,6 +909,7 @@ const appController = {
     }
 
     const updatedData = {
+      day: parseInt(view.dom.editStopDay?.value, 10) || 1,
       title: name,
       placeName: name,
       time: time,
@@ -945,6 +1115,7 @@ const appController = {
           : { name: username, username, role: 'Thành viên đề xuất' };
 
         model.saveUser(finalUser);
+        model.initTripPlan();
         this.updateAuthView();
         this.closeAuthModal();
         view.showToast(`Chào mừng bạn quay lại, ${finalUser.name}!`, 'success');
@@ -952,6 +1123,7 @@ const appController = {
         console.error('Lỗi khi đăng nhập:', err);
         const finalUser = { name: username, username, role: 'Thành viên đề xuất' };
         model.saveUser(finalUser);
+        model.initTripPlan();
         this.updateAuthView();
         this.closeAuthModal();
         view.showToast(`Chào mừng bạn quay lại, ${username}!`, 'info');
@@ -976,6 +1148,7 @@ const appController = {
       console.warn('Lỗi lưu tài khoản lên server:', err);
     }
     model.saveUser(user);
+    model.initTripPlan();
     this.updateAuthView();
     this.closeAuthModal();
     view.showToast(`Chào mừng bạn, ${user.name}!`, 'success');
@@ -983,6 +1156,7 @@ const appController = {
 
   handleLogout() {
     model.saveUser(null);
+    model.initTripPlan();
     this.updateAuthView();
     view.showToast('Đã đăng xuất tài khoản. Bạn đang ở chế độ Khách.', 'info');
   },
@@ -1856,6 +2030,10 @@ const appController = {
     });
 
     // Trip Planner Events
+    view.dom.btnPlanGateLogin?.addEventListener('click', () => this.openAuthModal('login'));
+    view.dom.planTripSelect?.addEventListener('change', (e) => this.handleSwitchPlan(e.target.value));
+    view.dom.btnPlanNewTrip?.addEventListener('click', () => this.openCreateTripModal());
+    view.dom.btnPlanManageTrips?.addEventListener('click', () => this.openManageTripsModal());
     view.dom.btnPlanPickFromDb?.addEventListener('click', () => this.openPlanPickPlaceModal());
     view.dom.btnEmptyPickPlace?.addEventListener('click', () => this.openPlanPickPlaceModal());
     view.dom.btnPlanAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
@@ -1886,14 +2064,21 @@ const appController = {
     view.dom.planPickModalClose?.addEventListener('click', () => this.closePlanPickPlaceModal());
     view.dom.planCustomModalClose?.addEventListener('click', () => this.closePlanAddCustomModal());
     view.dom.planEditStopModalClose?.addEventListener('click', () => this.closePlanEditStopModal());
+    view.dom.planCreateTripModalClose?.addEventListener('click', () => this.closeCreateTripModal());
+    view.dom.planManageTripsModalClose?.addEventListener('click', () => this.closeManageTripsModal());
+    view.dom.btnOpenNewTripFromManage?.addEventListener('click', () => {
+      this.closeManageTripsModal();
+      this.openCreateTripModal();
+    });
 
     // Modal pick filters
     view.dom.modalPickSearch?.addEventListener('input', () => this.renderModalPickList());
     view.dom.modalPickCategory?.addEventListener('change', () => this.renderModalPickList());
 
-    // Modal custom form submit & edit form submit
+    // Modal custom form submit & edit form submit & create trip submit
     view.dom.planCustomForm?.addEventListener('submit', (e) => this.handleCustomStopSubmit(e));
     view.dom.planEditStopForm?.addEventListener('submit', (e) => this.handleEditStopSubmit(e));
+    view.dom.planCreateTripForm?.addEventListener('submit', (e) => this.handleCreateTripSubmit(e));
 
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {
@@ -1905,6 +2090,8 @@ const appController = {
       if (e.target === view.dom.planPickPlaceModal) this.closePlanPickPlaceModal();
       if (e.target === view.dom.planAddCustomModal) this.closePlanAddCustomModal();
       if (e.target === view.dom.planEditStopModal) this.closePlanEditStopModal();
+      if (e.target === view.dom.planCreateTripModal) this.closeCreateTripModal();
+      if (e.target === view.dom.planManageTripsModal) this.closeManageTripsModal();
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -1916,6 +2103,8 @@ const appController = {
         this.closePlanPickPlaceModal();
         this.closePlanAddCustomModal();
         this.closePlanEditStopModal();
+        this.closeCreateTripModal();
+        this.closeManageTripsModal();
       }
     });
   },
