@@ -542,45 +542,53 @@ const appController = {
   },
 
   handleQuickAddPlaceToPlan(place) {
-    const items = model.tripPlan?.items || [];
-    const count = items.length;
+    this.openPlanAddWithPlace(place);
+  },
 
-    // Tự động gán khung giờ hợp lý tiếp theo
-    let nextTime = '08:00 - 09:30';
-    let period = 'Sáng';
-    if (count === 1) {
-      nextTime = '10:00 - 11:30';
-      period = 'Sáng';
-    } else if (count === 2) {
-      nextTime = '12:00 - 13:45';
-      period = 'Trưa';
-    } else if (count === 3) {
-      nextTime = '14:30 - 17:00';
-      period = 'Chiều';
-    } else if (count >= 4) {
-      nextTime = '18:30 - 21:00';
-      period = 'Tối';
+  openPlanAddWithPlace(place) {
+    if (!view.dom.planAddCustomModal) return;
+    if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
+
+    // Điền trước thông tin quán vào form
+    if (view.dom.customStopName) view.dom.customStopName.value = place.name || '';
+    if (view.dom.customStopCategory) {
+      view.dom.customStopCategory.value = (place.category === 'cafe' || place.category === 'food') ? place.category : 'food';
+    }
+    if (view.dom.customStopAddress) view.dom.customStopAddress.value = place.address || place.city || '';
+    if (view.dom.customStopDish) view.dom.customStopDish.value = place.recommendedDish || '';
+    if (view.dom.customStopPrice) {
+      const p = place.priceRange || '<100K';
+      if (['<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
+        view.dom.customStopPrice.value = p;
+      } else {
+        view.dom.customStopPrice.value = '<100K';
+      }
+    }
+    if (view.dom.customStopNote) view.dom.customStopNote.value = '';
+
+    // Khung giờ để trống để người dùng tự nhập giờ mong muốn
+    if (view.dom.customStopTime) view.dom.customStopTime.value = '';
+
+    // Gợi ý buổi mặc định theo số lượng chặng hiện có
+    const count = model.tripPlan?.items?.length || 0;
+    let suggestedPeriod = 'Sáng';
+    if (count === 1) suggestedPeriod = 'Trưa';
+    else if (count === 2) suggestedPeriod = 'Chiều';
+    else if (count >= 3) suggestedPeriod = 'Tối';
+    if (view.dom.customStopPeriod) view.dom.customStopPeriod.value = suggestedPeriod;
+
+    // Đổi tiêu đề modal
+    if (view.dom.planCustomModalTitle) {
+      view.dom.planCustomModalTitle.textContent = 'THÊM VÀO LỊCH TRÌNH';
     }
 
-    const stop = {
-      time: nextTime,
-      period: period,
-      title: place.category === 'cafe' ? `Cà phê & thư giãn tại ${place.name}` : `Ăn ngon tại ${place.name}`,
-      category: place.category || 'food',
-      placeId: place.id,
-      placeName: place.name,
-      address: place.address || place.city || '',
-      recommendedDish: place.recommendedDish || '',
-      priceRange: place.priceRange || '<100K',
-      image: '',
-      note: '',
-      travelDuration: `~15 phút di chuyển`,
-      isCompleted: false
-    };
+    view.dom.planAddCustomModal.style.display = 'flex';
+    view.dom.planAddCustomModal.removeAttribute('aria-hidden');
+    view.refreshIcons();
 
-    model.addPlanStop(stop);
-    this.renderPlanTab();
-    view.showToast(`✨ Đã thêm "${place.name}" vào lịch trình!`, 'success');
+    setTimeout(() => {
+      view.dom.customStopTime?.focus();
+    }, 120);
   },
 
   // Modal Chọn quán từ dữ liệu
@@ -615,8 +623,8 @@ const appController = {
     }
 
     view.renderModalPickPlaces(list, (place) => {
-      this.handleQuickAddPlaceToPlan(place);
       this.closePlanPickPlaceModal();
+      this.openPlanAddWithPlace(place);
     });
   },
 
@@ -624,9 +632,18 @@ const appController = {
   openPlanAddCustomModal() {
     if (!view.dom.planAddCustomModal) return;
     if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
+
+    if (view.dom.planCustomModalTitle) {
+      view.dom.planCustomModalTitle.textContent = 'THÊM ĐỊA ĐIỂM TỰ DO';
+    }
+
     view.dom.planAddCustomModal.style.display = 'flex';
     view.dom.planAddCustomModal.removeAttribute('aria-hidden');
     view.refreshIcons();
+
+    setTimeout(() => {
+      view.dom.customStopName?.focus();
+    }, 120);
   },
 
   closePlanAddCustomModal() {

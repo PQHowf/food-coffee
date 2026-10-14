@@ -198,6 +198,7 @@ const view = {
       modalPlacesPickerGrid: document.getElementById('modalPlacesPickerGrid'),
       planAddCustomModal: document.getElementById('planAddCustomModal'),
       planCustomModalClose: document.getElementById('planCustomModalClose'),
+      planCustomModalTitle: document.getElementById('planCustomModalTitle'),
       planCustomForm: document.getElementById('planCustomForm'),
       customStopName: document.getElementById('customStopName'),
       customStopTime: document.getElementById('customStopTime'),
@@ -679,25 +680,25 @@ const view = {
               </div>
             </div>
 
-            <!-- Khối hiển thị riêng: Món nên thử -->
+            <!-- Khối hiển thị riêng: Món nên thử (1 hàng ngang) -->
             ${item.recommendedDish ? `
               <div class="card-detail-section dish-section">
-                <div class="detail-label">
-                  <i data-lucide="sparkles"></i>
-                  <span>Món nên thử</span>
+                <i data-lucide="sparkles" class="detail-icon"></i>
+                <div class="detail-inline-text">
+                  <strong class="detail-inline-label">Món nên thử:</strong>
+                  <span class="detail-inline-value">${this.escapeHTML(item.recommendedDish)}</span>
                 </div>
-                <div class="detail-value">${this.escapeHTML(item.recommendedDish)}</div>
               </div>
             ` : ''}
 
-            <!-- Khối hiển thị riêng: Ghi chú -->
+            <!-- Khối hiển thị riêng: Ghi chú (1 hàng ngang) -->
             ${(item.note && !item.note.startsWith('Gợi ý bởi')) ? `
               <div class="card-detail-section note-section">
-                <div class="detail-label">
-                  <i data-lucide="sticky-note"></i>
-                  <span>Ghi chú</span>
+                <i data-lucide="sticky-note" class="detail-icon"></i>
+                <div class="detail-inline-text">
+                  <strong class="detail-inline-label">Ghi chú:</strong>
+                  <span class="detail-inline-value">${this.escapeHTML(item.note)}</span>
                 </div>
-                <div class="detail-value">${this.escapeHTML(item.note)}</div>
               </div>
             ` : ''}
 

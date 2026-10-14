@@ -1017,210 +1017,216 @@
     </div>
   </div>
 
-  <!-- MODAL: THÊM ĐỊA ĐIỂM TỰ DO -->
+  <!-- MODAL: THÊM ĐỊA ĐIỂM TỰ DO / VÀO LỊCH TRÌNH -->
   <div class="modal-overlay" id="planAddCustomModal" style="display: none;">
-    <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="planCustomModalTitle">
+    <div class="modal-card auth-modal-card plan-modal-card" role="dialog" aria-labelledby="planCustomModalTitle">
       <button class="modal-close-btn" id="planCustomModalClose" title="Đóng">
         <i data-lucide="x"></i>
       </button>
 
-      <div class="modal-header">
+      <div class="modal-header modal-header-pinned">
         <div class="modal-icon-badge">
           <i data-lucide="map-pin"></i>
         </div>
         <h3 class="modal-title" id="planCustomModalTitle">THÊM ĐỊA ĐIỂM TỰ DO</h3>
-        <p class="modal-desc">Thêm bất kỳ điểm đến nào: rạp chiếu phim, công viên, trung tâm thương mại...</p>
       </div>
 
-      <form id="planCustomForm" class="auth-form" novalidate>
-        <div class="form-group">
-          <label for="customStopName" class="form-label">Tên địa điểm / Hoạt động <span class="required">*</span></label>
-          <div class="input-with-icon">
-            <i data-lucide="flag"></i>
-            <input type="text" id="customStopName" placeholder="Ví dụ: Phố Đi Bộ Hồ Gươm, Lotte Mall..." required>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+      <form id="planCustomForm" class="auth-form plan-modal-form" novalidate>
+        <div class="modal-scroll-content">
+          <div class="form-group">
+            <label for="customStopName" class="form-label">Tên địa điểm / Hoạt động <span class="required">*</span></label>
             <div class="input-with-icon">
-              <i data-lucide="clock"></i>
-              <input type="text" id="customStopTime" placeholder="Ví dụ: 15:00 - 17:30" required>
+              <i data-lucide="flag"></i>
+              <input type="text" id="customStopName" placeholder="Ví dụ: Phố Đi Bộ Hồ Gươm, Lotte Mall..." required>
             </div>
           </div>
 
-          <div class="form-group flex-1">
-            <label for="customStopPeriod" class="form-label">Buổi</label>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="clock"></i>
+                <input type="text" id="customStopTime" placeholder="Ví dụ: 15:00 - 17:30" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="customStopPeriod" class="form-label">Buổi</label>
+              <div class="input-with-icon">
+                <i data-lucide="sun"></i>
+                <select id="customStopPeriod">
+                  <option value="Sáng">Buổi Sáng</option>
+                  <option value="Trưa">Buổi Trưa</option>
+                  <option value="Chiều" selected>Buổi Chiều</option>
+                  <option value="Tối">Buổi Tối</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customStopCategory" class="form-label">Loại hình</label>
             <div class="input-with-icon">
-              <i data-lucide="sun"></i>
-              <select id="customStopPeriod">
-                <option value="Sáng">Buổi Sáng</option>
-                <option value="Trưa">Buổi Trưa</option>
-                <option value="Chiều" selected>Buổi Chiều</option>
-                <option value="Tối">Buổi Tối</option>
+              <i data-lucide="tag"></i>
+              <select id="customStopCategory">
+                <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
+                <option value="food">🍜 Ăn uống / Quán ăn</option>
+                <option value="cafe">☕ Cà phê / Trà sữa</option>
               </select>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="customStopCategory" class="form-label">Loại hình</label>
-          <div class="input-with-icon">
-            <i data-lucide="tag"></i>
-            <select id="customStopCategory">
-              <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
-              <option value="food">🍜 Ăn uống / Quán ăn</option>
-              <option value="cafe">☕ Cà phê / Trà sữa</option>
-            </select>
+          <div class="form-group">
+            <label for="customStopAddress" class="form-label">Địa chỉ</label>
+            <div class="input-with-icon">
+              <i data-lucide="navigation"></i>
+              <input type="text" id="customStopAddress" placeholder="Ví dụ: Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customStopDish" class="form-label">Điểm đặc sắc / Món nổi bật</label>
+            <div class="input-with-icon">
+              <i data-lucide="sparkles"></i>
+              <input type="text" id="customStopDish" placeholder="Ví dụ: Kem Tràng Tiền, chụp ảnh ngắm hoàng hôn...">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="customStopPrice" class="form-label">Mức giá / Chi phí dự kiến</label>
+            <div class="input-with-icon">
+              <i data-lucide="banknote"></i>
+              <select id="customStopPrice">
+                <option value="<100K">&lt;100K</option>
+                <option value="100K-200K">100K-200K</option>
+                <option value="200K-300K">200K-300K</option>
+                <option value=">300K">&gt;300K</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group plan-note-group">
+            <label for="customStopNote" class="form-label">Ghi chú riêng</label>
+            <div class="input-with-icon textarea-icon-wrap">
+              <i data-lucide="sticky-note"></i>
+              <textarea id="customStopNote" class="plan-form-textarea" rows="3" placeholder="Ghi chú hẹn nhau, gửi xe, góc chụp đẹp..."></textarea>
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="customStopAddress" class="form-label">Địa chỉ</label>
-          <div class="input-with-icon">
-            <i data-lucide="navigation"></i>
-            <input type="text" id="customStopAddress" placeholder="Ví dụ: Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội">
-          </div>
+        <div class="modal-footer-pinned">
+          <button type="submit" class="btn btn-primary btn-full">
+            <i data-lucide="plus"></i> THÊM VÀO LỊCH TRÌNH
+          </button>
         </div>
-
-        <div class="form-group">
-          <label for="customStopDish" class="form-label">Điểm đặc sắc / Món nổi bật</label>
-          <div class="input-with-icon">
-            <i data-lucide="sparkles"></i>
-            <input type="text" id="customStopDish" placeholder="Ví dụ: Kem Tràng Tiền, chụp ảnh ngắm hoàng hôn...">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="customStopPrice" class="form-label">Mức giá / Chi phí dự kiến</label>
-          <div class="input-with-icon">
-            <i data-lucide="banknote"></i>
-            <select id="customStopPrice">
-              <option value="<100K">&lt;100K</option>
-              <option value="100K-200K">100K-200K</option>
-              <option value="200K-300K">200K-300K</option>
-              <option value=">300K">&gt;300K</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group plan-note-group">
-          <label for="customStopNote" class="form-label">Ghi chú riêng</label>
-          <div class="input-with-icon textarea-icon-wrap">
-            <i data-lucide="sticky-note"></i>
-            <textarea id="customStopNote" class="plan-form-textarea" rows="3" placeholder="Ghi chú hẹn nhau, gửi xe, góc chụp đẹp..."></textarea>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-full">
-          <i data-lucide="plus"></i> THÊM VÀO LỊCH TRÌNH
-        </button>
       </form>
     </div>
   </div>
 
   <!-- MODAL: CHỈNH SỬA ĐIỂM DỪNG TRONG LỊCH TRÌNH -->
   <div class="modal-overlay" id="planEditStopModal" style="display: none;">
-    <div class="modal-card auth-modal-card" role="dialog" aria-labelledby="planEditStopModalTitle">
+    <div class="modal-card auth-modal-card plan-modal-card" role="dialog" aria-labelledby="planEditStopModalTitle">
       <button class="modal-close-btn" id="planEditStopModalClose" title="Đóng">
         <i data-lucide="x"></i>
       </button>
 
-      <div class="modal-header">
+      <div class="modal-header modal-header-pinned">
         <div class="modal-icon-badge">
           <i data-lucide="edit-3"></i>
         </div>
         <h3 class="modal-title" id="planEditStopModalTitle">CHỈNH SỬA ĐIỂM DỪNG</h3>
-        <p class="modal-desc">Cập nhật thông tin chặng trong kế hoạch đi chơi của bạn.</p>
       </div>
 
-      <form id="planEditStopForm" class="auth-form" novalidate>
+      <form id="planEditStopForm" class="auth-form plan-modal-form" novalidate>
         <input type="hidden" id="editStopId">
 
-        <div class="form-group">
-          <label for="editStopName" class="form-label">Tên địa điểm / Hoạt động <span class="required">*</span></label>
-          <div class="input-with-icon">
-            <i data-lucide="flag"></i>
-            <input type="text" id="editStopName" placeholder="Tên quán hoặc địa điểm..." required>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group flex-1">
-            <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+        <div class="modal-scroll-content">
+          <div class="form-group">
+            <label for="editStopName" class="form-label">Tên địa điểm / Hoạt động <span class="required">*</span></label>
             <div class="input-with-icon">
-              <i data-lucide="clock"></i>
-              <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
+              <i data-lucide="flag"></i>
+              <input type="text" id="editStopName" placeholder="Tên quán hoặc địa điểm..." required>
             </div>
           </div>
 
-          <div class="form-group flex-1">
-            <label for="editStopPeriod" class="form-label">Buổi</label>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="clock"></i>
+                <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="editStopPeriod" class="form-label">Buổi</label>
+              <div class="input-with-icon">
+                <i data-lucide="sun"></i>
+                <select id="editStopPeriod">
+                  <option value="Sáng">Buổi Sáng</option>
+                  <option value="Trưa">Buổi Trưa</option>
+                  <option value="Chiều">Buổi Chiều</option>
+                  <option value="Tối">Buổi Tối</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editStopCategory" class="form-label">Loại hình</label>
             <div class="input-with-icon">
-              <i data-lucide="sun"></i>
-              <select id="editStopPeriod">
-                <option value="Sáng">Buổi Sáng</option>
-                <option value="Trưa">Buổi Trưa</option>
-                <option value="Chiều">Buổi Chiều</option>
-                <option value="Tối">Buổi Tối</option>
+              <i data-lucide="tag"></i>
+              <select id="editStopCategory">
+                <option value="food">🍜 Ăn uống / Quán ăn</option>
+                <option value="cafe">☕ Cà phê / Trà sữa</option>
+                <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
               </select>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="editStopCategory" class="form-label">Loại hình</label>
-          <div class="input-with-icon">
-            <i data-lucide="tag"></i>
-            <select id="editStopCategory">
-              <option value="food">🍜 Ăn uống / Quán ăn</option>
-              <option value="cafe">☕ Cà phê / Trà sữa</option>
-              <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
-            </select>
+          <div class="form-group">
+            <label for="editStopAddress" class="form-label">Địa chỉ</label>
+            <div class="input-with-icon">
+              <i data-lucide="navigation"></i>
+              <input type="text" id="editStopAddress" placeholder="Địa chỉ điểm dừng...">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editStopDish" class="form-label">Điểm đặc sắc / Món nổi bật</label>
+            <div class="input-with-icon">
+              <i data-lucide="sparkles"></i>
+              <input type="text" id="editStopDish" placeholder="Món gợi ý...">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editStopPrice" class="form-label">Mức giá / Chi phí dự kiến</label>
+            <div class="input-with-icon">
+              <i data-lucide="banknote"></i>
+              <select id="editStopPrice">
+                <option value="<100K">&lt;100K</option>
+                <option value="100K-200K">100K-200K</option>
+                <option value="200K-300K">200K-300K</option>
+                <option value=">300K">&gt;300K</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group plan-note-group">
+            <label for="editStopNote" class="form-label">Ghi chú riêng</label>
+            <div class="input-with-icon textarea-icon-wrap">
+              <i data-lucide="sticky-note"></i>
+              <textarea id="editStopNote" class="plan-form-textarea" rows="3" placeholder="Ghi chú hẹn nhau, gửi xe, góc chụp đẹp..."></textarea>
+            </div>
           </div>
         </div>
 
-        <div class="form-group">
-          <label for="editStopAddress" class="form-label">Địa chỉ</label>
-          <div class="input-with-icon">
-            <i data-lucide="navigation"></i>
-            <input type="text" id="editStopAddress" placeholder="Địa chỉ điểm dừng...">
-          </div>
+        <div class="modal-footer-pinned">
+          <button type="submit" class="btn btn-primary btn-full">
+            <i data-lucide="check"></i> LƯU THAY ĐỔI
+          </button>
         </div>
-
-        <div class="form-group">
-          <label for="editStopDish" class="form-label">Điểm đặc sắc / Món nổi bật</label>
-          <div class="input-with-icon">
-            <i data-lucide="sparkles"></i>
-            <input type="text" id="editStopDish" placeholder="Món gợi ý...">
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="editStopPrice" class="form-label">Mức giá / Chi phí dự kiến</label>
-          <div class="input-with-icon">
-            <i data-lucide="banknote"></i>
-            <select id="editStopPrice">
-              <option value="<100K">&lt;100K</option>
-              <option value="100K-200K">100K-200K</option>
-              <option value="200K-300K">200K-300K</option>
-              <option value=">300K">&gt;300K</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group plan-note-group">
-          <label for="editStopNote" class="form-label">Ghi chú riêng</label>
-          <div class="input-with-icon textarea-icon-wrap">
-            <i data-lucide="sticky-note"></i>
-            <textarea id="editStopNote" class="plan-form-textarea" rows="3" placeholder="Ghi chú hẹn nhau, gửi xe, góc chụp đẹp..."></textarea>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-full">
-          <i data-lucide="check"></i> LƯU THAY ĐỔI
-        </button>
       </form>
     </div>
   </div>
@@ -1229,10 +1235,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=3.7"></script>
-  <script src="js/services/apiService.js?v=3.7"></script>
-  <script src="js/views/view.js?v=3.7"></script>
-  <script src="js/controllers/appController.js?v=3.7"></script>
+  <script src="js/models/state.js?v=3.8"></script>
+  <script src="js/services/apiService.js?v=3.8"></script>
+  <script src="js/views/view.js?v=3.8"></script>
+  <script src="js/controllers/appController.js?v=3.8"></script>
 </body>
 
 </html>
