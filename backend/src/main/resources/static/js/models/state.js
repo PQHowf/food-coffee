@@ -157,9 +157,11 @@ const model = {
 
     const key = this.getUserPlansKey();
     let plans = [];
+    let hasLoadedKey = false;
     try {
       const saved = localStorage.getItem(key);
-      if (saved) {
+      if (saved !== null) {
+        hasLoadedKey = true;
         plans = JSON.parse(saved);
         if (!Array.isArray(plans)) plans = [];
       }
@@ -167,8 +169,8 @@ const model = {
       plans = [];
     }
 
-    // Tự động chuyển đổi từ dữ liệu kế hoạch cũ nếu có
-    if (plans.length === 0) {
+    // Tự động chuyển đổi từ dữ liệu kế hoạch cũ nếu chưa từng có key người dùng
+    if (!hasLoadedKey && plans.length === 0) {
       const oldPlanSaved = localStorage.getItem(STORAGE_KEYS.TRIP_PLAN);
       if (oldPlanSaved) {
         try {
@@ -189,15 +191,15 @@ const model = {
       }
     }
 
-    // Nếu vẫn chưa có kế hoạch nào, tạo mặc định chuyến 2N1Đ
-    if (plans.length === 0) {
+    // Chỉ tạo kế hoạch mẫu 2N1Đ nếu người dùng hoàn toàn mới và chưa từng lưu danh sách plans bao giờ
+    if (!hasLoadedKey && plans.length === 0) {
       const defaultPlan = this.getEmptyPlan('Chuyến đi 2N1Đ', '2N1Đ', 2);
       plans.push(defaultPlan);
     }
 
     this.userPlans = plans;
-    // Chọn kế hoạch đang active hoặc kế hoạch đầu tiên
-    const active = plans.find(p => p.status === 'active') || plans[0];
+    // Chọn kế hoạch đang active hoặc kế hoạch đầu tiên, hoặc null nếu không có
+    const active = plans.find(p => p.status === 'active') || plans[0] || null;
     this.tripPlan = active;
     this.currentPlanDayFilter = 'all';
     this.saveUserPlans();
@@ -244,13 +246,12 @@ const model = {
   deletePlan(planId) {
     this.userPlans = this.userPlans.filter(p => String(p.id) !== String(planId));
     if (this.tripPlan && String(this.tripPlan.id) === String(planId)) {
-      this.tripPlan = this.userPlans[0] || this.createNewPlan({
-        title: 'Chuyến đi 2N1Đ',
-        tripType: '2N1Đ',
-        totalDays: 2
-      });
+      this.tripPlan = this.userPlans[0] || null;
     }
-    this.saveUserPlans();
+    const key = this.getUserPlansKey();
+    if (key) {
+      localStorage.setItem(key, JSON.stringify(this.userPlans));
+    }
   },
 
   togglePlanStatus(planId) {

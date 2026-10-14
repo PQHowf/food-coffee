@@ -628,8 +628,40 @@ const view = {
     if (!this.dom.planTimelineList) return;
 
     if (!plan) {
+      if (this.dom.planHeroTitle) {
+        this.dom.planHeroTitle.textContent = 'CHƯA CÓ KẾ HOẠCH NÀO';
+      }
+      if (this.dom.planTripSelect) {
+        this.dom.planTripSelect.innerHTML = '<option value="">(Chưa có kế hoạch nào)</option>';
+      }
+      if (this.dom.savedTripsCount) {
+        this.dom.savedTripsCount.textContent = Array.isArray(userPlans) ? userPlans.length : 0;
+      }
+      if (this.dom.statPlanStops) this.dom.statPlanStops.textContent = '0 địa điểm';
+      if (this.dom.statPlanProgress) this.dom.statPlanProgress.textContent = '0/0';
+      if (this.dom.statPlanDuration) this.dom.statPlanDuration.textContent = '0 ngày';
+      if (this.dom.statPlanBudget) this.dom.statPlanBudget.textContent = '0đ';
+      if (this.dom.planDaysTabs) this.dom.planDaysTabs.innerHTML = '';
       if (this.dom.planTimelineList) this.dom.planTimelineList.style.display = 'none';
-      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
+      if (this.dom.planEmptyState) {
+        this.dom.planEmptyState.style.display = 'block';
+        this.dom.planEmptyState.innerHTML = `
+          <div class="plan-empty-icon">
+            <i data-lucide="calendar-plus"></i>
+          </div>
+          <h3>Bạn chưa có kế hoạch chuyến đi nào</h3>
+          <p>Bắt đầu hành trình mới bằng cách bấm tạo chuyến đi và lên lịch trình!</p>
+          <div class="plan-empty-actions">
+            <button type="button" class="btn btn-primary" id="btnEmptyCreateTrip">
+              <i data-lucide="plus-circle"></i> Tạo Kế Hoạch Chuyến Đi Mới
+            </button>
+          </div>
+        `;
+        document.getElementById('btnEmptyCreateTrip')?.addEventListener('click', () => {
+          appController.openCreateTripModal();
+        });
+      }
+      this.refreshIcons();
       return;
     }
 
@@ -718,7 +750,26 @@ const view = {
 
     if (total === 0) {
       this.dom.planTimelineList.style.display = 'none';
-      if (this.dom.planEmptyState) this.dom.planEmptyState.style.display = 'block';
+      if (this.dom.planEmptyState) {
+        this.dom.planEmptyState.style.display = 'block';
+        this.dom.planEmptyState.innerHTML = `
+          <div class="plan-empty-icon">
+            <i data-lucide="calendar-x"></i>
+          </div>
+          <h3>Chưa có địa điểm nào trong kế hoạch</h3>
+          <p>Hãy thêm quán từ danh sách gợi ý bên phải hoặc bấm chọn từ kho quán để lên lịch trình ngay!</p>
+          <div class="plan-empty-actions">
+            <button type="button" class="btn btn-primary" id="btnEmptyPickPlace">
+              <i data-lucide="plus-circle"></i> Chọn Quán Có Sẵn
+            </button>
+            <button type="button" class="btn btn-secondary" id="btnEmptyAddCustom">
+              <i data-lucide="map-pin"></i> Thêm Điểm Tự Do
+            </button>
+          </div>
+        `;
+        document.getElementById('btnEmptyPickPlace')?.addEventListener('click', () => appController.openPlanPickPlaceModal());
+        document.getElementById('btnEmptyAddCustom')?.addEventListener('click', () => appController.openPlanAddCustomModal());
+      }
       this.refreshIcons();
       return;
     }
@@ -980,11 +1031,9 @@ const view = {
             </div>
 
             <div class="saved-trip-btns-right">
-              ${userPlans.length > 1 ? `
-                <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
-                  <i data-lucide="trash-2"></i>
-                </button>
-              ` : ''}
+              <button type="button" class="btn btn-sm btn-outline-danger" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
+                <i data-lucide="trash-2"></i>
+              </button>
             </div>
           </div>
         </div>

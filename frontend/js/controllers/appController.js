@@ -515,8 +515,8 @@ const appController = {
     if (view.dom.planGuestGateCard) view.dom.planGuestGateCard.style.display = 'none';
     if (view.dom.planContentContainer) view.dom.planContentContainer.style.display = 'block';
 
-    if (!model.tripPlan) {
-      model.initTripPlan();
+    if (!model.tripPlan && model.userPlans.length > 0) {
+      model.tripPlan = model.userPlans[0];
     }
 
     // 2. Render Timeline & Multi-Day Tabs
@@ -731,6 +731,12 @@ const appController = {
       return;
     }
 
+    if (!model.tripPlan) {
+      view.showToast('Bạn chưa có chuyến đi nào. Vui lòng tạo kế hoạch chuyến đi trước!', 'warning');
+      this.openCreateTripModal();
+      return;
+    }
+
     if (!view.dom.planAddCustomModal) return;
     if (view.dom.planCustomForm) view.dom.planCustomForm.reset();
 
@@ -787,6 +793,11 @@ const appController = {
       view.showToast('Vui lòng đăng nhập để chọn quán vào kế hoạch đi chơi!', 'warning');
       return;
     }
+    if (!model.tripPlan) {
+      view.showToast('Bạn chưa có chuyến đi nào. Vui lòng tạo kế hoạch chuyến đi trước!', 'warning');
+      this.openCreateTripModal();
+      return;
+    }
     if (!view.dom.planPickPlaceModal) return;
     this.renderModalPickList();
     view.dom.planPickPlaceModal.style.display = 'flex';
@@ -827,6 +838,11 @@ const appController = {
     if (!model.currentUser) {
       this.openAuthModal('login');
       view.showToast('Vui lòng đăng nhập để thêm địa điểm vào kế hoạch!', 'warning');
+      return;
+    }
+    if (!model.tripPlan) {
+      view.showToast('Bạn chưa có chuyến đi nào. Vui lòng tạo kế hoạch chuyến đi trước!', 'warning');
+      this.openCreateTripModal();
       return;
     }
 
@@ -2084,6 +2100,14 @@ const appController = {
     view.dom.btnPlanAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
     view.dom.btnEmptyAddCustom?.addEventListener('click', () => this.openPlanAddCustomModal());
     view.dom.btnPlanClear?.addEventListener('click', () => {
+      if (!model.tripPlan) {
+        view.showToast('Không có chuyến đi nào được chọn!', 'warning');
+        return;
+      }
+      if (!model.tripPlan.items || model.tripPlan.items.length === 0) {
+        view.showToast('Kế hoạch hiện tại chưa có địa điểm nào để xóa!', 'info');
+        return;
+      }
       if (confirm('Bạn có chắc chắn muốn xóa tất cả địa điểm trong kế hoạch không?')) {
         model.clearPlan();
         this.renderPlanTab();
