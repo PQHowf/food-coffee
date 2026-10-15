@@ -3672,19 +3672,16 @@ button {
   color: #ffffff;
 }
 
-/* Plan Trip Switcher & History Bar */
+/* Plan Trip Switcher & History Bar - Không lồng box trong box */
 .plan-trip-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-lg);
-  padding: 10px 16px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  gap: 14px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .plan-trip-selector-wrap {
@@ -3779,6 +3776,13 @@ button {
 .btn-trip-history:hover {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
+}
+
+.plan-hero-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.14);
+  width: 100%;
+  margin: 4px 0;
 }
 
 /* Day Filter Tabs Bar */
@@ -5382,12 +5386,12 @@ button {
     padding: 0;
   }
   
-  /* Hero Banner & Header Controls */
+  /* Hero Banner & Header Controls - Single Unified Modern Card */
   .plan-hero-banner {
-    padding: 16px 14px 14px;
+    padding: 18px 16px 16px;
     margin-bottom: 14px;
-    border-radius: 16px;
-    gap: 12px;
+    border-radius: 20px;
+    gap: 14px;
   }
   .plan-hero-text {
     display: flex;
@@ -5401,25 +5405,25 @@ button {
     margin-bottom: 2px;
   }
   .plan-title {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     font-weight: 800;
-    line-height: 1.3;
+    line-height: 1.25;
     margin-bottom: 0;
     word-break: break-word;
   }
 
-  /* Trip Bar & Selector */
+  /* Trip Bar & Selector: Không còn viền hay nền box lồng box */
   .plan-trip-bar {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
-    padding: 12px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .plan-trip-selector-wrap {
     display: flex;
@@ -5432,7 +5436,7 @@ button {
   .plan-trip-label {
     font-size: 0.775rem;
     font-weight: 700;
-    color: #e0e7ff;
+    color: #cbd5e1;
     display: flex;
     align-items: center;
     gap: 6px;
@@ -5447,19 +5451,20 @@ button {
     width: 100%;
     min-width: 0;
     box-sizing: border-box;
-    font-size: 0.8125rem;
-    font-weight: 600;
-    padding: 8px 32px 8px 12px;
-    height: 38px;
-    border-radius: 8px;
-    background-color: rgba(15, 23, 42, 0.85);
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 8px 34px 8px 12px;
+    height: 42px;
+    border-radius: 10px;
+    background-color: rgba(15, 23, 42, 0.65);
     border: 1px solid rgba(255, 255, 255, 0.22);
     color: #ffffff;
     -webkit-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 10px center;
+    background-position: right 12px center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
   }
   .plan-trip-actions {
     width: 100%;
@@ -5469,19 +5474,35 @@ button {
     min-width: 0;
   }
   .btn-trip-action {
-    height: 38px;
-    padding: 0 8px;
-    font-size: 0.75rem;
+    height: 40px;
+    padding: 0 10px;
+    font-size: 0.775rem;
     font-weight: 700;
     justify-content: center;
     text-align: center;
     white-space: nowrap;
     min-width: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     display: inline-flex;
     align-items: center;
     gap: 6px;
     box-sizing: border-box;
+  }
+  .btn-trip-new {
+    background: #2563eb;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+  }
+  .btn-trip-new:hover {
+    background: #1d4ed8;
+  }
+  .btn-trip-history {
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+  }
+  .btn-trip-history:hover {
+    background: rgba(255, 255, 255, 0.22);
   }
   .btn-trip-action span {
     white-space: nowrap;
@@ -5490,31 +5511,38 @@ button {
   }
   .btn-trip-action i,
   .btn-trip-action svg {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     flex-shrink: 0;
+  }
+
+  .plan-hero-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.14);
+    width: 100%;
+    margin: 2px 0;
   }
 
   /* Action Buttons Toolbar */
   .plan-toolbar-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr 42px;
+    grid-template-columns: 1fr 1fr 44px;
     gap: 8px;
     width: 100%;
     min-width: 0;
-    margin-top: 2px;
+    margin-top: 0;
   }
   .plan-toolbar-actions .btn {
-    height: 42px;
+    height: 44px;
     padding: 0 8px;
-    font-size: 0.775rem;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 800;
     justify-content: center;
     text-align: center;
     gap: 6px;
     white-space: nowrap;
     min-width: 0;
-    border-radius: 10px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
     box-sizing: border-box;
@@ -5531,15 +5559,15 @@ button {
     flex-shrink: 0;
   }
   .plan-toolbar-actions #btnPlanClear {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 10px;
+    border-radius: 12px;
     flex-shrink: 0;
-    background: rgba(239, 68, 68, 0.16);
+    background: rgba(239, 68, 68, 0.18);
     border: 1px solid rgba(248, 113, 113, 0.4);
     color: #fca5a5;
   }

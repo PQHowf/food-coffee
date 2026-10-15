@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=4.1">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.2">
 </head>
 
 <body>
@@ -104,7 +104,7 @@
 
           <button class="tab-btn" id="tabPlan" data-tab="plan">
             <span class="tab-icon"><i data-lucide="map-pinned"></i></span>
-            <span class="tab-label">LÊN KẾ HOẠCH</span>
+            <span class="tab-label">LÊN PLAN</span>
             <span class="tab-auth-lock" id="planTabLockBadge" title="Yêu cầu đăng nhập">
               <i data-lucide="lock"></i>
             </span>
@@ -437,15 +437,17 @@
               <button type="button" class="btn btn-trip-action btn-trip-new" id="btnPlanNewTrip" title="Tạo kế hoạch chuyến đi mới">
                 <i data-lucide="plus"></i>
                 <span class="btn-text-full">Tạo Kế Hoạch Mới</span>
-                <span class="btn-text-short">Tạo Chuyến Mới</span>
+                <span class="btn-text-short">Tạo Plan Mới</span>
               </button>
               <button type="button" class="btn btn-trip-action btn-trip-history" id="btnPlanManageTrips" title="Xem các kế hoạch đã đi trước đó">
                 <i data-lucide="folder-clock"></i>
                 <span class="btn-text-full">Kế Hoạch Đã Đi (<span id="savedTripsCountFull">0</span>)</span>
-                <span class="btn-text-short">Đã Lưu(<span id="savedTripsCount">0</span>)</span>
+                <span class="btn-text-short">Đã Lưu (<span id="savedTripsCount">0</span>)</span>
               </button>
             </div>
           </div>
+
+          <div class="plan-hero-divider"></div>
 
           <div class="plan-toolbar-actions">
             <button class="btn btn-primary" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
@@ -1468,10 +1470,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=4.1"></script>
-  <script src="js/services/apiService.js?v=4.1"></script>
-  <script src="js/views/view.js?v=4.1"></script>
-  <script src="js/controllers/appController.js?v=4.1"></script>
+  <script src="js/models/state.js?v=4.2"></script>
+  <script src="js/services/apiService.js?v=4.2"></script>
+  <script src="js/views/view.js?v=4.2"></script>
+  <script src="js/controllers/appController.js?v=4.2"></script>
 </body>
 
 </html>
