@@ -691,6 +691,9 @@ const appController = {
           this.openManageTripsModal();
           view.showToast('Đã xóa kế hoạch chuyến đi.', 'info');
         }
+      },
+      (planId) => {
+        this.openEditTripModal(planId);
       }
     );
 
@@ -706,6 +709,85 @@ const appController = {
       view.dom.planManageTripsModal.style.display = 'none';
       view.dom.planManageTripsModal.setAttribute('aria-hidden', 'true');
     }
+  },
+
+  // Modal Chỉnh Sửa Kế Hoạch Chuyến Đi
+  openEditTripModal(planId) {
+    if (!model.currentUser) return;
+    const plan = model.userPlans.find(p => String(p.id) === String(planId));
+    if (!plan) return;
+
+    if (view.dom.editTripId) view.dom.editTripId.value = plan.id;
+    if (view.dom.editTripTitle) view.dom.editTripTitle.value = plan.title || '';
+    if (view.dom.editTripStartDate) {
+      view.dom.editTripStartDate.value = plan.startDate || new Date().toISOString().split('T')[0];
+    }
+    if (view.dom.editTripEndDate) {
+      view.dom.editTripEndDate.value = plan.endDate || plan.startDate || '';
+      view.dom.editTripEndDate.min = plan.startDate || '';
+    }
+    if (view.dom.editTripStatus) {
+      view.dom.editTripStatus.value = plan.status === 'completed' ? 'completed' : 'active';
+    }
+    this.updateEditTripDurationPreview();
+
+    if (view.dom.planEditTripModal) {
+      view.dom.planEditTripModal.style.display = 'flex';
+      view.dom.planEditTripModal.removeAttribute('aria-hidden');
+    }
+    view.refreshIcons();
+    setTimeout(() => {
+      view.dom.editTripTitle?.focus();
+    }, 120);
+  },
+
+  closeEditTripModal() {
+    if (view.dom.planEditTripModal) {
+      view.dom.planEditTripModal.style.display = 'none';
+      view.dom.planEditTripModal.setAttribute('aria-hidden', 'true');
+    }
+  },
+
+  updateEditTripDurationPreview() {
+    const start = view.dom.editTripStartDate?.value;
+    const end = view.dom.editTripEndDate?.value;
+    if (start && end && view.dom.editTripDurationPreviewVal) {
+      const calc = this.calculateTripDuration(start, end);
+      view.dom.editTripDurationPreviewVal.textContent = calc.text;
+    }
+  },
+
+  handleEditTripSubmit(e) {
+    e.preventDefault();
+    if (!model.currentUser) return;
+    const planId = view.dom.editTripId?.value;
+    const title = view.dom.editTripTitle?.value.trim();
+    if (!title) {
+      view.showToast('Vui lòng nhập tên chuyến đi!', 'warning');
+      return;
+    }
+    const startDate = view.dom.editTripStartDate?.value;
+    const endDate = view.dom.editTripEndDate?.value;
+    if (!startDate || !endDate) {
+      view.showToast('Vui lòng chọn ngày khởi hành và ngày về!', 'warning');
+      return;
+    }
+    const status = view.dom.editTripStatus?.value || 'active';
+    const { totalDays, tripType } = this.calculateTripDuration(startDate, endDate);
+
+    model.updatePlan(planId, {
+      title,
+      startDate,
+      endDate,
+      totalDays,
+      tripType,
+      status
+    });
+
+    this.closeEditTripModal();
+    this.renderPlanTab();
+    this.openManageTripsModal();
+    view.showToast(`🎉 Đã cập nhật chuyến đi "${title}"!`, 'success');
   },
 
   handleTogglePlanStop(stopId) {
@@ -2135,6 +2217,7 @@ const appController = {
     view.dom.planEditStopModalClose?.addEventListener('click', () => this.closePlanEditStopModal());
     view.dom.planCreateTripModalClose?.addEventListener('click', () => this.closeCreateTripModal());
     view.dom.planManageTripsModalClose?.addEventListener('click', () => this.closeManageTripsModal());
+    view.dom.planEditTripModalClose?.addEventListener('click', () => this.closeEditTripModal());
     view.dom.btnOpenNewTripFromManage?.addEventListener('click', () => {
       this.closeManageTripsModal();
       this.openCreateTripModal();
@@ -2144,10 +2227,11 @@ const appController = {
     view.dom.modalPickSearch?.addEventListener('input', () => this.renderModalPickList());
     view.dom.modalPickCategory?.addEventListener('change', () => this.renderModalPickList());
 
-    // Modal custom form submit & edit form submit & create trip submit
+    // Modal custom form submit & edit form submit & create trip submit & edit trip submit
     view.dom.planCustomForm?.addEventListener('submit', (e) => this.handleCustomStopSubmit(e));
     view.dom.planEditStopForm?.addEventListener('submit', (e) => this.handleEditStopSubmit(e));
     view.dom.planCreateTripForm?.addEventListener('submit', (e) => this.handleCreateTripSubmit(e));
+    view.dom.planEditTripForm?.addEventListener('submit', (e) => this.handleEditTripSubmit(e));
 
     // Dynamic duration preview on date change
     view.dom.newTripStartDate?.addEventListener('change', () => {
@@ -2168,6 +2252,19 @@ const appController = {
       this.updateTripDurationPreview();
     });
 
+    view.dom.editTripStartDate?.addEventListener('change', () => {
+      if (view.dom.editTripEndDate) {
+        view.dom.editTripEndDate.min = view.dom.editTripStartDate.value;
+        if (view.dom.editTripEndDate.value && view.dom.editTripEndDate.value < view.dom.editTripStartDate.value) {
+          view.dom.editTripEndDate.value = view.dom.editTripStartDate.value;
+        }
+      }
+      this.updateEditTripDurationPreview();
+    });
+    view.dom.editTripEndDate?.addEventListener('change', () => {
+      this.updateEditTripDurationPreview();
+    });
+
     // Modals backdrop click & ESC
     window.addEventListener('click', (e) => {
       if (e.target === view.dom.authModal) this.closeAuthModal();
@@ -2180,6 +2277,7 @@ const appController = {
       if (e.target === view.dom.planEditStopModal) this.closePlanEditStopModal();
       if (e.target === view.dom.planCreateTripModal) this.closeCreateTripModal();
       if (e.target === view.dom.planManageTripsModal) this.closeManageTripsModal();
+      if (e.target === view.dom.planEditTripModal) this.closeEditTripModal();
     });
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
@@ -2193,6 +2291,7 @@ const appController = {
         this.closePlanEditStopModal();
         this.closeCreateTripModal();
         this.closeManageTripsModal();
+        this.closeEditTripModal();
       }
     });
   },

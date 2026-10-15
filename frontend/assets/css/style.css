@@ -3978,6 +3978,42 @@ button {
   border-bottom-left-radius: 16px;
 }
 
+/* Completed Saved Trip Item: Khung xanh lá nổi bật khi chuyến đi đã hoàn thành */
+.saved-trip-item.completed {
+  border: 1.5px solid #22c55e;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.05) 0%, var(--bg-surface, #ffffff) 100%);
+  box-shadow: 0 4px 16px -2px rgba(34, 197, 94, 0.15), 0 0 0 1px rgba(34, 197, 94, 0.2);
+}
+
+.saved-trip-item.completed:hover {
+  border-color: #16a34a;
+  box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.25);
+}
+
+.saved-trip-item.completed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+}
+
+.saved-trip-item.completed .saved-trip-icon-wrap {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #16a34a;
+}
+
+.saved-trip-item.active.completed {
+  border-color: #16a34a;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.08) 0%, var(--bg-surface, #ffffff) 100%);
+  box-shadow: 0 8px 24px -4px rgba(34, 197, 94, 0.22), 0 0 0 1.5px #22c55e;
+}
+
 .saved-trip-header {
   display: flex;
   align-items: flex-start;
@@ -4252,6 +4288,39 @@ button {
   color: var(--secondary, #0f172a);
 }
 
+.saved-trip-btns-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-trip-edit {
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  color: var(--secondary, #475569);
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-trip-edit:hover {
+  background: #e0e7ff;
+  border-color: #c7d2fe;
+  color: #4338ca;
+  transform: translateY(-1px);
+}
+
+.btn-trip-edit i,
+.btn-trip-edit svg {
+  width: 16px;
+  height: 16px;
+}
+
 .btn-trip-delete {
   background: transparent;
   border: 1px solid transparent;
@@ -4424,9 +4493,11 @@ button {
   justify-content: space-between;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 12px 18px;
+  margin-top: 10px;
   margin-bottom: 24px;
+  box-shadow: var(--shadow-xs);
 }
 
 .timeline-strip-title {
@@ -5544,11 +5615,17 @@ button {
 
   /* Timeline Strip & Guide Line */
   .timeline-header-strip {
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
-    margin-bottom: 10px;
-    padding: 0 2px;
+    gap: 4px;
+    margin-top: 14px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-xs);
   }
   .timeline-strip-title {
     font-size: 0.75rem;

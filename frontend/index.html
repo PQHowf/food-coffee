@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=4.0">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.1">
 </head>
 
 <body>
@@ -104,7 +104,7 @@
 
           <button class="tab-btn" id="tabPlan" data-tab="plan">
             <span class="tab-icon"><i data-lucide="map-pinned"></i></span>
-            <span class="tab-label">KẾ HOẠCH ĐI CHƠI</span>
+            <span class="tab-label">LÊN KẾ HOẠCH</span>
             <span class="tab-auth-lock" id="planTabLockBadge" title="Yêu cầu đăng nhập">
               <i data-lucide="lock"></i>
             </span>
@@ -441,8 +441,8 @@
               </button>
               <button type="button" class="btn btn-trip-action btn-trip-history" id="btnPlanManageTrips" title="Xem các kế hoạch đã đi trước đó">
                 <i data-lucide="folder-clock"></i>
-                <span class="btn-text-full">Kế Hoạch Đã Đi</span>
-                <span class="btn-text-short">Đã Lưu</span> (<span id="savedTripsCount">0</span>)
+                <span class="btn-text-full">Kế Hoạch Đã Đi (<span id="savedTripsCountFull">0</span>)</span>
+                <span class="btn-text-short">Đã Lưu(<span id="savedTripsCount">0</span>)</span>
               </button>
             </div>
           </div>
@@ -1396,14 +1396,82 @@
     </div>
   </div>
 
+  <!-- MODAL: CHỈNH SỬA KẾ HOẠCH CHUYẾN ĐI -->
+  <div class="modal-overlay" id="planEditTripModal" style="display: none;">
+    <div class="modal-card auth-modal-card plan-modal-card" role="dialog" aria-labelledby="planEditTripTitle">
+      <div class="modal-header modal-header-pinned">
+        <button type="button" class="modal-close-btn" id="planEditTripModalClose" title="Đóng">
+          <i data-lucide="x"></i>
+        </button>
+        <div class="modal-icon-badge">
+          <i data-lucide="edit-3"></i>
+        </div>
+        <h3 class="modal-title" id="planEditTripTitle">CHỈNH SỬA KẾ HOẠCH</h3>
+      </div>
+
+      <form id="planEditTripForm" class="auth-form plan-modal-form" novalidate>
+        <input type="hidden" id="editTripId">
+        <div class="modal-scroll-content">
+          <div class="form-group">
+            <label for="editTripTitle" class="form-label">Tên kế hoạch chuyến đi <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i data-lucide="flag"></i>
+              <input type="text" id="editTripTitle" placeholder="Ví dụ: Du lịch Hà Nội 2N1Đ, Khám phá Đà Lạt 3N2Đ..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="editTripStartDate" class="form-label">Ngày khởi hành <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="calendar"></i>
+                <input type="date" id="editTripStartDate" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="editTripEndDate" class="form-label">Ngày về <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i data-lucide="calendar-check"></i>
+                <input type="date" id="editTripEndDate" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="trip-duration-calc-badge" id="editTripDurationPreview">
+            <i data-lucide="clock"></i>
+            <span>Thời lượng: <strong id="editTripDurationPreviewVal">2N1Đ (2 ngày 1 đêm)</strong></span>
+          </div>
+
+          <div class="form-group">
+            <label for="editTripStatus" class="form-label">Trạng thái chuyến đi</label>
+            <div class="input-with-icon">
+              <i data-lucide="check-circle-2"></i>
+              <select id="editTripStatus" class="form-input">
+                <option value="active">Đang lên kế hoạch</option>
+                <option value="completed">Đã hoàn thành</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer-pinned">
+          <button type="submit" class="btn btn-primary btn-full">
+            <i data-lucide="save"></i> LƯU THAY ĐỔI
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=4.0"></script>
-  <script src="js/services/apiService.js?v=4.0"></script>
-  <script src="js/views/view.js?v=4.0"></script>
-  <script src="js/controllers/appController.js?v=4.0"></script>
+  <script src="js/models/state.js?v=4.1"></script>
+  <script src="js/services/apiService.js?v=4.1"></script>
+  <script src="js/views/view.js?v=4.1"></script>
+  <script src="js/controllers/appController.js?v=4.1"></script>
 </body>
 
 </html>

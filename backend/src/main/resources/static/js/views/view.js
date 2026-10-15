@@ -184,6 +184,7 @@ const view = {
       btnPlanNewTrip: document.getElementById('btnPlanNewTrip'),
       btnPlanManageTrips: document.getElementById('btnPlanManageTrips'),
       savedTripsCount: document.getElementById('savedTripsCount'),
+      savedTripsCountFull: document.getElementById('savedTripsCountFull'),
       btnPlanPickFromDb: document.getElementById('btnPlanPickFromDb'),
       btnPlanAddCustom: document.getElementById('btnPlanAddCustom'),
       btnPlanClear: document.getElementById('btnPlanClear'),
@@ -243,7 +244,16 @@ const view = {
       planManageTripsModal: document.getElementById('planManageTripsModal'),
       planManageTripsModalClose: document.getElementById('planManageTripsModalClose'),
       savedTripsList: document.getElementById('savedTripsList'),
-      btnOpenNewTripFromManage: document.getElementById('btnOpenNewTripFromManage')
+      btnOpenNewTripFromManage: document.getElementById('btnOpenNewTripFromManage'),
+      planEditTripModal: document.getElementById('planEditTripModal'),
+      planEditTripModalClose: document.getElementById('planEditTripModalClose'),
+      planEditTripForm: document.getElementById('planEditTripForm'),
+      editTripId: document.getElementById('editTripId'),
+      editTripTitle: document.getElementById('editTripTitle'),
+      editTripStartDate: document.getElementById('editTripStartDate'),
+      editTripEndDate: document.getElementById('editTripEndDate'),
+      editTripStatus: document.getElementById('editTripStatus'),
+      editTripDurationPreviewVal: document.getElementById('editTripDurationPreviewVal')
     };
   },
 
@@ -634,9 +644,9 @@ const view = {
       if (this.dom.planTripSelect) {
         this.dom.planTripSelect.innerHTML = '<option value="">(Chưa có kế hoạch nào)</option>';
       }
-      if (this.dom.savedTripsCount) {
-        this.dom.savedTripsCount.textContent = Array.isArray(userPlans) ? userPlans.length : 0;
-      }
+      const emptyCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
+      if (this.dom.savedTripsCount) this.dom.savedTripsCount.textContent = emptyCount;
+      if (this.dom.savedTripsCountFull) this.dom.savedTripsCountFull.textContent = emptyCount;
       if (this.dom.statPlanStops) this.dom.statPlanStops.textContent = '0 địa điểm';
       if (this.dom.statPlanProgress) this.dom.statPlanProgress.textContent = '0/0';
       if (this.dom.statPlanDuration) this.dom.statPlanDuration.textContent = '0 ngày';
@@ -669,21 +679,20 @@ const view = {
       this.dom.planHeroTitle.textContent = (plan.title || 'KẾ HOẠCH ĐI CHƠI CỦA BẠN').toUpperCase();
     }
 
-    // Populate Trip selector dropdown
+    // Populate Trip selector dropdown (Không để icon trước tên chuyến đi)
     if (this.dom.planTripSelect && Array.isArray(userPlans)) {
       let optionsHtml = '';
       userPlans.forEach(p => {
         const isSel = String(p.id) === String(plan.id);
-        const icon = p.status === 'completed' ? '🏁 [Đã đi]' : '🎯';
         const count = p.items ? p.items.length : 0;
-        optionsHtml += `<option value="${p.id}" ${isSel ? 'selected' : ''}>${icon} ${this.escapeHTML(p.title)} (${p.tripType || p.totalDays + 'N'} • ${count} điểm)</option>`;
+        optionsHtml += `<option value="${p.id}" ${isSel ? 'selected' : ''}>${this.escapeHTML(p.title)} (${p.tripType || p.totalDays + 'N'} • ${count} điểm)</option>`;
       });
       this.dom.planTripSelect.innerHTML = optionsHtml;
     }
 
-    if (this.dom.savedTripsCount) {
-      this.dom.savedTripsCount.textContent = Array.isArray(userPlans) ? userPlans.length : 0;
-    }
+    const currentCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
+    if (this.dom.savedTripsCount) this.dom.savedTripsCount.textContent = currentCount;
+    if (this.dom.savedTripsCountFull) this.dom.savedTripsCountFull.textContent = currentCount;
 
     const items = Array.isArray(plan.items) ? plan.items : [];
     const total = items.length;
@@ -967,7 +976,7 @@ const view = {
     this.refreshIcons();
   },
 
-  renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete) {
+  renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete, onEdit) {
     if (!this.dom.savedTripsList) return;
     if (!userPlans || userPlans.length === 0) {
       this.dom.savedTripsList.innerHTML = `
@@ -1008,7 +1017,7 @@ const view = {
       }
 
       html += `
-        <div class="saved-trip-item ${isActive ? 'active' : ''}" data-trip-id="${p.id}">
+        <div class="saved-trip-item ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}" data-trip-id="${p.id}">
           <div class="saved-trip-header">
             <div class="saved-trip-icon-wrap" title="${isCompleted ? 'Chuyến đi hoàn thành' : 'Kế hoạch chuyến đi'}">
               <i data-lucide="${isCompleted ? 'award' : (isActive ? 'compass' : 'map-pin')}"></i>
@@ -1062,13 +1071,17 @@ const view = {
                   <i data-lucide="check-circle-2"></i> Đang mở chuyến này
                 </span>
               `}
-              <button type="button" class="btn btn-sm btn-secondary-soft" data-action="toggle-status" data-id="${p.id}">
-                <i data-lucide="${isCompleted ? 'rotate-ccw' : 'check'}"></i>
-                ${isCompleted ? 'Mở lại' : 'Đánh dấu đã đi'}
-              </button>
+              ${!isCompleted ? `
+                <button type="button" class="btn btn-sm btn-secondary-soft" data-action="toggle-status" data-id="${p.id}">
+                  <i data-lucide="check"></i> Đánh dấu đã đi
+                </button>
+              ` : ''}
             </div>
 
             <div class="saved-trip-btns-right">
+              <button type="button" class="btn-trip-edit" data-action="edit-trip" data-id="${p.id}" title="Chỉnh sửa thông tin chuyến đi">
+                <i data-lucide="edit-3"></i>
+              </button>
               <button type="button" class="btn-trip-delete" data-action="delete-trip" data-id="${p.id}" title="Xóa chuyến đi này">
                 <i data-lucide="trash-2"></i>
               </button>
@@ -1093,6 +1106,14 @@ const view = {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         if (onToggleStatus) onToggleStatus(id);
+      });
+    });
+
+    this.dom.savedTripsList.querySelectorAll('[data-action="edit-trip"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onEdit) onEdit(id);
       });
     });
 

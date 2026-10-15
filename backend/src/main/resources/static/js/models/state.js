@@ -243,6 +243,19 @@ const model = {
     return null;
   },
 
+  updatePlan(planId, updates) {
+    const plan = this.userPlans.find(p => String(p.id) === String(planId));
+    if (plan) {
+      Object.assign(plan, updates);
+      if (this.tripPlan && String(this.tripPlan.id) === String(planId)) {
+        Object.assign(this.tripPlan, updates);
+      }
+      this.saveUserPlans();
+      return plan;
+    }
+    return null;
+  },
+
   deletePlan(planId) {
     this.userPlans = this.userPlans.filter(p => String(p.id) !== String(planId));
     if (this.tripPlan && String(this.tripPlan.id) === String(planId)) {
