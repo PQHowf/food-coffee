@@ -4304,7 +4304,26 @@ button {
   transform: scale(1.05);
 }
 
-/* Trip Duration Preview Badge in Create Trip Modal */
+/* Trip Duration Preview Badge & Date Pickers in Modals */
+.form-row-dates {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-row-dates .form-group {
+  min-width: 0;
+}
+
+.input-with-icon input[type="date"] {
+  min-height: 48px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.925rem;
+  color: var(--text-main);
+  background-color: var(--bg-surface);
+}
+
 .trip-duration-calc-badge {
   display: flex;
   align-items: center;
@@ -4318,6 +4337,7 @@ button {
   font-weight: 600;
   margin-top: 10px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .trip-duration-calc-badge i,
@@ -5737,6 +5757,37 @@ button {
   .form-row {
     gap: 10px;
   }
+  /* Stack date pickers on mobile so long localized date strings never clip */
+  .form-row.form-row-dates {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  .form-row.form-row-dates .form-group {
+    width: 100%;
+    margin-bottom: 0;
+  }
+  .form-row.form-row-dates .input-with-icon {
+    width: 100%;
+  }
+  .form-row.form-row-dates .input-with-icon input[type="date"] {
+    width: 100%;
+    box-sizing: border-box;
+    height: 46px;
+    min-height: 46px;
+    padding: 10px 14px 10px 44px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .trip-duration-calc-badge {
+    padding: 11px 14px;
+    font-size: 0.825rem;
+    gap: 8px;
+    margin-top: 4px;
+    border-radius: var(--radius-md);
+    box-sizing: border-box;
+  }
   .modal-footer-pinned {
     padding: 10px 14px 14px;
   }
@@ -5801,7 +5852,7 @@ button {
   }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 480px) {
   .form-row {
     flex-direction: column;
     gap: 10px;
