@@ -3672,61 +3672,13 @@ button {
   color: #ffffff;
 }
 
-/* Plan Trip Switcher & History Bar - Không lồng box trong box */
-.plan-trip-bar {
+/* Plan Hero Header Row (Title on left, Trip actions on right) */
+.plan-hero-header-row {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 14px;
-  background: transparent;
-  border: none;
-  padding: 0;
-}
-
-.plan-trip-selector-wrap {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1;
-  min-width: 240px;
-}
-
-.plan-trip-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #e0e7ff;
-  white-space: nowrap;
-}
-
-.plan-trip-label i,
-.plan-trip-label svg {
-  width: 16px;
-  height: 16px;
-  color: #fbbf24;
-}
-
-.plan-trip-select {
-  flex: 1;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
-  padding: 8px 14px;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.plan-trip-select:hover,
-.plan-trip-select:focus {
-  border-color: #38bdf8;
-  background: rgba(15, 23, 42, 0.9);
+  gap: 16px;
 }
 
 /* Responsive text switch utilities */
@@ -5412,59 +5364,11 @@ button {
     word-break: break-word;
   }
 
-  /* Trip Bar & Selector: Không còn viền hay nền box lồng box */
-  .plan-trip-bar {
+  .plan-hero-header-row {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
-    padding: 0;
-    border: none;
-    border-radius: 0;
-    background: transparent;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  .plan-trip-selector-wrap {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-    width: 100%;
-    min-width: 0;
-  }
-  .plan-trip-label {
-    font-size: 0.775rem;
-    font-weight: 700;
-    color: #cbd5e1;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .plan-trip-label i,
-  .plan-trip-label svg {
-    width: 15px;
-    height: 15px;
-    color: #fbbf24;
-  }
-  .plan-trip-select {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 8px 34px 8px 12px;
-    height: 42px;
-    border-radius: 10px;
-    background-color: rgba(15, 23, 42, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    color: #ffffff;
-    -webkit-appearance: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 12px center;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    gap: 12px;
   }
   .plan-trip-actions {
     width: 100%;

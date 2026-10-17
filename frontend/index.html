@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=4.2">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.3">
 </head>
 
 <body>
@@ -415,24 +415,14 @@
 
         <!-- Plan Hero Banner & Control Toolbar -->
         <div class="plan-hero-banner">
-          <div class="plan-hero-text">
-            <div class="plan-badge-pill">
-              <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
+          <div class="plan-hero-header-row">
+            <div class="plan-hero-text">
+              <div class="plan-badge-pill">
+                <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
+              </div>
+              <h2 class="plan-title" id="planHeroTitle">KẾ HOẠCH ĐI CHƠI CỦA BẠN</h2>
             </div>
-            <h2 class="plan-title" id="planHeroTitle">KẾ HOẠCH ĐI CHƠI CỦA BẠN</h2>
-            <!-- Đã xoá phần description theo yêu cầu -->
-          </div>
 
-          <!-- Trip Switcher & History Bar -->
-          <div class="plan-trip-bar">
-            <div class="plan-trip-selector-wrap">
-              <label for="planTripSelect" class="plan-trip-label">
-                <i data-lucide="compass"></i> Kế hoạch:
-              </label>
-              <select id="planTripSelect" class="plan-trip-select" aria-label="Chọn kế hoạch chuyến đi">
-                <!-- Injected dynamically by JS -->
-              </select>
-            </div>
             <div class="plan-trip-actions">
               <button type="button" class="btn btn-trip-action btn-trip-new" id="btnPlanNewTrip" title="Tạo kế hoạch chuyến đi mới">
                 <i data-lucide="plus"></i>
@@ -1470,10 +1460,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=4.2"></script>
-  <script src="js/services/apiService.js?v=4.2"></script>
-  <script src="js/views/view.js?v=4.2"></script>
-  <script src="js/controllers/appController.js?v=4.2"></script>
+  <script src="js/models/state.js?v=4.3"></script>
+  <script src="js/services/apiService.js?v=4.3"></script>
+  <script src="js/views/view.js?v=4.3"></script>
+  <script src="js/controllers/appController.js?v=4.3"></script>
 </body>
 
 </html>

@@ -2174,7 +2174,6 @@ const appController = {
 
     // Trip Planner Events
     view.dom.btnPlanGateLogin?.addEventListener('click', () => this.openAuthModal('login'));
-    view.dom.planTripSelect?.addEventListener('change', (e) => this.handleSwitchPlan(e.target.value));
     view.dom.btnPlanNewTrip?.addEventListener('click', () => this.openCreateTripModal());
     view.dom.btnPlanManageTrips?.addEventListener('click', () => this.openManageTripsModal());
     view.dom.btnPlanPickFromDb?.addEventListener('click', () => this.openPlanPickPlaceModal());

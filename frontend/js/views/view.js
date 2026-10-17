@@ -180,7 +180,6 @@ const view = {
       btnPlanGateLogin: document.getElementById('btnPlanGateLogin'),
       planContentContainer: document.getElementById('planContentContainer'),
       planHeroTitle: document.getElementById('planHeroTitle'),
-      planTripSelect: document.getElementById('planTripSelect'),
       btnPlanNewTrip: document.getElementById('btnPlanNewTrip'),
       btnPlanManageTrips: document.getElementById('btnPlanManageTrips'),
       savedTripsCount: document.getElementById('savedTripsCount'),
@@ -641,9 +640,6 @@ const view = {
       if (this.dom.planHeroTitle) {
         this.dom.planHeroTitle.textContent = 'CHƯA CÓ KẾ HOẠCH NÀO';
       }
-      if (this.dom.planTripSelect) {
-        this.dom.planTripSelect.innerHTML = '<option value="">(Chưa có kế hoạch nào)</option>';
-      }
       const emptyCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
       if (this.dom.savedTripsCount) this.dom.savedTripsCount.textContent = emptyCount;
       if (this.dom.savedTripsCountFull) this.dom.savedTripsCountFull.textContent = emptyCount;
@@ -677,17 +673,6 @@ const view = {
 
     if (this.dom.planHeroTitle) {
       this.dom.planHeroTitle.textContent = (plan.title || 'KẾ HOẠCH ĐI CHƠI CỦA BẠN').toUpperCase();
-    }
-
-    // Populate Trip selector dropdown (Không để icon trước tên chuyến đi)
-    if (this.dom.planTripSelect && Array.isArray(userPlans)) {
-      let optionsHtml = '';
-      userPlans.forEach(p => {
-        const isSel = String(p.id) === String(plan.id);
-        const count = p.items ? p.items.length : 0;
-        optionsHtml += `<option value="${p.id}" ${isSel ? 'selected' : ''}>${this.escapeHTML(p.title)} (${p.tripType || p.totalDays + 'N'} • ${count} điểm)</option>`;
-      });
-      this.dom.planTripSelect.innerHTML = optionsHtml;
     }
 
     const currentCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
