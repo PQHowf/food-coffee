@@ -212,8 +212,6 @@ const view = {
       customStopName: document.getElementById('customStopName'),
       customStopDay: document.getElementById('customStopDay'),
       customStopTime: document.getElementById('customStopTime'),
-      customStopPeriod: document.getElementById('customStopPeriod'),
-      customStopCategory: document.getElementById('customStopCategory'),
       customStopAddress: document.getElementById('customStopAddress'),
       customStopDish: document.getElementById('customStopDish'),
       customStopPrice: document.getElementById('customStopPrice'),
@@ -225,8 +223,6 @@ const view = {
       editStopName: document.getElementById('editStopName'),
       editStopDay: document.getElementById('editStopDay'),
       editStopTime: document.getElementById('editStopTime'),
-      editStopPeriod: document.getElementById('editStopPeriod'),
-      editStopCategory: document.getElementById('editStopCategory'),
       editStopAddress: document.getElementById('editStopAddress'),
       editStopDish: document.getElementById('editStopDish'),
       editStopPrice: document.getElementById('editStopPrice'),
@@ -606,6 +602,19 @@ const view = {
   // ==========================================================================
   // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) RENDERING
   // ==========================================================================
+  inferPeriodFromTime(timeStr) {
+    if (!timeStr) return 'Chặng';
+    const match = String(timeStr).match(/(\d{1,2})(?::|h|\s*:\s*|\b)/);
+    if (!match) return 'Chặng';
+    const hour = parseInt(match[1], 10);
+    if (isNaN(hour)) return 'Chặng';
+    if (hour >= 4 && hour < 11) return 'Sáng';
+    if (hour >= 11 && hour < 14) return 'Trưa';
+    if (hour >= 14 && hour < 18) return 'Chiều';
+    if (hour >= 18 && hour < 22) return 'Tối';
+    return 'Đêm';
+  },
+
   getDateForDay(startDateStr, dayNumber) {
     if (!startDateStr) return '';
     try {
@@ -700,7 +709,10 @@ const view = {
     let hasCost = false;
     items.forEach(it => {
       const p = it.priceRange || '';
-      if (p === '<100K') { minCost += 30; maxCost += 80; hasCost = true; }
+      if (p === '0Đ' || p === '0đ') {
+        // Miễn phí: không tính thêm chi phí
+      }
+      else if (p === '<100K') { minCost += 30; maxCost += 80; hasCost = true; }
       else if (p === '100K-200K') { minCost += 100; maxCost += 200; hasCost = true; }
       else if (p === '200K-300K') { minCost += 200; maxCost += 300; hasCost = true; }
       else if (p === '>300K') { minCost += 300; maxCost += 450; hasCost = true; }
@@ -815,15 +827,8 @@ const view = {
         `;
       }
       
-      let catBadgeText = 'Vui chơi';
-      let catBadgeIcon = 'compass';
-      if (item.category === 'cafe') {
-        catBadgeText = 'Quán Cafe';
-        catBadgeIcon = 'coffee';
-      } else if (item.category === 'food') {
-        catBadgeText = 'Quán Ăn';
-        catBadgeIcon = 'utensils';
-      }
+      // Tự động xác định Buổi từ giờ đã chọn
+      const computedPeriod = this.inferPeriodFromTime(item.time) || item.period || 'Chặng';
 
       // Link Google Maps
       const mapsQuery = encodeURIComponent(`${item.placeName || item.title || ''} ${item.address || ''}`);
@@ -836,7 +841,7 @@ const view = {
             <div class="timeline-marker-circle" title="Chặng ${index + 1}">
               ${isDone ? '<i data-lucide="check"></i>' : (index + 1)}
             </div>
-            <span class="timeline-period-badge">${this.escapeHTML(item.period || 'Chặng')}</span>
+            <span class="timeline-period-badge">${this.escapeHTML(computedPeriod)}</span>
           </div>
 
           <!-- Right Place Card (Không hiển thị ảnh) -->
@@ -845,14 +850,8 @@ const view = {
               <div class="card-main-meta">
                 <div class="card-time-row">
                   <div class="card-header-tags">
-                    <span class="card-day-tag">
-                      <i data-lucide="calendar"></i> Ngày ${itemDay}
-                    </span>
                     <span class="card-time-tag">
                       <i data-lucide="clock"></i> ${this.escapeHTML(item.time || 'Linh hoạt')}
-                    </span>
-                    <span class="card-cat-tag ${item.category || 'custom'}">
-                      <i data-lucide="${catBadgeIcon}"></i> ${catBadgeText}
                     </span>
                   </div>
                   ${isDone ? `

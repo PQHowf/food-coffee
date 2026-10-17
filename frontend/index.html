@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=4.6">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.7">
 </head>
 
 <body>
@@ -284,6 +284,7 @@
               <div class="input-with-icon">
                 <i data-lucide="banknote"></i>
                 <select id="newPlacePriceRange" required>
+                  <option value="0Đ">0Đ (Miễn phí)</option>
                   <option value="<100K">&lt;100K</option>
                   <option value="100K-200K">100K-200K</option>
                   <option value="200K-300K">200K-300K</option>
@@ -836,6 +837,7 @@
             <div class="input-with-icon">
               <i data-lucide="banknote"></i>
               <select id="editPlacePriceRange" required>
+                <option value="0Đ">0Đ (Miễn phí)</option>
                 <option value="<100K">&lt;100K</option>
                 <option value="100K-200K">100K-200K</option>
                 <option value="200K-300K">200K-300K</option>
@@ -951,6 +953,7 @@
           </label>
           <select id="randomPriceFilter" class="random-filter-select">
             <option value="all">Tất cả mức giá</option>
+            <option value="0Đ">0Đ (Miễn phí)</option>
             <option value="<100K">&lt;100K</option>
             <option value="100K-200K">100K-200K</option>
             <option value="200K-300K">200K-300K</option>
@@ -1116,36 +1119,11 @@
             </div>
 
             <div class="form-group flex-1">
-              <label for="customStopPeriod" class="form-label">Buổi</label>
+              <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
               <div class="input-with-icon">
-                <i data-lucide="sun"></i>
-                <select id="customStopPeriod">
-                  <option value="Sáng">Buổi Sáng</option>
-                  <option value="Trưa">Buổi Trưa</option>
-                  <option value="Chiều" selected>Buổi Chiều</option>
-                  <option value="Tối">Buổi Tối</option>
-                </select>
+                <i data-lucide="clock"></i>
+                <input type="text" id="customStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
               </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="customStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
-            <div class="input-with-icon">
-              <i data-lucide="clock"></i>
-              <input type="text" id="customStopTime" placeholder="Ví dụ: 08:30 - 10:00 hoặc 15:00 - 17:30" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="customStopCategory" class="form-label">Loại hình</label>
-            <div class="input-with-icon">
-              <i data-lucide="tag"></i>
-              <select id="customStopCategory">
-                <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
-                <option value="food">🍜 Ăn uống / Quán ăn</option>
-                <option value="cafe">☕ Cà phê / Trà sữa</option>
-              </select>
             </div>
           </div>
 
@@ -1170,6 +1148,7 @@
             <div class="input-with-icon">
               <i data-lucide="banknote"></i>
               <select id="customStopPrice">
+                <option value="0Đ">0Đ (Miễn phí / Tự túc)</option>
                 <option value="<100K">&lt;100K</option>
                 <option value="100K-200K">100K-200K</option>
                 <option value="200K-300K">200K-300K</option>
@@ -1233,36 +1212,11 @@
             </div>
 
             <div class="form-group flex-1">
-              <label for="editStopPeriod" class="form-label">Buổi</label>
+              <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
               <div class="input-with-icon">
-                <i data-lucide="sun"></i>
-                <select id="editStopPeriod">
-                  <option value="Sáng">Buổi Sáng</option>
-                  <option value="Trưa">Buổi Trưa</option>
-                  <option value="Chiều">Buổi Chiều</option>
-                  <option value="Tối">Buổi Tối</option>
-                </select>
+                <i data-lucide="clock"></i>
+                <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
               </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="editStopTime" class="form-label">Khung giờ <span class="required">*</span></label>
-            <div class="input-with-icon">
-              <i data-lucide="clock"></i>
-              <input type="text" id="editStopTime" placeholder="Ví dụ: 08:30 - 10:00" required>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="editStopCategory" class="form-label">Loại hình</label>
-            <div class="input-with-icon">
-              <i data-lucide="tag"></i>
-              <select id="editStopCategory">
-                <option value="food">🍜 Ăn uống / Quán ăn</option>
-                <option value="cafe">☕ Cà phê / Trà sữa</option>
-                <option value="custom">🎡 Vui chơi / Tham quan / Check-in</option>
-              </select>
             </div>
           </div>
 
@@ -1287,6 +1241,7 @@
             <div class="input-with-icon">
               <i data-lucide="banknote"></i>
               <select id="editStopPrice">
+                <option value="0Đ">0Đ (Miễn phí / Tự túc)</option>
                 <option value="<100K">&lt;100K</option>
                 <option value="100K-200K">100K-200K</option>
                 <option value="200K-300K">200K-300K</option>
@@ -1468,10 +1423,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=4.6"></script>
-  <script src="js/services/apiService.js?v=4.6"></script>
-  <script src="js/views/view.js?v=4.6"></script>
-  <script src="js/controllers/appController.js?v=4.6"></script>
+  <script src="js/models/state.js?v=4.7"></script>
+  <script src="js/services/apiService.js?v=4.7"></script>
+  <script src="js/views/view.js?v=4.7"></script>
+  <script src="js/controllers/appController.js?v=4.7"></script>
 </body>
 
 </html>

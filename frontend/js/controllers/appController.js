@@ -580,6 +580,19 @@ const appController = {
     return { totalDays, tripType, text };
   },
 
+  inferPeriodFromTime(timeStr) {
+    if (!timeStr) return 'Chặng';
+    const match = String(timeStr).match(/(\d{1,2})(?::|h|\s*:\s*|\b)/);
+    if (!match) return 'Chặng';
+    const hour = parseInt(match[1], 10);
+    if (isNaN(hour)) return 'Chặng';
+    if (hour >= 4 && hour < 11) return 'Sáng';
+    if (hour >= 11 && hour < 14) return 'Trưa';
+    if (hour >= 14 && hour < 18) return 'Chiều';
+    if (hour >= 18 && hour < 22) return 'Tối';
+    return 'Đêm';
+  },
+
   updateTripDurationPreview() {
     const start = view.dom.newTripStartDate?.value;
     const end = view.dom.newTripEndDate?.value;
@@ -825,15 +838,12 @@ const appController = {
 
     // Điền trước thông tin quán vào form
     if (view.dom.customStopName) view.dom.customStopName.value = place.name || '';
-    if (view.dom.customStopCategory) {
-      view.dom.customStopCategory.value = (place.category === 'cafe' || place.category === 'food') ? place.category : 'food';
-    }
     if (view.dom.customStopAddress) view.dom.customStopAddress.value = place.address || place.city || '';
     if (view.dom.customStopDish) view.dom.customStopDish.value = place.recommendedDish || '';
     if (view.dom.customStopPrice) {
       const p = place.priceRange || '<100K';
-      if (['<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
-        view.dom.customStopPrice.value = p;
+      if (['0Đ', '0đ', '<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
+        view.dom.customStopPrice.value = (p === '0đ' || p === '0Đ') ? '0Đ' : p;
       } else {
         view.dom.customStopPrice.value = '<100K';
       }
@@ -846,14 +856,6 @@ const appController = {
     // Gợi ý ngày mặc định theo bộ lọc ngày đang chọn
     const activeDay = model.currentPlanDayFilter !== 'all' ? model.currentPlanDayFilter : 1;
     view.populateDaySelectOptions(view.dom.customStopDay, model.tripPlan?.totalDays, model.tripPlan?.startDate, activeDay);
-
-    // Gợi ý buổi mặc định theo số lượng chặng hiện có
-    const count = model.tripPlan?.items?.length || 0;
-    let suggestedPeriod = 'Sáng';
-    if (count === 1) suggestedPeriod = 'Trưa';
-    else if (count === 2) suggestedPeriod = 'Chiều';
-    else if (count >= 3) suggestedPeriod = 'Tối';
-    if (view.dom.customStopPeriod) view.dom.customStopPeriod.value = suggestedPeriod;
 
     // Đổi tiêu đề modal
     if (view.dom.planCustomModalTitle) {
@@ -971,8 +973,7 @@ const appController = {
     }
 
     const day = parseInt(view.dom.customStopDay?.value, 10) || 1;
-    const period = view.dom.customStopPeriod?.value || 'Chiều';
-    const category = view.dom.customStopCategory?.value || 'custom';
+    const period = this.inferPeriodFromTime(time);
     const address = view.dom.customStopAddress?.value.trim() || '';
     const dish = view.dom.customStopDish?.value.trim() || '';
     const price = view.dom.customStopPrice?.value || '<100K';
@@ -983,7 +984,7 @@ const appController = {
       time: time,
       period: period,
       title: name,
-      category: category,
+      category: 'custom',
       placeName: name,
       address: address,
       recommendedDish: dish,
@@ -1008,14 +1009,12 @@ const appController = {
     if (view.dom.editStopId) view.dom.editStopId.value = item.id;
     if (view.dom.editStopName) view.dom.editStopName.value = item.placeName || item.title || '';
     if (view.dom.editStopTime) view.dom.editStopTime.value = item.time || '';
-    if (view.dom.editStopPeriod) view.dom.editStopPeriod.value = item.period || 'Chiều';
-    if (view.dom.editStopCategory) view.dom.editStopCategory.value = item.category || 'custom';
     if (view.dom.editStopAddress) view.dom.editStopAddress.value = item.address || '';
     if (view.dom.editStopDish) view.dom.editStopDish.value = item.recommendedDish || '';
     if (view.dom.editStopPrice) {
       const p = item.priceRange || '<100K';
-      if (['<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
-        view.dom.editStopPrice.value = p;
+      if (['0Đ', '0đ', '<100K', '100K-200K', '200K-300K', '>300K'].includes(p)) {
+        view.dom.editStopPrice.value = (p === '0đ' || p === '0Đ') ? '0Đ' : p;
       } else {
         view.dom.editStopPrice.value = '<100K';
       }
@@ -1057,8 +1056,7 @@ const appController = {
       title: name,
       placeName: name,
       time: time,
-      period: view.dom.editStopPeriod?.value || 'Chiều',
-      category: view.dom.editStopCategory?.value || 'custom',
+      period: this.inferPeriodFromTime(time),
       address: view.dom.editStopAddress?.value.trim() || '',
       recommendedDish: view.dom.editStopDish?.value.trim() || '',
       priceRange: view.dom.editStopPrice?.value || '<100K',
