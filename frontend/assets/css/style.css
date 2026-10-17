@@ -3613,16 +3613,18 @@ button {
   margin-bottom: 40px;
 }
 
+/* Plan Hero Banner & Control Toolbar */
 .plan-hero-banner {
-  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 45%, #4338ca 100%);
+  background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 48%, #2e1065 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-xl);
-  padding: 30px 28px;
+  padding: 24px 28px;
   color: #ffffff;
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
   gap: 18px;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -3630,31 +3632,48 @@ button {
 .plan-hero-banner::after {
   content: '';
   position: absolute;
-  right: -30px;
-  top: -30px;
-  width: 220px;
-  height: 220px;
+  right: -40px;
+  top: -40px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(167, 139, 250, 0.28) 0%, rgba(255, 255, 255, 0) 70%);
+  background: radial-gradient(circle, rgba(129, 140, 248, 0.22) 0%, rgba(255, 255, 255, 0) 70%);
   pointer-events: none;
+}
+
+.plan-hero-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.plan-hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex: 1;
+  min-width: 280px;
 }
 
 .plan-badge-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
   border-radius: var(--radius-full);
-  font-size: 0.775rem;
+  font-size: 0.725rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  color: #e0e7ff;
+  letter-spacing: 0.6px;
+  color: #f8fafc;
+  margin-bottom: 2px;
 }
 
 .plan-badge-pill i,
@@ -3668,17 +3687,17 @@ button {
   font-size: 1.55rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  margin-bottom: 6px;
+  margin: 0;
   color: #ffffff;
+  line-height: 1.25;
 }
 
-/* Plan Hero Header Row (Title on left, Trip actions on right) */
-.plan-hero-header-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
+.plan-hero-desc {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #cbd5e1;
+  margin: 2px 0 0;
+  line-height: 1.4;
 }
 
 /* Responsive text switch utilities */
@@ -3693,13 +3712,101 @@ button {
 .plan-trip-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .btn-trip-action {
   display: inline-flex;
   align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.btn-trip-new {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.35);
+}
+
+.btn-trip-new:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.45);
+  background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+}
+
+.btn-trip-history {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.btn-trip-history:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Plan Frosted Toolbar Strip */
+.plan-toolbar-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.plan-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.plan-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.plan-toolbar-hint {
+  display: inline-flex;
+  align-items: center;
   gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 4px;
+}
+
+.plan-toolbar-hint i,
+.plan-toolbar-hint svg {
+  width: 15px;
+  height: 15px;
+  color: #38bdf8;
+}
+
+.btn-plan-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   padding: 8px 14px;
   border-radius: var(--radius-md);
   font-size: 0.825rem;
@@ -3707,34 +3814,66 @@ button {
   cursor: pointer;
   transition: all var(--transition-fast);
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
-.btn-trip-new {
-  background: #3b82f6;
+.btn-plan-pick {
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.btn-trip-new:hover {
-  background: #2563eb;
+.btn-plan-pick i,
+.btn-plan-pick svg {
+  color: #fb923c;
+  width: 16px;
+  height: 16px;
+}
+
+.btn-plan-pick:hover {
+  background: rgba(249, 115, 22, 0.22);
+  border-color: #f97316;
+  color: #ffedd5;
   transform: translateY(-1px);
 }
 
-.btn-trip-history {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+.btn-plan-custom {
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-.btn-trip-history:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.5);
+.btn-plan-custom i,
+.btn-plan-custom svg {
+  color: #38bdf8;
+  width: 16px;
+  height: 16px;
 }
 
-.plan-hero-divider {
-  height: 1px;
-  background: rgba(255, 255, 255, 0.14);
-  width: 100%;
-  margin: 4px 0;
+.btn-plan-custom:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  color: #e0f2fe;
+  transform: translateY(-1px);
+}
+
+.btn-plan-clear {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.btn-plan-clear i,
+.btn-plan-clear svg {
+  width: 16px;
+  height: 16px;
+}
+
+.btn-plan-clear:hover {
+  background: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  transform: translateY(-1px);
 }
 
 /* Day Filter Tabs Bar */
@@ -4353,33 +4492,7 @@ button {
   font-weight: 800;
 }
 
-.plan-toolbar-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-top: 4px;
-}
 
-.plan-toolbar-actions .btn {
-  font-size: 0.85rem;
-  padding: 9px 16px;
-  border-radius: var(--radius-md);
-}
-
-.btn-outline-danger {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  color: #fca5a5;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-outline-danger:hover {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
-}
 
 /* Quick Statistics Grid */
 .plan-stats-grid {
@@ -5440,60 +5553,97 @@ button {
     flex-shrink: 0;
   }
 
-  .plan-hero-divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.14);
-    width: 100%;
-    margin: 2px 0;
+  .plan-hero-banner {
+    padding: 16px 14px;
+    margin-bottom: 14px;
+    border-radius: 18px;
+    gap: 12px;
   }
-
-  /* Action Buttons Toolbar */
-  .plan-toolbar-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr 44px;
-    gap: 8px;
+  .plan-hero-header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .plan-hero-text {
     width: 100%;
     min-width: 0;
-    margin-top: 0;
+    gap: 3px;
   }
-  .plan-toolbar-actions .btn {
-    height: 44px;
-    padding: 0 8px;
-    font-size: 0.8rem;
-    font-weight: 800;
+  .plan-title {
+    font-size: 1.25rem;
+    line-height: 1.25;
+  }
+  .plan-hero-desc {
+    font-size: 0.775rem;
+  }
+  .plan-trip-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    min-width: 0;
+  }
+  .btn-trip-action {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 0.775rem;
+    font-weight: 700;
     justify-content: center;
     text-align: center;
-    gap: 6px;
-    white-space: nowrap;
-    min-width: 0;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    box-sizing: border-box;
+    border-radius: 10px;
   }
-  .plan-toolbar-actions .btn span {
+  .btn-trip-action span {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .plan-toolbar-actions .btn i,
-  .plan-toolbar-actions .btn svg {
-    width: 15px;
-    height: 15px;
-    flex-shrink: 0;
+  .btn-text-full {
+    display: none !important;
   }
-  .plan-toolbar-actions #btnPlanClear {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  .btn-text-short {
+    display: inline !important;
+  }
+  .plan-toolbar-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 42px;
+    gap: 8px;
+    padding: 8px;
     border-radius: 12px;
-    flex-shrink: 0;
-    background: rgba(239, 68, 68, 0.18);
-    border: 1px solid rgba(248, 113, 113, 0.4);
-    color: #fca5a5;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .plan-toolbar-hint {
+    display: none;
+  }
+  .plan-toolbar-left {
+    display: contents;
+  }
+  .plan-toolbar-right {
+    display: contents;
+  }
+  .btn-plan-tool {
+    height: 40px;
+    padding: 0 8px;
+    font-size: 0.775rem;
+    justify-content: center;
+    border-radius: 10px;
+  }
+  .btn-plan-tool span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .btn-plan-clear {
+    width: 42px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 10px;
+  }
+  .btn-plan-clear .btn-text-full {
+    display: none !important;
   }
 
   /* Statistics Grid */

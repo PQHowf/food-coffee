@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=4.4">
+  <link rel="stylesheet" href="assets/css/style.css?v=4.5">
 </head>
 
 <body>
@@ -421,38 +421,47 @@
                 <i data-lucide="sparkles"></i> Lịch Trình Thông Minh
               </div>
               <h2 class="plan-title" id="planHeroTitle">KẾ HOẠCH ĐI CHƠI CỦA BẠN</h2>
+              <p class="plan-hero-desc" id="planHeroDesc">Lên lịch trình thông minh, chọn quán ăn & cafe và sắp xếp chuyến đi dễ dàng</p>
             </div>
 
             <div class="plan-trip-actions">
-              <button type="button" class="btn btn-trip-action btn-trip-new" id="btnPlanNewTrip" title="Tạo kế hoạch chuyến đi mới">
-                <i data-lucide="plus"></i>
-                <span class="btn-text-full">Tạo Kế Hoạch Mới</span>
-                <span class="btn-text-short">Tạo Plan Mới</span>
-              </button>
               <button type="button" class="btn btn-trip-action btn-trip-history" id="btnPlanManageTrips" title="Xem các kế hoạch đã đi trước đó">
                 <i data-lucide="folder-clock"></i>
                 <span class="btn-text-full">Kế Hoạch Đã Đi (<span id="savedTripsCountFull">0</span>)</span>
                 <span class="btn-text-short">Đã Lưu (<span id="savedTripsCount">0</span>)</span>
               </button>
+              <button type="button" class="btn btn-trip-action btn-trip-new" id="btnPlanNewTrip" title="Tạo kế hoạch chuyến đi mới">
+                <i data-lucide="plus"></i>
+                <span class="btn-text-full">Tạo Kế Hoạch Mới</span>
+                <span class="btn-text-short">Tạo Plan Mới</span>
+              </button>
             </div>
           </div>
 
-          <div class="plan-hero-divider"></div>
+          <div class="plan-toolbar-strip">
+            <div class="plan-toolbar-left">
+              <span class="plan-toolbar-hint">
+                <i data-lucide="compass"></i>
+                <span>Thêm vào plan:</span>
+              </span>
+              <button class="btn btn-plan-tool btn-plan-pick" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
+                <i data-lucide="plus-circle"></i>
+                <span class="btn-text-full">Chọn Quán Có Sẵn</span>
+                <span class="btn-text-short">Chọn Quán</span>
+              </button>
+              <button class="btn btn-plan-tool btn-plan-custom" id="btnPlanAddCustom" title="Thêm địa điểm bất kỳ (rạp phim, bờ hồ...)">
+                <i data-lucide="map-pin"></i>
+                <span class="btn-text-full">Thêm Điểm Tự Do</span>
+                <span class="btn-text-short">Thêm Điểm</span>
+              </button>
+            </div>
 
-          <div class="plan-toolbar-actions">
-            <button class="btn btn-primary" id="btnPlanPickFromDb" title="Chọn từ quán ăn & cafe có sẵn trên web">
-              <i data-lucide="plus-circle"></i>
-              <span class="btn-text-full">Chọn Quán Có Sẵn</span>
-              <span class="btn-text-short">Chọn Quán</span>
-            </button>
-            <button class="btn btn-secondary" id="btnPlanAddCustom" title="Thêm địa điểm bất kỳ (rạp phim, bờ hồ...)">
-              <i data-lucide="map-pin"></i>
-              <span class="btn-text-full">Thêm Điểm Tự Do</span>
-              <span class="btn-text-short">Thêm Điểm</span>
-            </button>
-            <button class="btn btn-outline-danger" id="btnPlanClear" title="Xóa toàn bộ điểm dừng của kế hoạch hiện tại">
-              <i data-lucide="trash-2"></i>
-            </button>
+            <div class="plan-toolbar-right">
+              <button class="btn btn-plan-tool btn-plan-clear" id="btnPlanClear" title="Xóa toàn bộ điểm dừng của kế hoạch hiện tại">
+                <i data-lucide="trash-2"></i>
+                <span class="btn-text-full">Xóa Lịch Trình</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1460,10 +1469,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=4.4"></script>
-  <script src="js/services/apiService.js?v=4.4"></script>
-  <script src="js/views/view.js?v=4.4"></script>
-  <script src="js/controllers/appController.js?v=4.4"></script>
+  <script src="js/models/state.js?v=4.5"></script>
+  <script src="js/services/apiService.js?v=4.5"></script>
+  <script src="js/views/view.js?v=4.5"></script>
+  <script src="js/controllers/appController.js?v=4.5"></script>
 </body>
 
 </html>
