@@ -3653,7 +3653,7 @@ button {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 0;
   flex: 1;
   min-width: 280px;
 }
@@ -3673,7 +3673,7 @@ button {
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: #f8fafc;
-  margin-bottom: 2px;
+  margin-bottom: 0;
 }
 
 .plan-badge-pill i,
@@ -3684,20 +3684,12 @@ button {
 }
 
 .plan-title {
-  font-size: 1.55rem;
+  font-size: 1.65rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  margin: 0;
+  margin: 10px 0 0 0;
   color: #ffffff;
   line-height: 1.25;
-}
-
-.plan-hero-desc {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #cbd5e1;
-  margin: 2px 0 0;
-  line-height: 1.4;
 }
 
 /* Responsive text switch utilities */
@@ -5568,14 +5560,12 @@ button {
   .plan-hero-text {
     width: 100%;
     min-width: 0;
-    gap: 3px;
+    gap: 0;
   }
   .plan-title {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     line-height: 1.25;
-  }
-  .plan-hero-desc {
-    font-size: 0.775rem;
+    margin: 8px 0 0 0;
   }
   .plan-trip-actions {
     width: 100%;

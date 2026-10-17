@@ -605,10 +605,11 @@ const appController = {
 
     if (view.dom.newTripStartDate) {
       view.dom.newTripStartDate.value = today;
+      view.dom.newTripStartDate.removeAttribute('min');
     }
     if (view.dom.newTripEndDate) {
       view.dom.newTripEndDate.value = tomorrow;
-      view.dom.newTripEndDate.min = today;
+      view.dom.newTripEndDate.removeAttribute('min');
     }
     this.updateTripDurationPreview();
 
@@ -2246,6 +2247,7 @@ const appController = {
       if (view.dom.newTripStartDate && view.dom.newTripStartDate.value) {
         if (view.dom.newTripEndDate.value && view.dom.newTripEndDate.value < view.dom.newTripStartDate.value) {
           view.dom.newTripStartDate.value = view.dom.newTripEndDate.value;
+          view.dom.newTripEndDate.min = view.dom.newTripStartDate.value;
         }
       }
       this.updateTripDurationPreview();
@@ -2261,6 +2263,12 @@ const appController = {
       this.updateEditTripDurationPreview();
     });
     view.dom.editTripEndDate?.addEventListener('change', () => {
+      if (view.dom.editTripStartDate && view.dom.editTripStartDate.value) {
+        if (view.dom.editTripEndDate.value && view.dom.editTripEndDate.value < view.dom.editTripStartDate.value) {
+          view.dom.editTripStartDate.value = view.dom.editTripEndDate.value;
+          view.dom.editTripEndDate.min = view.dom.editTripStartDate.value;
+        }
+      }
       this.updateEditTripDurationPreview();
     });
 

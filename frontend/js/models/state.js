@@ -134,6 +134,7 @@ const model = {
   getEmptyPlan(title = 'Chuyến đi 2N1Đ', tripType = '2N1Đ', totalDays = 2, startDate = '', endDate = '') {
     const today = new Date().toISOString().split('T')[0];
     const days = parseInt(totalDays, 10) || 2;
+    const isPast = endDate ? (endDate < today) : (startDate && startDate < today);
     return {
       id: 'plan_' + Date.now(),
       userId: this.currentUser ? (this.currentUser.id || this.currentUser.username) : null,
@@ -142,7 +143,7 @@ const model = {
       totalDays: days,
       startDate: startDate || today,
       endDate: endDate || '',
-      status: 'active', // 'active' | 'completed'
+      status: isPast ? 'completed' : 'active', // 'active' | 'completed'
       createdAt: Date.now(),
       items: []
     };

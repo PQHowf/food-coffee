@@ -180,7 +180,6 @@ const view = {
       btnPlanGateLogin: document.getElementById('btnPlanGateLogin'),
       planContentContainer: document.getElementById('planContentContainer'),
       planHeroTitle: document.getElementById('planHeroTitle'),
-      planHeroDesc: document.getElementById('planHeroDesc'),
       btnPlanNewTrip: document.getElementById('btnPlanNewTrip'),
       btnPlanManageTrips: document.getElementById('btnPlanManageTrips'),
       savedTripsCount: document.getElementById('savedTripsCount'),
@@ -641,9 +640,6 @@ const view = {
       if (this.dom.planHeroTitle) {
         this.dom.planHeroTitle.textContent = 'CHƯA CÓ KẾ HOẠCH NÀO';
       }
-      if (this.dom.planHeroDesc) {
-        this.dom.planHeroDesc.textContent = 'Bắt đầu hành trình bằng cách bấm "+ Tạo Kế Hoạch Mới" hoặc mở các kế hoạch đã lưu.';
-      }
       const emptyCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
       if (this.dom.savedTripsCount) this.dom.savedTripsCount.textContent = emptyCount;
       if (this.dom.savedTripsCountFull) this.dom.savedTripsCountFull.textContent = emptyCount;
@@ -675,22 +671,17 @@ const view = {
       return;
     }
 
+    const items = Array.isArray(plan.items) ? plan.items : [];
+    const total = items.length;
+    const completedCount = items.filter(i => i.isCompleted).length;
+
     if (this.dom.planHeroTitle) {
       this.dom.planHeroTitle.textContent = (plan.title || 'KẾ HOẠCH ĐI CHƠI CỦA BẠN').toUpperCase();
-    }
-    if (this.dom.planHeroDesc) {
-      const durationText = plan.tripType || (plan.totalDays ? `${plan.totalDays} ngày` : '1 ngày');
-      const countText = total > 0 ? `${total} địa điểm` : 'Chưa có địa điểm';
-      this.dom.planHeroDesc.textContent = `${durationText} • ${countText} • Tự do sắp xếp lịch trình ăn uống & cafe`;
     }
 
     const currentCount = String(Array.isArray(userPlans) ? userPlans.length : 0);
     if (this.dom.savedTripsCount) this.dom.savedTripsCount.textContent = currentCount;
     if (this.dom.savedTripsCountFull) this.dom.savedTripsCountFull.textContent = currentCount;
-
-    const items = Array.isArray(plan.items) ? plan.items : [];
-    const total = items.length;
-    const completedCount = items.filter(i => i.isCompleted).length;
 
     // Cập nhật thống kê
     if (this.dom.statPlanStops) {
