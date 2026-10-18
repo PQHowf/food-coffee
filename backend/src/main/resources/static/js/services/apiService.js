@@ -5,7 +5,8 @@
 // Cấu hình URL Backend: Tự động nhận diện domain hiện tại (Render) hoặc localhost
 const API_BASE_URL = window.API_BASE_URL ||
   localStorage.getItem('RENDER_API_BASE_URL') ||
-  (window.location.port === '3000' || window.location.port === '5500' ? 'http://localhost:8080/api' : `${window.location.origin}/api`);
+  (window.location.port === '3000' || window.location.port === '5500' ? 'http://localhost:8080/api' : 
+   (window.location.protocol === 'file:' ? 'https://coffood.top/api' : `${window.location.origin}/api`));
 
 const apiService = {
   isBackendAvailable: null,
@@ -28,7 +29,7 @@ const apiService = {
       if (search) params.append('search', search);
 
       const url = params.toString() ? `${API_BASE_URL}/places?${params.toString()}` : `${API_BASE_URL}/places`;
-      const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+      const res = await fetch(url, { signal: AbortSignal.timeout(35000) });
       if (res.ok) {
         this.isBackendAvailable = true;
         return await res.json();
@@ -222,5 +223,89 @@ const apiService = {
       console.error('Lỗi gọi API đổi mật khẩu:', err);
       return { ok: false, message: 'Lỗi kết nối máy chủ khi đổi mật khẩu' };
     }
+  },
+
+  // ==========================================================================
+  // TRIP PLANNER (LÊN KẾ HOẠCH ĐI CHƠI) CLOUD DATABASE SYNC
+  // ==========================================================================
+  async getUserPlans(userIdOrUsername) {
+    if (!userIdOrUsername) return null;
+    try {
+      const res = await fetch(`${API_BASE_URL}/plans/user/${encodeURIComponent(userIdOrUsername)}`, {
+        signal: AbortSignal.timeout(25000)
+      });
+      if (res.ok) {
+        const rawPlans = await res.json();
+        if (Array.isArray(rawPlans)) {
+          return rawPlans.map(p => {
+            let items = [];
+            if (p.itemsJson) {
+              try { items = JSON.parse(p.itemsJson); } catch (e) { items = []; }
+            } else if (Array.isArray(p.items)) {
+              items = p.items;
+            }
+            return {
+              id: p.id,
+              userId: p.userId,
+              username: p.username,
+              title: p.title,
+              tripType: p.tripType,
+              totalDays: p.totalDays,
+              startDate: p.startDate,
+              endDate: p.endDate,
+              status: p.status,
+              createdAt: p.createdAt,
+              items: items
+            };
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi lấy danh sách plans từ backend:', err);
+    }
+    return null;
+  },
+
+  async saveUserPlan(plan) {
+    if (!plan) return null;
+    try {
+      const payload = {
+        id: plan.id,
+        userId: plan.userId,
+        username: plan.username || (model.currentUser ? (model.currentUser.username || model.currentUser.name) : null),
+        title: plan.title,
+        tripType: plan.tripType,
+        totalDays: plan.totalDays,
+        startDate: plan.startDate,
+        endDate: plan.endDate,
+        status: plan.status,
+        createdAt: plan.createdAt || Date.now(),
+        itemsJson: JSON.stringify(plan.items || [])
+      };
+      const res = await fetch(`${API_BASE_URL}/plans`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(20000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.warn('Lỗi lưu plan lên backend:', err);
+    }
+    return null;
+  },
+
+  async deleteUserPlan(planId) {
+    if (!planId) return false;
+    try {
+      const res = await fetch(`${API_BASE_URL}/plans/${encodeURIComponent(planId)}`, {
+        method: 'DELETE',
+        signal: AbortSignal.timeout(15000)
+      });
+      return res.ok;
+    } catch (err) {
+      console.warn('Lỗi xoá plan trên backend:', err);
+    }
+    return false;
   }
 };

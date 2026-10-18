@@ -216,6 +216,9 @@ const model = {
       } else {
         this.userPlans.unshift(this.tripPlan);
       }
+      if (typeof apiService !== 'undefined' && apiService.saveUserPlan) {
+        apiService.saveUserPlan(this.tripPlan).catch(() => {});
+      }
     }
     localStorage.setItem(key, JSON.stringify(this.userPlans));
   },
@@ -265,6 +268,9 @@ const model = {
     const key = this.getUserPlansKey();
     if (key) {
       localStorage.setItem(key, JSON.stringify(this.userPlans));
+    }
+    if (typeof apiService !== 'undefined' && apiService.deleteUserPlan) {
+      apiService.deleteUserPlan(planId).catch(() => {});
     }
   },
 

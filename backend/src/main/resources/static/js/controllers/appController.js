@@ -47,7 +47,7 @@ const appController = {
     this.syncWithBackend();
   },
 
-  async syncWithBackend() {
+  async syncWithBackend(retryCount = 0) {
     try {
       const backendPlaces = await apiService.getPlaces();
       if (backendPlaces && Array.isArray(backendPlaces)) {
@@ -72,9 +72,57 @@ const appController = {
             }
           } catch (e) {}
         }
+      } else if (retryCount < 2) {
+        // Nếu backend đang khởi động từ sleep mode (Render cold-start), thử lại sau 4s
+        setTimeout(() => this.syncWithBackend(retryCount + 1), 4000);
       }
     } catch (e) {
       console.log('ℹ️ [MVC Controller] Backend chưa phản hồi, giữ dữ liệu local');
+      if (retryCount < 2) {
+        setTimeout(() => this.syncWithBackend(retryCount + 1), 4000);
+      }
+    }
+
+    // Đồng bộ danh sách kế hoạch chuyến đi (Trip Plans) hai chiều với Cloud Database
+    if (model.currentUser) {
+      await this.syncPlansWithBackend();
+    }
+  },
+
+  async syncPlansWithBackend() {
+    if (!model.currentUser) return;
+    const userKey = model.currentUser.id || model.currentUser.username || model.currentUser.name;
+    if (!userKey) return;
+    try {
+      const serverPlans = await apiService.getUserPlans(userKey);
+      if (serverPlans && Array.isArray(serverPlans)) {
+        const localPlans = model.userPlans || [];
+        const merged = [...serverPlans];
+        // Đồng bộ các kế hoạch local chưa có trên server lên server
+        for (const lp of localPlans) {
+          const exists = merged.some(sp => String(sp.id) === String(lp.id));
+          if (!exists) {
+            merged.push(lp);
+            apiService.saveUserPlan(lp).catch(() => {});
+          }
+        }
+        model.userPlans = merged;
+        if (!model.tripPlan || !model.userPlans.some(p => String(p.id) === String(model.tripPlan.id))) {
+          model.tripPlan = model.userPlans.find(p => p.status === 'active') || model.userPlans[0] || null;
+        }
+        const key = model.getUserPlansKey();
+        localStorage.setItem(key, JSON.stringify(model.userPlans));
+        if (model.currentTab === 'plan') {
+          this.renderPlanTab();
+        }
+      } else if (model.userPlans && model.userPlans.length > 0) {
+        // Đẩy toàn bộ plans local lên database nếu server chưa có
+        for (const lp of model.userPlans) {
+          apiService.saveUserPlan(lp).catch(() => {});
+        }
+      }
+    } catch (e) {
+      console.warn('Lỗi đồng bộ plans với server:', e);
     }
   },
 
@@ -1260,6 +1308,7 @@ const appController = {
         model.initTripPlan();
         this.updateAuthView();
         this.closeAuthModal();
+        this.syncPlansWithBackend();
         view.showToast(`Chào mừng bạn quay lại, ${finalUser.name}!`, 'success');
       } catch (err) {
         console.error('Lỗi khi đăng nhập:', err);
@@ -1268,6 +1317,7 @@ const appController = {
         model.initTripPlan();
         this.updateAuthView();
         this.closeAuthModal();
+        this.syncPlansWithBackend();
         view.showToast(`Chào mừng bạn quay lại, ${username}!`, 'info');
       } finally {
         if (view.dom.authSubmitBtn) {
@@ -1293,6 +1343,7 @@ const appController = {
     model.initTripPlan();
     this.updateAuthView();
     this.closeAuthModal();
+    this.syncPlansWithBackend();
     view.showToast(`Chào mừng bạn, ${user.name}!`, 'success');
   },
 

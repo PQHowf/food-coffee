@@ -992,12 +992,14 @@ const view = {
       let dateText = 'Chưa đặt ngày';
       if (p.startDate && p.endDate) {
         if (p.startDate === p.endDate) {
-          dateText = formatVNDate(p.startDate);
+          dateText = `${formatVNDate(p.startDate)} (${durationText})`;
         } else {
-          dateText = `${formatVNDate(p.startDate)} – ${formatVNDate(p.endDate)}`;
+          dateText = `${formatVNDate(p.startDate)} – ${formatVNDate(p.endDate)} (${durationText})`;
         }
       } else if (p.startDate) {
-        dateText = `Khởi hành: ${formatVNDate(p.startDate)}`;
+        dateText = `Khởi hành: ${formatVNDate(p.startDate)} (${durationText})`;
+      } else if (durationText) {
+        dateText = `Thời lượng: ${durationText}`;
       }
 
       html += `
@@ -1019,9 +1021,6 @@ const view = {
                 <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
                   <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
                   ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
-                </span>
-                <span class="trip-info-pill">
-                  <i data-lucide="hourglass"></i> ${durationText}
                 </span>
               </div>
             </div>
@@ -1050,11 +1049,7 @@ const view = {
                 <button type="button" class="btn btn-sm btn-primary-soft" data-action="switch-trip" data-id="${p.id}">
                   <i data-lucide="arrow-right-circle"></i> Xem & Lên Lịch
                 </button>
-              ` : `
-                <span class="trip-viewing-tag">
-                  <i data-lucide="check-circle-2"></i> Đang mở chuyến này
-                </span>
-              `}
+              ` : ''}
               ${!isCompleted ? `
                 <button type="button" class="btn btn-sm btn-secondary-soft" data-action="toggle-status" data-id="${p.id}">
                   <i data-lucide="check"></i> Đánh dấu đã đi
