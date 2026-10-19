@@ -227,6 +227,7 @@ const view = {
       editStopDish: document.getElementById('editStopDish'),
       editStopPrice: document.getElementById('editStopPrice'),
       editStopNote: document.getElementById('editStopNote'),
+      editStopReview: document.getElementById('editStopReview'),
       // New Plan Modals
       planCreateTripModal: document.getElementById('planCreateTripModal'),
       planCreateTripModalClose: document.getElementById('planCreateTripModalClose'),
@@ -642,7 +643,7 @@ const view = {
     selectElem.innerHTML = html;
   },
 
-  renderTripPlan(plan, userPlans, activeDayFilter, onToggleComplete, onDeleteStop, onEditStop, onSelectDayFilter) {
+  renderTripPlan(plan, userPlans, activeDayFilter, onToggleComplete, onDeleteStop, onEditStop, onSelectDayFilter, activeReviewStopId, onSaveReview, onEditReview, onCancelReview) {
     if (!this.dom.planTimelineList) return;
 
     if (!plan) {
@@ -899,6 +900,30 @@ const view = {
               </div>
             ` : ''}
 
+            <!-- Khối hiển thị riêng: Đánh giá của bạn khi đã ghé quán -->
+            ${(isDone && item.review && String(activeReviewStopId) !== String(item.id)) ? `
+              <div class="card-detail-section review-section">
+                <i data-lucide="message-square" class="detail-icon"></i>
+                <div class="detail-inline-text">
+                  <strong class="detail-inline-label">Đánh giá:</strong>
+                  <span class="detail-inline-value">${this.escapeHTML(item.review)}</span>
+                </div>
+                <button type="button" class="btn-review-edit" data-action="edit-review" data-id="${item.id}" title="Sửa đánh giá">
+                  <i data-lucide="edit-3"></i>
+                </button>
+              </div>
+            ` : ''}
+
+            <!-- Hộp nhập đánh giá (textbox và button OK chung 1 dòng) -->
+            ${(String(activeReviewStopId) === String(item.id)) ? `
+              <div class="timeline-review-input-row" data-review-stop="${item.id}">
+                <input type="text" class="timeline-review-input" data-id="${item.id}" placeholder="Nhập cảm nhận, đánh giá về quán..." value="${this.escapeHTML(item.review || '')}" maxlength="300" autocomplete="off" />
+                <button type="button" class="btn-review-ok" data-action="submit-review" data-id="${item.id}">
+                  OK
+                </button>
+              </div>
+            ` : ''}
+
             <div class="card-actions-footer">
               <button type="button" class="btn-complete-toggle ${isDone ? 'checked' : ''}" data-action="toggle-complete" data-id="${item.id}">
                 <i data-lucide="${isDone ? 'check-square' : 'square'}"></i>
@@ -933,6 +958,41 @@ const view = {
       });
     });
 
+    // Sự kiện nút OK lưu đánh giá
+    this.dom.planTimelineList.querySelectorAll('[data-action="submit-review"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        const input = this.dom.planTimelineList.querySelector(`.timeline-review-input[data-id="${id}"]`);
+        const text = input ? input.value : '';
+        if (onSaveReview) onSaveReview(id, text);
+      });
+    });
+
+    // Sự kiện nhấn Enter / Escape trong ô đánh giá
+    this.dom.planTimelineList.querySelectorAll('.timeline-review-input').forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const id = input.getAttribute('data-id');
+          if (onSaveReview) onSaveReview(id, input.value);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          const id = input.getAttribute('data-id');
+          if (onCancelReview) onCancelReview(id);
+        }
+      });
+    });
+
+    // Sự kiện nút chỉnh sửa đánh giá
+    this.dom.planTimelineList.querySelectorAll('[data-action="edit-review"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onEditReview) onEditReview(id);
+      });
+    });
+
     this.dom.planTimelineList.querySelectorAll('[data-action="edit-stop"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -950,6 +1010,15 @@ const view = {
     });
 
     this.refreshIcons();
+
+    // Tự động focus vào ô đánh giá khi vừa xuất hiện
+    if (activeReviewStopId) {
+      const activeInput = this.dom.planTimelineList.querySelector(`.timeline-review-input[data-id="${activeReviewStopId}"]`);
+      if (activeInput) {
+        activeInput.focus();
+        activeInput.select();
+      }
+    }
   },
 
   renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete, onEdit) {

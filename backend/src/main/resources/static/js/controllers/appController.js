@@ -10,6 +10,7 @@ const appController = {
   editSelectedRawFile: null,
   editOriginalImage: '',
   isEditImageRemoved: false,
+  activeReviewStopId: null,
 
   // Phân trang Lazy Load / Infinite Scroll
   PAGE_SIZE: 8,
@@ -575,7 +576,11 @@ const appController = {
       (stopId) => this.handleTogglePlanStop(stopId),
       (stopId) => this.handleDeletePlanStop(stopId),
       (stopId) => this.handleEditPlanStop(stopId),
-      (day) => this.handleSelectPlanDay(day)
+      (day) => this.handleSelectPlanDay(day),
+      this.activeReviewStopId,
+      (stopId, text) => this.handleSavePlanStopReview(stopId, text),
+      (stopId) => this.handleEditPlanStopReview(stopId),
+      (stopId) => this.handleCancelPlanStopReview(stopId)
     );
 
     // 3. Render Sidebar Quán Gợi Ý
@@ -595,6 +600,7 @@ const appController = {
   },
 
   handleSelectPlanDay(day) {
+    this.activeReviewStopId = null;
     model.currentPlanDayFilter = day;
     this.renderPlanTab();
   },
@@ -854,8 +860,39 @@ const appController = {
 
   handleTogglePlanStop(stopId) {
     const isDone = model.togglePlanStopComplete(stopId);
+    if (isDone) {
+      // Khi vừa tick đã ghé quán: mở ngay ô nhập đánh giá cho chặng này
+      this.activeReviewStopId = stopId;
+      this.renderPlanTab();
+      view.showToast('🎉 Đã đánh dấu ghé quán! Mời bạn viết đánh giá.', 'info');
+    } else {
+      // Khi bỏ tick đã ghé quán
+      if (String(this.activeReviewStopId) === String(stopId)) {
+        this.activeReviewStopId = null;
+      }
+      this.renderPlanTab();
+      view.showToast('Đã bỏ đánh dấu hoàn thành.', 'info');
+    }
+  },
+
+  handleSavePlanStopReview(stopId, reviewText) {
+    const cleanReview = (reviewText || '').trim();
+    model.setPlanStopReview(stopId, cleanReview);
+    this.activeReviewStopId = null;
     this.renderPlanTab();
-    view.showToast(isDone ? '🎉 Đã đánh dấu ghé thăm địa điểm!' : 'Đã bỏ đánh dấu hoàn thành.', 'info');
+    if (cleanReview) {
+      view.showToast('🎉 Đã lưu đánh giá của bạn!', 'success');
+    }
+  },
+
+  handleEditPlanStopReview(stopId) {
+    this.activeReviewStopId = stopId;
+    this.renderPlanTab();
+  },
+
+  handleCancelPlanStopReview(stopId) {
+    this.activeReviewStopId = null;
+    this.renderPlanTab();
   },
 
   handleDeletePlanStop(stopId) {
@@ -1067,6 +1104,7 @@ const appController = {
       }
     }
     if (view.dom.editStopNote) view.dom.editStopNote.value = item.note || '';
+    if (view.dom.editStopReview) view.dom.editStopReview.value = item.review || '';
 
     // Populate Day select
     view.populateDaySelectOptions(view.dom.editStopDay, model.tripPlan?.totalDays, model.tripPlan?.startDate, item.day || 1);
@@ -1107,7 +1145,8 @@ const appController = {
       address: view.dom.editStopAddress?.value.trim() || '',
       recommendedDish: view.dom.editStopDish?.value.trim() || '',
       priceRange: view.dom.editStopPrice?.value || '<100K',
-      note: view.dom.editStopNote?.value.trim() || ''
+      note: view.dom.editStopNote?.value.trim() || '',
+      review: view.dom.editStopReview?.value.trim() || ''
     };
 
     model.updatePlanStop(id, updatedData);

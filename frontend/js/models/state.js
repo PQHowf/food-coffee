@@ -325,6 +325,15 @@ const model = {
     }
   },
 
+  setPlanStopReview(stopId, review) {
+    if (!this.tripPlan || !this.tripPlan.items) return;
+    const item = this.tripPlan.items.find(i => String(i.id) === String(stopId));
+    if (item) {
+      item.review = review || '';
+      this.saveTripPlan();
+    }
+  },
+
   clearPlan() {
     if (!this.tripPlan) return;
     this.tripPlan.items = [];

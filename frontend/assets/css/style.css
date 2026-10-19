@@ -4933,9 +4933,142 @@ button {
   color: #1e293b;
 }
 
+/* 3. Đánh giá khi đã ghé quán: Emerald/Green soft accent */
+.card-detail-section.review-section {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-left: 3.5px solid #16a34a;
+  color: #14532d;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-detail-section.review-section .detail-icon,
+.card-detail-section.review-section .detail-inline-label {
+  color: #16a34a;
+}
+
+.card-detail-section.review-section .detail-inline-value {
+  color: #14532d;
+  font-style: italic;
+}
+
+.btn-review-edit {
+  background: transparent;
+  border: none;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm, 6px);
+  color: #16a34a;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.75;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.btn-review-edit:hover {
+  opacity: 1;
+  background: rgba(22, 163, 74, 0.12);
+  transform: scale(1.05);
+}
+
+.btn-review-edit i,
+.btn-review-edit svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Khối nhập đánh giá (textbox và button OK chung 1 dòng) */
+.timeline-review-input-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin: 0 18px 10px;
+  padding: 6px 8px;
+  background: #ffffff;
+  border: 1.5px dashed #86efac;
+  border-radius: var(--radius-md, 10px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  animation: reviewRowFadeIn 0.25s ease;
+}
+
+@keyframes reviewRowFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.timeline-review-input {
+  flex: 1;
+  min-width: 0;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm, 6px);
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-primary, #0f172a);
+  background: #f8fafc;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.timeline-review-input:focus {
+  background: #ffffff;
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.timeline-review-input::placeholder {
+  color: #94a3b8;
+  font-size: 0.825rem;
+}
+
+.btn-review-ok {
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: var(--radius-sm, 6px);
+  background: #10b981;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-review-ok:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+.btn-review-ok:active {
+  transform: translateY(0);
+}
+
 /* Khi chặng đã hoàn thành (khung xanh lá) */
 .timeline-stop-item.completed .card-detail-section.dish-section,
-.timeline-stop-item.completed .card-detail-section.note-section {
+.timeline-stop-item.completed .card-detail-section.note-section,
+.timeline-stop-item.completed .card-detail-section.review-section {
   background: #ffffff;
   border-color: #bbf7d0;
   border-left-color: #10b981;
@@ -5833,6 +5966,23 @@ button {
   }
   .card-detail-section .detail-inline-value {
     font-size: 0.75rem;
+  }
+
+  /* Inline Review Input Row */
+  .timeline-review-input-row {
+    margin: 0 10px 8px;
+    padding: 4px 6px;
+    gap: 6px;
+  }
+  .timeline-review-input {
+    height: 34px;
+    font-size: 0.8rem;
+    padding: 0 10px;
+  }
+  .btn-review-ok {
+    height: 34px;
+    padding: 0 12px;
+    font-size: 0.8rem;
   }
 
   /* Card Action Footer */
