@@ -1039,7 +1039,6 @@ const appController = {
       priceRange: price,
       image: '',
       note: note,
-      travelDuration: '~15 phút di chuyển',
       isCompleted: false
     };
 

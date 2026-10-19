@@ -809,7 +809,6 @@ const view = {
 
     displayItems.forEach((item, index) => {
       const isDone = !!item.isCompleted;
-      const isLast = index === displayItems.length - 1;
       const itemDay = parseInt(item.day, 10) || 1;
 
       // Divider ngày khi đang xem Tất cả
@@ -920,13 +919,6 @@ const view = {
             </div>
           </div>
         </div>
-
-        ${(!isLast && item.travelDuration) ? `
-          <div class="timeline-travel-connector">
-            <i data-lucide="move-down"></i>
-            <span>${this.escapeHTML(item.travelDuration)}</span>
-          </div>
-        ` : ''}
       `;
     });
 
@@ -1036,12 +1028,6 @@ const view = {
               <span class="trip-detail-label"><strong>${completedStops}/${stopCount}</strong> địa điểm ${stopCount > 0 ? `(${progressPercent}%)` : ''}</span>
             </div>
           </div>
-
-          ${stopCount > 0 ? `
-            <div class="saved-trip-progress-bar" title="Tiến độ: ${progressPercent}%">
-              <div class="saved-trip-progress-fill" style="width: ${progressPercent}%;"></div>
-            </div>
-          ` : ''}
 
           <div class="saved-trip-actions">
             <div class="saved-trip-btns-left">

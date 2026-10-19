@@ -4628,6 +4628,10 @@ button {
   z-index: 2;
 }
 
+.timeline-stop-item:last-child {
+  margin-bottom: 0;
+}
+
 /* Left Node on Timeline */
 .timeline-time-node {
   display: flex;
