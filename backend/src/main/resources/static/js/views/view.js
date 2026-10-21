@@ -102,7 +102,13 @@ const view = {
       // Account Info Modal
       accountModal: document.getElementById('accountModal'),
       accountModalClose: document.getElementById('accountModalClose'),
+      accAvatarWrapper: document.getElementById('accAvatarWrapper'),
       accAvatarLarge: document.getElementById('accAvatarLarge'),
+      btnUploadAvatarTrigger: document.getElementById('btnUploadAvatarTrigger'),
+      accAvatarFileInput: document.getElementById('accAvatarFileInput'),
+      avatarActionsQuick: document.getElementById('avatarActionsQuick'),
+      btnChangeAvatarLink: document.getElementById('btnChangeAvatarLink'),
+      btnRemoveAvatarLink: document.getElementById('btnRemoveAvatarLink'),
       accNameDisplay: document.getElementById('accNameDisplay'),
       accRoleDisplay: document.getElementById('accRoleDisplay'),
       accPlacesCount: document.getElementById('accPlacesCount'),
@@ -311,6 +317,12 @@ const view = {
     const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
     const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
     const initials = this.getInitials(place.suggestedBy);
+    let authorAvatarContent = initials;
+    if (place.suggestedByAvatar) {
+      authorAvatarContent = `<img src="${this.escapeHTML(place.suggestedByAvatar)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img">`;
+    } else if (typeof model !== 'undefined' && model.currentUser && model.currentUser.avatar && (place.suggestedBy === model.currentUser.name || place.suggestedBy === model.currentUser.username)) {
+      authorAvatarContent = `<img src="${this.escapeHTML(model.currentUser.avatar)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img">`;
+    }
 
     const fallbackImg = this.getFallbackImage(place);
     let rawImg = (place.image && typeof place.image === 'string') ? place.image.trim() : '';
@@ -361,7 +373,7 @@ const view = {
 
           <div class="card-footer">
             <div class="suggested-by-badge" title="Người đã đề xuất địa điểm này">
-              <div class="suggested-avatar">${initials}</div>
+              <div class="suggested-avatar">${authorAvatarContent}</div>
               <div class="suggested-text">
                 <span class="suggested-label">Gợi ý từ:</span>
                 <strong class="suggested-name">${this.escapeHTML(place.suggestedBy || 'Ẩn danh')}</strong>
@@ -516,9 +528,12 @@ const view = {
   renderAuth(user, onOpenAccount, onLogout, onOpenLogin) {
     if (user) {
       const initials = this.getInitials(user.name);
+      const avatarHTML = user.avatar
+        ? `<img src="${this.escapeHTML(user.avatar)}" alt="${this.escapeHTML(user.name)}" class="user-avatar-img">`
+        : initials;
       this.dom.authSection.innerHTML = `
         <div class="user-profile-badge" id="btnHeaderAccountBadge" title="Xem & quản lý thông tin tài khoản">
-          <div class="user-avatar-circle">${initials}</div>
+          <div class="user-avatar-circle">${avatarHTML}</div>
           <div class="user-info-text">
             <span class="user-greeting">Tài khoản</span>
             <span class="user-display-name">${this.escapeHTML(user.name)}</span>

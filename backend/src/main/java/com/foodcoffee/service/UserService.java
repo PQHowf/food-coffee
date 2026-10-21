@@ -13,7 +13,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User registerUser(String username, String name, String email, String password, String role) {
+    public User registerUser(String username, String name, String email, String password, String role, String avatar) {
         String finalUsername = (username != null && !username.trim().isEmpty()) 
                 ? username.trim() 
                 : ((email != null && !email.trim().isEmpty()) ? email.trim() : (name != null ? name.trim() : "user_" + System.currentTimeMillis()));
@@ -34,6 +34,7 @@ public class UserService {
             if (email != null && !email.trim().isEmpty()) user.setEmail(email.trim());
             if (password != null && !password.trim().isEmpty()) user.setPassword(password.trim());
             if (role != null && !role.trim().isEmpty()) user.setRole(role.trim());
+            if (avatar != null) user.setAvatar(avatar.trim());
             return userRepository.save(user);
         }
 
@@ -43,16 +44,25 @@ public class UserService {
                 .email(email != null && !email.trim().isEmpty() ? email.trim() : null)
                 .password(password != null && !password.trim().isEmpty() ? password.trim() : null)
                 .role(role != null && !role.trim().isEmpty() ? role.trim() : "Thành viên đề xuất")
+                .avatar(avatar != null && !avatar.trim().isEmpty() ? avatar.trim() : null)
                 .build();
         return userRepository.save(newUser);
     }
 
+    public User registerUser(String username, String name, String email, String password, String role) {
+        return registerUser(username, name, email, password, role, null);
+    }
+
     public User loginOrRegister(String username, String name, String email, String password, String role) {
-        return registerUser(username, name, email, password, role);
+        return registerUser(username, name, email, password, role, null);
+    }
+
+    public User loginOrRegister(String username, String name, String email, String password, String role, String avatar) {
+        return registerUser(username, name, email, password, role, avatar);
     }
 
     public User registerOrLogin(String name, String role) {
-        return registerUser(name, name, null, null, role);
+        return registerUser(name, name, null, null, role, null);
     }
 
     public Optional<User> getUserByName(String name) {
@@ -61,7 +71,7 @@ public class UserService {
         return userRepository.findByUsername(name);
     }
 
-    public User updateUser(String oldName, String newName, String newRole) {
+    public User updateUser(String oldName, String newName, String newRole, String avatar) {
         User user = userRepository.findByName(oldName)
                 .or(() -> userRepository.findByUsername(oldName))
                 .orElseThrow(() -> new RuntimeException("User not found: " + oldName));
@@ -69,6 +79,22 @@ public class UserService {
         if (newRole != null) {
             user.setRole(newRole);
         }
+        if (avatar != null) {
+            user.setAvatar(avatar.isEmpty() ? null : avatar);
+        }
+        return userRepository.save(user);
+    }
+
+    public User updateUser(String oldName, String newName, String newRole) {
+        return updateUser(oldName, newName, newRole, null);
+    }
+
+    public User updateAvatar(String usernameOrName, String avatar) {
+        User user = userRepository.findByUsername(usernameOrName)
+                .or(() -> userRepository.findByName(usernameOrName))
+                .or(() -> userRepository.findByEmail(usernameOrName))
+                .orElseThrow(() -> new RuntimeException("User not found: " + usernameOrName));
+        user.setAvatar(avatar != null && !avatar.trim().isEmpty() ? avatar.trim() : null);
         return userRepository.save(user);
     }
 

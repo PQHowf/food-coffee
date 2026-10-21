@@ -35,7 +35,7 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Main Stylesheet -->
-  <link rel="stylesheet" href="assets/css/style.css?v=5.2">
+  <link rel="stylesheet" href="assets/css/style.css?v=5.3">
 </head>
 
 <body>
@@ -674,10 +674,24 @@
 
       <!-- Account Profile Header -->
       <div class="account-card-view">
-        <div class="account-avatar-large" id="accAvatarLarge">HQ</div>
+        <div class="account-avatar-wrapper" id="accAvatarWrapper" role="button" tabindex="0" title="Bấm để tải lên ảnh đại diện">
+          <div class="account-avatar-large" id="accAvatarLarge">HQ</div>
+          <button type="button" class="btn-avatar-camera" id="btnUploadAvatarTrigger" title="Tải lên ảnh đại diện">
+            <i data-lucide="camera"></i>
+          </button>
+          <input type="file" id="accAvatarFileInput" accept="image/png, image/jpeg, image/jpg, image/webp, image/gif, image/heic" style="display: none;">
+        </div>
         <div class="account-identity">
           <h4 class="acc-name" id="accNameDisplay">Phạm Quốc Huy</h4>
           <span class="acc-role" id="accRoleDisplay">Tân Binh Ẩm Thực</span>
+          <div class="avatar-actions-quick" id="avatarActionsQuick">
+            <button type="button" class="btn-avatar-link" id="btnChangeAvatarLink">
+              <i data-lucide="upload"></i> Đổi ảnh
+            </button>
+            <button type="button" class="btn-avatar-link danger" id="btnRemoveAvatarLink" style="display: none;">
+              <i data-lucide="trash-2"></i> Xoá ảnh
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1430,10 +1444,10 @@
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <!-- MVC Architecture Scripts -->
-  <script src="js/models/state.js?v=5.1"></script>
-  <script src="js/services/apiService.js?v=5.1"></script>
-  <script src="js/views/view.js?v=5.1"></script>
-  <script src="js/controllers/appController.js?v=5.1"></script>
+  <script src="js/models/state.js?v=5.3"></script>
+  <script src="js/services/apiService.js?v=5.3"></script>
+  <script src="js/views/view.js?v=5.3"></script>
+  <script src="js/controllers/appController.js?v=5.3"></script>
 </body>
 
 </html>

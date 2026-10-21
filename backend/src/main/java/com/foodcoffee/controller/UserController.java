@@ -23,12 +23,13 @@ public class UserController {
         String email = payload.get("email");
         String password = payload.get("password");
         String role = payload.get("role");
+        String avatar = payload.get("avatar");
 
         if ((username == null || username.trim().isEmpty()) && (name == null || name.trim().isEmpty()) && (email == null || email.trim().isEmpty())) {
             return ResponseEntity.badRequest().build();
         }
 
-        User user = userService.registerUser(username, name, email, password, role);
+        User user = userService.registerUser(username, name, email, password, role, avatar);
         return ResponseEntity.ok(user);
     }
 
@@ -39,6 +40,7 @@ public class UserController {
         String email = payload.get("email");
         String password = payload.get("password");
         String role = payload.get("role");
+        String avatar = payload.get("avatar");
 
         String identifier = username != null && !username.trim().isEmpty() ? username.trim() : (name != null ? name.trim() : email);
 
@@ -46,7 +48,7 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
 
-        User user = userService.loginOrRegister(username, name, email, password, role);
+        User user = userService.loginOrRegister(username, name, email, password, role, avatar);
         return ResponseEntity.ok(user);
     }
 
@@ -63,12 +65,22 @@ public class UserController {
             @RequestBody Map<String, String> payload) {
         String newName = payload.get("name");
         String newRole = payload.get("role");
+        String avatar = payload.get("avatar");
 
         if (newName == null || newName.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
 
-        User updated = userService.updateUser(oldName, newName.trim(), newRole);
+        User updated = userService.updateUser(oldName, newName.trim(), newRole, avatar);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{usernameOrName}/avatar")
+    public ResponseEntity<User> updateAvatar(
+            @PathVariable String usernameOrName,
+            @RequestBody Map<String, String> payload) {
+        String avatar = payload.get("avatar");
+        User updated = userService.updateAvatar(usernameOrName, avatar);
         return ResponseEntity.ok(updated);
     }
 

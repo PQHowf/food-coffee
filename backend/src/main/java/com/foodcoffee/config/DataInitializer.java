@@ -25,7 +25,8 @@ public class DataInitializer {
                 jdbcTemplate.execute("ALTER TABLE places DROP COLUMN IF EXISTS suggested_by_role;");
                 jdbcTemplate.execute("DROP TABLE IF EXISTS place_tags CASCADE;");
                 jdbcTemplate.execute("ALTER TABLE places ADD COLUMN IF NOT EXISTS price_range VARCHAR(50);");
-                System.out.println("✅ DataInitializer: Đã dọn dẹp và cập nhật cột price_range trong Database thành công!");
+                jdbcTemplate.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;");
+                System.out.println("✅ DataInitializer: Đã dọn dẹp và cập nhật database thành công!");
             } catch (Exception e) {
                 System.out.println("DataInitializer: Bỏ qua dọn dẹp cột thừa: " + e.getMessage());
             }

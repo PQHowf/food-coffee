@@ -1165,9 +1165,8 @@ const appController = {
       const role = this.getRoleByPlacesCount(myCount);
       model.currentUser.role = role;
 
-      if (view.dom.formUserAvatar) view.dom.formUserAvatar.textContent = initials;
+      this.updateFormAvatars(model.currentUser);
       if (view.dom.formUserName) view.dom.formUserName.textContent = model.currentUser.name;
-      if (view.dom.formAuthorAvatar) view.dom.formAuthorAvatar.textContent = initials;
       if (view.dom.formSuggestedByPreview) view.dom.formSuggestedByPreview.textContent = model.currentUser.name;
       if (view.dom.formAuthorRole) view.dom.formAuthorRole.textContent = role;
     } else {
@@ -1404,7 +1403,7 @@ const appController = {
     model.currentUser.role = role;
     model.saveUser(model.currentUser);
 
-    if (view.dom.accAvatarLarge) view.dom.accAvatarLarge.textContent = initials;
+    this.renderAccountAvatar(model.currentUser);
     if (view.dom.accNameDisplay) view.dom.accNameDisplay.textContent = model.currentUser.name;
     if (view.dom.accRoleDisplay) view.dom.accRoleDisplay.textContent = role;
     if (view.dom.accPlacesCount) view.dom.accPlacesCount.textContent = myPlaces.length;
@@ -1460,6 +1459,120 @@ const appController = {
       (place) => this.openEditPlaceModal(place),
       (place) => this.handleDeletePlace(place)
     );
+  },
+
+  renderAccountAvatar(user) {
+    if (!view.dom.accAvatarLarge) return;
+    const initials = view.getInitials(user ? user.name : '');
+    if (user && user.avatar) {
+      view.dom.accAvatarLarge.innerHTML = `<img src="${view.escapeHTML(user.avatar)}" alt="${view.escapeHTML(user.name)}" class="user-avatar-img">`;
+      if (view.dom.btnRemoveAvatarLink) view.dom.btnRemoveAvatarLink.style.display = 'inline-flex';
+    } else {
+      view.dom.accAvatarLarge.textContent = initials;
+      if (view.dom.btnRemoveAvatarLink) view.dom.btnRemoveAvatarLink.style.display = 'none';
+    }
+    view.refreshIcons();
+  },
+
+  updateFormAvatars(user) {
+    if (!user) return;
+    const initials = view.getInitials(user.name);
+    if (view.dom.formUserAvatar) {
+      if (user.avatar) {
+        view.dom.formUserAvatar.innerHTML = `<img src="${view.escapeHTML(user.avatar)}" alt="${view.escapeHTML(user.name)}" class="user-avatar-img">`;
+      } else {
+        view.dom.formUserAvatar.textContent = initials;
+      }
+    }
+    if (view.dom.formAuthorAvatar) {
+      if (user.avatar) {
+        view.dom.formAuthorAvatar.innerHTML = `<img src="${view.escapeHTML(user.avatar)}" alt="${view.escapeHTML(user.name)}" class="user-avatar-img">`;
+      } else {
+        view.dom.formAuthorAvatar.textContent = initials;
+      }
+    }
+  },
+
+  async handleAvatarUpload(file) {
+    if (!model.currentUser) {
+      view.showToast('Vui lòng đăng nhập để đổi ảnh đại diện!', 'warning');
+      return;
+    }
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      view.showToast('Vui lòng chọn file hình ảnh hợp lệ (JPG, PNG, WEBP...)!', 'warning');
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      view.showToast('Dung lượng ảnh vượt quá giới hạn 15MB!', 'warning');
+      return;
+    }
+
+    if (view.dom.accAvatarWrapper) {
+      view.dom.accAvatarWrapper.classList.add('uploading');
+    }
+    view.showToast('Đang tải lên ảnh đại diện...', 'info');
+
+    try {
+      const uploadedUrl = await apiService.uploadImage(file);
+      if (!uploadedUrl) {
+        throw new Error('Không nhận được đường dẫn ảnh từ server');
+      }
+
+      model.currentUser.avatar = uploadedUrl;
+      model.saveUser(model.currentUser);
+
+      try {
+        await apiService.updateUserAvatar(model.currentUser.username || model.currentUser.name, uploadedUrl);
+      } catch (err) {
+        console.warn('Lỗi lưu avatar lên server database:', err);
+      }
+
+      this.renderAccountAvatar(model.currentUser);
+      this.updateAuthView();
+      this.updateFormAvatars(model.currentUser);
+      this.renderCurrentPlaces();
+
+      view.showToast('Cập nhật ảnh đại diện thành công!', 'success');
+    } catch (err) {
+      console.error('Lỗi upload avatar:', err);
+      view.showToast('Không thể tải lên ảnh đại diện. Vui lòng thử lại!', 'error');
+    } finally {
+      if (view.dom.accAvatarWrapper) {
+        view.dom.accAvatarWrapper.classList.remove('uploading');
+      }
+      if (view.dom.accAvatarFileInput) {
+        view.dom.accAvatarFileInput.value = '';
+      }
+      view.refreshIcons();
+    }
+  },
+
+  async handleRemoveAvatar() {
+    if (!model.currentUser || !model.currentUser.avatar) return;
+
+    if (!confirm('Bạn có chắc chắn muốn xoá ảnh đại diện này và dùng lại chữ cái mặc định?')) {
+      return;
+    }
+
+    model.currentUser.avatar = null;
+    model.saveUser(model.currentUser);
+
+    try {
+      await apiService.updateUserAvatar(model.currentUser.username || model.currentUser.name, '');
+    } catch (err) {
+      console.warn('Lỗi xoá avatar trên server:', err);
+    }
+
+    this.renderAccountAvatar(model.currentUser);
+    this.updateAuthView();
+    this.updateFormAvatars(model.currentUser);
+    this.renderCurrentPlaces();
+
+    view.showToast('Đã xoá ảnh đại diện thành công!', 'info');
+    view.refreshIcons();
   },
 
   openEditPlaceModal(place) {
@@ -2026,6 +2139,34 @@ const appController = {
       this.handleAuthSubmit();
     });
 
+    // Avatar upload events
+    const triggerAvatarFilePicker = () => {
+      view.dom.accAvatarFileInput?.click();
+    };
+
+    view.dom.accAvatarWrapper?.addEventListener('click', (e) => {
+      if (e.target.closest('#btnUploadAvatarTrigger')) return;
+      triggerAvatarFilePicker();
+    });
+    view.dom.btnUploadAvatarTrigger?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      triggerAvatarFilePicker();
+    });
+    view.dom.btnChangeAvatarLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerAvatarFilePicker();
+    });
+    view.dom.btnRemoveAvatarLink?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.handleRemoveAvatar();
+    });
+    view.dom.accAvatarFileInput?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        this.handleAvatarUpload(file);
+      }
+    });
+
     view.dom.accountModalClose?.addEventListener('click', () => this.closeAccountModal());
     view.dom.btnModalLogout?.addEventListener('click', () => {
       this.closeAccountModal();
@@ -2044,7 +2185,7 @@ const appController = {
 
       // Cập nhật lên Database server
       try {
-        await apiService.updateUser(oldName, newName, role);
+        await apiService.updateUser(oldName, newName, role, model.currentUser.avatar);
       } catch (err) {
         console.warn('Không thể cập nhật user lên server:', err);
       }

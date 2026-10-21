@@ -194,17 +194,34 @@ const apiService = {
     return [];
   },
 
-  async updateUser(oldName, newName, newRole) {
+  async updateUser(oldName, newName, newRole, avatar) {
     try {
+      const payload = { name: newName, role: newRole };
+      if (avatar !== undefined) payload.avatar = avatar;
       const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(oldName)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newName, role: newRole }),
+        body: JSON.stringify(payload),
         signal: AbortSignal.timeout(10000)
       });
       if (res.ok) return await res.json();
     } catch (err) {
       console.error('Lỗi cập nhật user qua API:', err);
+    }
+    return null;
+  },
+
+  async updateUserAvatar(usernameOrName, avatar) {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/${encodeURIComponent(usernameOrName)}/avatar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ avatar }),
+        signal: AbortSignal.timeout(10000)
+      });
+      if (res.ok) return await res.json();
+    } catch (err) {
+      console.error('Lỗi cập nhật avatar qua API:', err);
     }
     return null;
   },
