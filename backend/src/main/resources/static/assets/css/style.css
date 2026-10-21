@@ -4104,7 +4104,7 @@ button {
 .saved-trip-header {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 12px;
 }
 
 .saved-trip-icon-wrap {
@@ -4119,6 +4119,7 @@ button {
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  margin-top: 1px;
 }
 
 .saved-trip-icon-wrap i,
@@ -4146,6 +4147,16 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.saved-trip-title-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .saved-trip-title {
@@ -4155,13 +4166,6 @@ button {
   margin: 0;
   line-height: 1.35;
   word-break: break-word;
-}
-
-.saved-trip-badges-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
 }
 
 /* Status Pills */
@@ -4302,9 +4306,9 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  border-top: 1px solid var(--border-subtle, #f1f5f9);
-  padding-top: 12px;
-  margin-top: 2px;
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
 }
 
 .saved-trip-btns-left {
@@ -6117,13 +6121,25 @@ button {
     gap: 10px;
     border-radius: 14px;
   }
+  .saved-trip-header {
+    gap: 10px;
+  }
   .saved-trip-icon-wrap {
     width: 36px;
     height: 36px;
     border-radius: 10px;
+    margin-top: 2px;
+  }
+  .saved-trip-title-left {
+    gap: 6px;
   }
   .saved-trip-title {
-    font-size: 0.95rem;
+    font-size: 0.925rem;
+  }
+  .saved-trip-title-left .trip-status-pill {
+    font-size: 0.675rem;
+    padding: 2px 7px;
+    gap: 4px;
   }
   .saved-trip-details {
     flex-direction: column;
@@ -6135,6 +6151,9 @@ button {
   .saved-trip-actions {
     flex-wrap: wrap;
     gap: 8px;
+    border-top: none;
+    padding-top: 0;
+    margin-top: 0;
   }
   .saved-trip-btns-left {
     flex: 1;

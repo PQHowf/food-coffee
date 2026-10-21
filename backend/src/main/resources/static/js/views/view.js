@@ -1071,18 +1071,18 @@ const view = {
             </div>
             <div class="saved-trip-title-group">
               <div class="saved-trip-title-row">
-                <h4 class="saved-trip-title">${this.escapeHTML(p.title)}</h4>
+                <div class="saved-trip-title-left">
+                  <h4 class="saved-trip-title">${this.escapeHTML(p.title)}</h4>
+                  <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
+                    <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
+                    ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
+                  </span>
+                </div>
                 ${isActive ? `
                   <span class="trip-status-pill pill-current">
                     <span class="pulse-dot"></span> Đang xem
                   </span>
                 ` : ''}
-              </div>
-              <div class="saved-trip-badges-row">
-                <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
-                  <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
-                  ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
-                </span>
               </div>
             </div>
           </div>
