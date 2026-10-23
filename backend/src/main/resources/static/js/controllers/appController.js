@@ -763,6 +763,9 @@ const appController = {
       },
       (planId) => {
         this.openEditTripModal(planId);
+      },
+      (planId) => {
+        this.handleReusePlan(planId);
       }
     );
 
@@ -780,6 +783,16 @@ const appController = {
     }
   },
 
+  handleReusePlan(planId) {
+    const plan = model.reusePlan(planId);
+    if (plan) {
+      this.handleSwitchPlan(planId);
+      this.closeManageTripsModal();
+      this.renderPlanTab();
+      view.showToast(`🔄 Đã kích hoạt lại kế hoạch "${plan.title}" để sử dụng!`, 'success');
+    }
+  },
+
   // Modal Chỉnh Sửa Kế Hoạch Chuyến Đi
   openEditTripModal(planId) {
     if (!model.currentUser) return;
@@ -794,9 +807,6 @@ const appController = {
     if (view.dom.editTripEndDate) {
       view.dom.editTripEndDate.value = plan.endDate || plan.startDate || '';
       view.dom.editTripEndDate.min = plan.startDate || '';
-    }
-    if (view.dom.editTripStatus) {
-      view.dom.editTripStatus.value = plan.status === 'completed' ? 'completed' : 'active';
     }
     this.updateEditTripDurationPreview();
 
@@ -841,7 +851,6 @@ const appController = {
       view.showToast('Vui lòng chọn ngày khởi hành và ngày về!', 'warning');
       return;
     }
-    const status = view.dom.editTripStatus?.value || 'active';
     const { totalDays, tripType } = this.calculateTripDuration(startDate, endDate);
 
     model.updatePlan(planId, {
@@ -849,8 +858,7 @@ const appController = {
       startDate,
       endDate,
       totalDays,
-      tripType,
-      status
+      tripType
     });
 
     this.closeEditTripModal();

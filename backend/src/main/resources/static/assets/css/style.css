@@ -4118,26 +4118,6 @@ button {
   margin-left: 2px;
 }
 
-.card-day-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  padding: 3px 8px;
-  border-radius: var(--radius-full);
-  font-size: 0.725rem;
-  font-weight: 700;
-}
-
-.card-day-tag i,
-.card-day-tag svg {
-  width: 12px;
-  height: 12px;
-  color: #64748b;
-}
-
 /* Saved Trips Modal & List */
 .manage-trips-modal-card {
   max-width: 620px;
@@ -4465,23 +4445,6 @@ button {
   color: var(--secondary, #0f172a);
 }
 
-/* Progress bar inside card */
-.saved-trip-progress-bar {
-  width: 100%;
-  height: 4px;
-  background: var(--border-subtle, #f1f5f9);
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-top: -4px;
-}
-
-.saved-trip-progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary) 0%, #10b981 100%);
-  border-radius: 9999px;
-  transition: width 0.4s ease;
-}
-
 /* Footer & Actions */
 .saved-trip-actions {
   display: flex;
@@ -4498,25 +4461,6 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-}
-
-.trip-viewing-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--primary);
-  padding: 6px 12px;
-  background: rgba(255, 107, 53, 0.1);
-  border: 1px solid rgba(255, 107, 53, 0.2);
-  border-radius: 8px;
-}
-
-.trip-viewing-tag i,
-.trip-viewing-tag svg {
-  width: 14px;
-  height: 14px;
 }
 
 .btn-primary-soft {
@@ -4862,31 +4806,6 @@ button {
   text-transform: uppercase;
 }
 
-/* Travel Connector Between Consecutive Stops */
-.timeline-travel-connector {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin: -10px 0 16px 62px;
-  padding: 5px 12px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  width: fit-content;
-  z-index: 2;
-}
-
-.timeline-travel-connector i,
-.timeline-travel-connector svg {
-  width: 14px;
-  height: 14px;
-  color: #64748b;
-}
-
 /* Right Place Card */
 .timeline-place-card {
   flex: 1;
@@ -4940,39 +4859,6 @@ button {
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.card-cat-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.725rem;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-  background: #f1f5f9;
-  color: #475569;
-}
-
-.card-cat-tag.cafe {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.card-cat-tag.food {
-  background: #ffedd5;
-  color: #c2410c;
-}
-
-.card-cat-tag.custom {
-  background: #ede9fe;
-  color: #6b21a8;
-}
-
-.card-cat-tag i,
-.card-cat-tag svg {
-  width: 13px;
-  height: 13px;
 }
 
 .card-main-meta {
@@ -6085,11 +5971,6 @@ button {
     font-size: 0.725rem;
     gap: 5px;
   }
-  .timeline-travel-connector {
-    margin: -6px 0 10px 42px;
-    font-size: 0.675rem;
-    padding: 3px 8px;
-  }
 
   /* Timeline Place Card */
   .timeline-place-card {
@@ -6107,9 +5988,7 @@ button {
     gap: 4px;
     flex-wrap: wrap;
   }
-  .card-day-tag,
-  .card-time-tag,
-  .card-cat-tag {
+  .card-time-tag {
     font-size: 0.675rem;
     padding: 2px 5px;
     border-radius: 4px;

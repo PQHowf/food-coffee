@@ -254,7 +254,6 @@ const view = {
       editTripTitle: document.getElementById('editTripTitle'),
       editTripStartDate: document.getElementById('editTripStartDate'),
       editTripEndDate: document.getElementById('editTripEndDate'),
-      editTripStatus: document.getElementById('editTripStatus'),
       editTripDurationPreviewVal: document.getElementById('editTripDurationPreviewVal')
     };
   },
@@ -1037,7 +1036,7 @@ const view = {
     }
   },
 
-  renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete, onEdit) {
+  renderSavedTrips(userPlans, activePlanId, onSwitch, onToggleStatus, onDelete, onEdit, onReuse) {
     if (!this.dom.savedTripsList) return;
     if (!userPlans || userPlans.length === 0) {
       this.dom.savedTripsList.innerHTML = `
@@ -1094,20 +1093,31 @@ const view = {
                   </span>
                 ` : ''}
               </div>
+              ${isCompleted ? `
+                <span class="trip-status-text status-completed">
+                  <i data-lucide="check-circle-2"></i> Đã hoàn thành
+                </span>
+              ` : ''}
             </div>
           </div>
 
           <div class="saved-trip-details">
-            <div class="trip-detail-item trip-date-status-row" title="Thời gian & Trạng thái">
-              <div class="trip-date-info">
+            ${!isCompleted ? `
+              <div class="trip-detail-item trip-date-status-row" title="Thời gian & Trạng thái">
+                <div class="trip-date-info">
+                  <i data-lucide="calendar"></i>
+                  <span class="trip-detail-label">${dateText}</span>
+                </div>
+                <span class="trip-status-text status-active">
+                  <i data-lucide="clock-3"></i> Đang lên kế hoạch
+                </span>
+              </div>
+            ` : `
+              <div class="trip-detail-item" title="Thời gian chuyến đi">
                 <i data-lucide="calendar"></i>
                 <span class="trip-detail-label">${dateText}</span>
               </div>
-              <span class="trip-status-text ${isCompleted ? 'status-completed' : 'status-active'}">
-                <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
-                ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
-              </span>
-            </div>
+            `}
             <div class="trip-detail-item" title="Tiến độ ghé các điểm">
               <i data-lucide="map-pinned"></i>
               <span class="trip-detail-label"><strong>${completedStops}/${stopCount}</strong> địa điểm ${stopCount > 0 ? `(${progressPercent}%)` : ''}</span>
@@ -1125,7 +1135,11 @@ const view = {
                 <button type="button" class="btn btn-sm btn-secondary-soft" data-action="toggle-status" data-id="${p.id}">
                   <i data-lucide="check"></i> Đánh dấu đã đi
                 </button>
-              ` : ''}
+              ` : `
+                <button type="button" class="btn btn-sm btn-primary-soft" data-action="reuse-trip" data-id="${p.id}">
+                  <i data-lucide="rotate-ccw"></i> Sử dụng lại plan
+                </button>
+              `}
             </div>
 
             <div class="saved-trip-btns-right">
@@ -1156,6 +1170,14 @@ const view = {
         e.stopPropagation();
         const id = btn.getAttribute('data-id');
         if (onToggleStatus) onToggleStatus(id);
+      });
+    });
+
+    this.dom.savedTripsList.querySelectorAll('[data-action="reuse-trip"]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.getAttribute('data-id');
+        if (onReuse) onReuse(id);
       });
     });
 

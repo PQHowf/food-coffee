@@ -284,6 +284,29 @@ const model = {
     return null;
   },
 
+  reusePlan(planId) {
+    const plan = this.userPlans.find(p => String(p.id) === String(planId));
+    if (plan) {
+      plan.status = 'active';
+      if (Array.isArray(plan.items)) {
+        plan.items.forEach(it => {
+          it.isCompleted = false;
+        });
+      }
+      if (this.tripPlan && String(this.tripPlan.id) === String(planId)) {
+        this.tripPlan.status = 'active';
+        if (Array.isArray(this.tripPlan.items)) {
+          this.tripPlan.items.forEach(it => {
+            it.isCompleted = false;
+          });
+        }
+      }
+      this.saveUserPlans();
+      return plan;
+    }
+    return null;
+  },
+
   addPlanStop(stop) {
     if (!this.tripPlan) {
       this.tripPlan = this.getEmptyPlan();
