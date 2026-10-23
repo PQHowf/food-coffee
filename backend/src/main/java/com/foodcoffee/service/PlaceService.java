@@ -65,24 +65,28 @@ public class PlaceService {
     }
 
     public List<Place> getAllPlaces(String category, String city, String search) {
+        List<Place> places;
         if (search != null && !search.trim().isEmpty()) {
-            return placeRepository.findByNameContainingIgnoreCaseOrRecommendedDishContainingIgnoreCaseOrAddressContainingIgnoreCase(
+            places = placeRepository.findByNameContainingIgnoreCaseOrRecommendedDishContainingIgnoreCaseOrAddressContainingIgnoreCase(
                     search.trim(), search.trim(), search.trim());
-        }
-
-        if (category != null && !category.equals("all") && city != null && !city.equals("all")) {
-            return placeRepository.findByCategoryAndCity(category, city);
+        } else if (category != null && !category.equals("all") && city != null && !city.equals("all")) {
+            places = placeRepository.findByCategoryAndCity(category, city);
         } else if (category != null && !category.equals("all")) {
-            return placeRepository.findByCategory(category);
+            places = placeRepository.findByCategory(category);
         } else if (city != null && !city.equals("all")) {
-            return placeRepository.findByCity(city);
+            places = placeRepository.findByCity(city);
+        } else {
+            places = placeRepository.findAll();
         }
 
-        return placeRepository.findAll();
+        enrichAuthorAvatars(places);
+        return places;
     }
 
     public Optional<Place> getPlaceById(Long id) {
-        return placeRepository.findById(id);
+        Optional<Place> placeOpt = placeRepository.findById(id);
+        placeOpt.ifPresent(p -> enrichAuthorAvatars(java.util.Collections.singletonList(p)));
+        return placeOpt;
     }
 
     public Place createPlace(Place place) {
@@ -97,7 +101,48 @@ public class PlaceService {
             userRepository.findById(place.getUserId())
                     .ifPresent(u -> place.setSuggestedBy(u.getName()));
         }
+        // Tự động gán authorAvatar nếu chưa có
+        if (place.getAuthorAvatar() == null || place.getAuthorAvatar().trim().isEmpty()) {
+            if (place.getUserId() != null) {
+                userRepository.findById(place.getUserId())
+                        .filter(u -> u.getAvatar() != null && !u.getAvatar().trim().isEmpty())
+                        .ifPresent(u -> place.setAuthorAvatar(u.getAvatar()));
+            } else if (place.getSuggestedBy() != null && !place.getSuggestedBy().trim().isEmpty()) {
+                userRepository.findByUsername(place.getSuggestedBy().trim())
+                        .or(() -> userRepository.findByName(place.getSuggestedBy().trim()))
+                        .filter(u -> u.getAvatar() != null && !u.getAvatar().trim().isEmpty())
+                        .ifPresent(u -> place.setAuthorAvatar(u.getAvatar()));
+            }
+        }
         return placeRepository.save(place);
+    }
+
+    public void enrichAuthorAvatars(List<Place> places) {
+        if (places == null || places.isEmpty()) return;
+        List<com.foodcoffee.model.User> users = userRepository.findAll();
+        java.util.Map<Long, String> avatarByUserId = new java.util.HashMap<>();
+        java.util.Map<String, String> avatarByName = new java.util.HashMap<>();
+        for (com.foodcoffee.model.User u : users) {
+            if (u.getAvatar() != null && !u.getAvatar().trim().isEmpty()) {
+                if (u.getId() != null) avatarByUserId.put(u.getId(), u.getAvatar());
+                if (u.getName() != null) avatarByName.put(u.getName().trim().toLowerCase(), u.getAvatar());
+                if (u.getUsername() != null) avatarByName.put(u.getUsername().trim().toLowerCase(), u.getAvatar());
+            }
+        }
+        for (Place p : places) {
+            String avatar = null;
+            if (p.getUserId() != null && avatarByUserId.containsKey(p.getUserId())) {
+                avatar = avatarByUserId.get(p.getUserId());
+            } else if (p.getSuggestedBy() != null) {
+                String key = p.getSuggestedBy().trim().toLowerCase();
+                if (avatarByName.containsKey(key)) {
+                    avatar = avatarByName.get(key);
+                }
+            }
+            if (avatar != null) {
+                p.setAuthorAvatar(avatar);
+            }
+        }
     }
 
     public Place updatePlace(Long id, Place updatedPlace) {
@@ -118,6 +163,9 @@ public class PlaceService {
             if (updatedPlace.getSuggestedBy() != null) {
                 place.setSuggestedBy(updatedPlace.getSuggestedBy());
             }
+            if (updatedPlace.getAuthorAvatar() != null) {
+                place.setAuthorAvatar(updatedPlace.getAuthorAvatar());
+            }
             return placeRepository.save(place);
         }).orElseThrow(() -> new RuntimeException("Place not found with id: " + id));
     }
@@ -127,10 +175,14 @@ public class PlaceService {
     }
 
     public List<Place> getPlacesByAuthor(String author) {
-        return placeRepository.findBySuggestedBy(author);
+        List<Place> places = placeRepository.findBySuggestedBy(author);
+        enrichAuthorAvatars(places);
+        return places;
     }
 
     public List<Place> getPlacesByUserId(Long userId) {
-        return placeRepository.findByUserId(userId);
+        List<Place> places = placeRepository.findByUserId(userId);
+        enrichAuthorAvatars(places);
+        return places;
     }
 }

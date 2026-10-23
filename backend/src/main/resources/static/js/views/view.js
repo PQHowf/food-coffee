@@ -317,11 +317,12 @@ const view = {
     const catLabel = place.category === 'food' ? 'QUÁN ĂN' : 'QUÁN CAFE';
     const catIcon = place.category === 'food' ? 'utensils' : 'coffee';
     const initials = this.getInitials(place.suggestedBy);
+    const avatarUrl = place.authorAvatar || place.suggestedByAvatar;
     let authorAvatarContent = initials;
-    if (place.suggestedByAvatar) {
-      authorAvatarContent = `<img src="${this.escapeHTML(place.suggestedByAvatar)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img">`;
+    if (avatarUrl) {
+      authorAvatarContent = `<img src="${this.escapeHTML(avatarUrl)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img" onerror="this.onerror=null; this.parentElement.textContent='${initials}';">`;
     } else if (typeof model !== 'undefined' && model.currentUser && model.currentUser.avatar && (place.suggestedBy === model.currentUser.name || place.suggestedBy === model.currentUser.username)) {
-      authorAvatarContent = `<img src="${this.escapeHTML(model.currentUser.avatar)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img">`;
+      authorAvatarContent = `<img src="${this.escapeHTML(model.currentUser.avatar)}" alt="${this.escapeHTML(place.suggestedBy || '')}" class="user-avatar-img" onerror="this.onerror=null; this.parentElement.textContent='${initials}';">`;
     }
 
     const fallbackImg = this.getFallbackImage(place);
@@ -1086,13 +1087,7 @@ const view = {
             </div>
             <div class="saved-trip-title-group">
               <div class="saved-trip-title-row">
-                <div class="saved-trip-title-left">
-                  <h4 class="saved-trip-title">${this.escapeHTML(p.title)}</h4>
-                  <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
-                    <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
-                    ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
-                  </span>
-                </div>
+                <h4 class="saved-trip-title">${this.escapeHTML(p.title)}</h4>
                 ${isActive ? `
                   <span class="trip-status-pill pill-current">
                     <span class="pulse-dot"></span> Đang xem
@@ -1103,9 +1098,15 @@ const view = {
           </div>
 
           <div class="saved-trip-details">
-            <div class="trip-detail-item" title="Thời gian chuyến đi">
-              <i data-lucide="calendar"></i>
-              <span class="trip-detail-label">${dateText}</span>
+            <div class="trip-detail-item trip-date-status-row" title="Thời gian & Trạng thái">
+              <div class="trip-date-info">
+                <i data-lucide="calendar"></i>
+                <span class="trip-detail-label">${dateText}</span>
+              </div>
+              <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
+                <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
+                ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
+              </span>
             </div>
             <div class="trip-detail-item" title="Tiến độ ghé các điểm">
               <i data-lucide="map-pinned"></i>

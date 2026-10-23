@@ -59,15 +59,16 @@ const appController = {
         this.renderCurrentPlaces();
         console.log('✅ [MVC Controller] Đã kết nối & đồng bộ dữ liệu từ Database Server (Tổng quán:', model.places.length, ')');
 
-        // Đồng bộ tài khoản hiện tại lên database nếu có để lấy id chuẩn
+        // Đồng bộ tài khoản hiện tại lên database nếu có để lấy id chuẩn & avatar mới nhất
         if (model.currentUser && (model.currentUser.username || model.currentUser.name)) {
           try {
-            const u = await apiService.getUser(model.currentUser.username || model.currentUser.name) ||
+            const u = await apiService.getUser(model.currentUser.id || model.currentUser.username || model.currentUser.name) ||
                       await apiService.loginOrRegister(model.currentUser.username || model.currentUser.name, model.currentUser.role);
             if (u && u.id) {
               model.currentUser.id = u.id;
               if (u.name) model.currentUser.name = u.name;
               if (u.username) model.currentUser.username = u.username;
+              if (u.avatar) model.currentUser.avatar = u.avatar;
               model.saveUser(model.currentUser);
               this.updateAuthView();
             }
@@ -1524,11 +1525,20 @@ const appController = {
       model.currentUser.avatar = uploadedUrl;
       model.saveUser(model.currentUser);
 
+      const userIdentifier = model.currentUser.id ? String(model.currentUser.id) : (model.currentUser.username || model.currentUser.name);
       try {
-        await apiService.updateUserAvatar(model.currentUser.username || model.currentUser.name, uploadedUrl);
+        await apiService.updateUserAvatar(userIdentifier, uploadedUrl);
       } catch (err) {
         console.warn('Lỗi lưu avatar lên server database:', err);
       }
+
+      // Cập nhật avatar tác giả vào các quán người này đã gợi ý
+      model.places.forEach(p => {
+        if (p.suggestedBy === model.currentUser.name || (model.currentUser.id && p.userId === model.currentUser.id)) {
+          p.authorAvatar = uploadedUrl;
+        }
+      });
+      model.savePlaces();
 
       this.renderAccountAvatar(model.currentUser);
       this.updateAuthView();
@@ -1560,11 +1570,20 @@ const appController = {
     model.currentUser.avatar = null;
     model.saveUser(model.currentUser);
 
+    const userIdentifier = model.currentUser.id ? String(model.currentUser.id) : (model.currentUser.username || model.currentUser.name);
     try {
-      await apiService.updateUserAvatar(model.currentUser.username || model.currentUser.name, '');
+      await apiService.updateUserAvatar(userIdentifier, '');
     } catch (err) {
       console.warn('Lỗi xoá avatar trên server:', err);
     }
+
+    // Xoá avatar tác giả ở các quán của user
+    model.places.forEach(p => {
+      if (p.suggestedBy === model.currentUser.name || (model.currentUser.id && p.userId === model.currentUser.id)) {
+        p.authorAvatar = null;
+      }
+    });
+    model.savePlaces();
 
     this.renderAccountAvatar(model.currentUser);
     this.updateAuthView();
@@ -1972,6 +1991,7 @@ const appController = {
         image: finalImage,
         recommendedDish: recommendedDish || null,
         suggestedBy: model.currentUser.name,
+        authorAvatar: model.currentUser.avatar || null,
         createdAt: new Date().toISOString().split('T')[0]
       };
 

@@ -4269,17 +4269,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
-}
-
-.saved-trip-title-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  min-width: 0;
 }
 
 .saved-trip-title {
@@ -4289,6 +4280,12 @@ button {
   margin: 0;
   line-height: 1.35;
   word-break: break-word;
+  flex: 1;
+}
+
+.saved-trip-title-row .pill-current {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* Status Pills */
@@ -4387,6 +4384,22 @@ button {
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+}
+
+.trip-date-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.trip-date-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .trip-detail-item i,
@@ -6253,16 +6266,36 @@ button {
     border-radius: 10px;
     margin-top: 2px;
   }
-  .saved-trip-title-left {
-    gap: 6px;
+  .saved-trip-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
   }
   .saved-trip-title {
-    font-size: 0.925rem;
+    font-size: 0.95rem;
+    flex: 1;
   }
-  .saved-trip-title-left .trip-status-pill {
+  .saved-trip-title-row .pill-current {
+    font-size: 0.675rem;
+    padding: 2px 7px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .trip-date-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .trip-date-status-row .trip-status-pill {
     font-size: 0.675rem;
     padding: 2px 7px;
     gap: 4px;
+    flex-shrink: 0;
   }
   .saved-trip-details {
     flex-direction: column;

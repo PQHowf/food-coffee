@@ -1,10 +1,13 @@
 package com.foodcoffee.service;
 
+import com.foodcoffee.model.Place;
 import com.foodcoffee.model.User;
+import com.foodcoffee.repository.PlaceRepository;
 import com.foodcoffee.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -12,6 +15,9 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PlaceRepository placeRepository;
 
     public User registerUser(String username, String name, String email, String password, String role, String avatar) {
         String finalUsername = (username != null && !username.trim().isEmpty()) 
@@ -65,10 +71,16 @@ public class UserService {
         return registerUser(name, name, null, null, role, null);
     }
 
-    public Optional<User> getUserByName(String name) {
-        Optional<User> byName = userRepository.findByName(name);
+    public Optional<User> getUserByName(String nameOrId) {
+        if (nameOrId == null || nameOrId.trim().isEmpty()) return Optional.empty();
+        try {
+            Long id = Long.parseLong(nameOrId.trim());
+            Optional<User> byId = userRepository.findById(id);
+            if (byId.isPresent()) return byId;
+        } catch (NumberFormatException ignored) {}
+        Optional<User> byName = userRepository.findByName(nameOrId.trim());
         if (byName.isPresent()) return byName;
-        return userRepository.findByUsername(name);
+        return userRepository.findByUsername(nameOrId.trim());
     }
 
     public User updateUser(String oldName, String newName, String newRole, String avatar) {
@@ -82,7 +94,21 @@ public class UserService {
         if (avatar != null) {
             user.setAvatar(avatar.isEmpty() ? null : avatar);
         }
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+
+        // Đồng bộ tên tác giả và avatar sang các quán cũ
+        try {
+            List<Place> places = placeRepository.findBySuggestedBy(oldName);
+            for (Place p : places) {
+                p.setSuggestedBy(newName);
+                if (avatar != null) {
+                    p.setAuthorAvatar(avatar.isEmpty() ? null : avatar);
+                }
+                placeRepository.save(p);
+            }
+        } catch (Exception ignored) {}
+
+        return saved;
     }
 
     public User updateUser(String oldName, String newName, String newRole) {
@@ -90,12 +116,46 @@ public class UserService {
     }
 
     public User updateAvatar(String usernameOrName, String avatar) {
-        User user = userRepository.findByUsername(usernameOrName)
-                .or(() -> userRepository.findByName(usernameOrName))
-                .or(() -> userRepository.findByEmail(usernameOrName))
-                .orElseThrow(() -> new RuntimeException("User not found: " + usernameOrName));
-        user.setAvatar(avatar != null && !avatar.trim().isEmpty() ? avatar.trim() : null);
-        return userRepository.save(user);
+        if (usernameOrName == null || usernameOrName.trim().isEmpty()) {
+            throw new IllegalArgumentException("Username or name must not be empty");
+        }
+        User user = null;
+        try {
+            Long id = Long.parseLong(usernameOrName.trim());
+            user = userRepository.findById(id).orElse(null);
+        } catch (NumberFormatException ignored) {}
+        if (user == null) {
+            user = userRepository.findByUsername(usernameOrName.trim())
+                    .or(() -> userRepository.findByName(usernameOrName.trim()))
+                    .or(() -> userRepository.findByEmail(usernameOrName.trim()))
+                    .orElseThrow(() -> new RuntimeException("User not found: " + usernameOrName));
+        }
+
+        String finalAvatar = (avatar != null && !avatar.trim().isEmpty()) ? avatar.trim() : null;
+        user.setAvatar(finalAvatar);
+        User savedUser = userRepository.save(user);
+
+        // Đồng bộ avatar sang tất cả quán do người này đăng
+        try {
+            if (savedUser.getId() != null) {
+                List<Place> places = placeRepository.findByUserId(savedUser.getId());
+                for (Place p : places) {
+                    p.setAuthorAvatar(finalAvatar);
+                    placeRepository.save(p);
+                }
+            }
+            if (savedUser.getName() != null) {
+                List<Place> placesByName = placeRepository.findBySuggestedBy(savedUser.getName());
+                for (Place p : placesByName) {
+                    p.setAuthorAvatar(finalAvatar);
+                    placeRepository.save(p);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Cảnh báo: Lỗi đồng bộ avatar sang quán: " + e.getMessage());
+        }
+
+        return savedUser;
     }
 
     public boolean changePassword(String usernameOrName, String currentPassword, String newPassword) {
