@@ -104,7 +104,6 @@ const view = {
       accountModalClose: document.getElementById('accountModalClose'),
       accAvatarWrapper: document.getElementById('accAvatarWrapper'),
       accAvatarLarge: document.getElementById('accAvatarLarge'),
-      btnUploadAvatarTrigger: document.getElementById('btnUploadAvatarTrigger'),
       accAvatarFileInput: document.getElementById('accAvatarFileInput'),
       avatarActionsQuick: document.getElementById('avatarActionsQuick'),
       btnChangeAvatarLink: document.getElementById('btnChangeAvatarLink'),

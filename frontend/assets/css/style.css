@@ -1783,39 +1783,6 @@ button {
   filter: brightness(0.96);
 }
 
-.btn-avatar-camera {
-  position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #ea580c;
-  border: 1.5px solid #fed7aa;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  padding: 0;
-  transition: all var(--transition-fast);
-  z-index: 2;
-}
-
-.btn-avatar-camera:hover {
-  background: #ea580c;
-  color: #ffffff;
-  border-color: #ea580c;
-  transform: scale(1.1);
-}
-
-.btn-avatar-camera i,
-.btn-avatar-camera svg {
-  width: 13px;
-  height: 13px;
-}
-
 .account-avatar-wrapper.uploading .account-avatar-large {
   opacity: 0.5;
 }

@@ -2172,12 +2172,7 @@ const appController = {
       view.dom.accAvatarFileInput?.click();
     };
 
-    view.dom.accAvatarWrapper?.addEventListener('click', (e) => {
-      if (e.target.closest('#btnUploadAvatarTrigger')) return;
-      triggerAvatarFilePicker();
-    });
-    view.dom.btnUploadAvatarTrigger?.addEventListener('click', (e) => {
-      e.stopPropagation();
+    view.dom.accAvatarWrapper?.addEventListener('click', () => {
       triggerAvatarFilePicker();
     });
     view.dom.btnChangeAvatarLink?.addEventListener('click', (e) => {
