@@ -4341,6 +4341,52 @@ button {
   100% { transform: scale(0.9); opacity: 0.8; }
 }
 
+/* Status Text (unboxed inline status text) */
+.trip-status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.775rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.trip-status-text i,
+.trip-status-text svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.trip-status-text.status-active,
+.saved-trip-item.active .trip-status-text.status-active {
+  color: #2563eb;
+}
+
+.trip-status-text.status-active i,
+.trip-status-text.status-active svg,
+.saved-trip-item.active .trip-status-text.status-active i,
+.saved-trip-item.active .trip-status-text.status-active svg {
+  color: #2563eb !important;
+}
+
+.trip-status-text.status-completed,
+.saved-trip-item.active .trip-status-text.status-completed {
+  color: #16a34a;
+}
+
+.trip-status-text.status-completed i,
+.trip-status-text.status-completed svg,
+.saved-trip-item.active .trip-status-text.status-completed i,
+.saved-trip-item.active .trip-status-text.status-completed svg {
+  color: #16a34a !important;
+}
+
 .trip-info-pill {
   display: inline-flex;
   align-items: center;
@@ -6290,6 +6336,16 @@ button {
     width: 100%;
     gap: 6px;
     flex-wrap: wrap;
+  }
+  .trip-date-status-row .trip-status-text {
+    font-size: 0.725rem;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .trip-date-status-row .trip-status-text i,
+  .trip-date-status-row .trip-status-text svg {
+    width: 12px;
+    height: 12px;
   }
   .trip-date-status-row .trip-status-pill {
     font-size: 0.675rem;

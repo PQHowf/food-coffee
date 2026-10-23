@@ -1103,7 +1103,7 @@ const view = {
                 <i data-lucide="calendar"></i>
                 <span class="trip-detail-label">${dateText}</span>
               </div>
-              <span class="trip-status-pill ${isCompleted ? 'pill-completed' : 'pill-active'}">
+              <span class="trip-status-text ${isCompleted ? 'status-completed' : 'status-active'}">
                 <i data-lucide="${isCompleted ? 'check-circle-2' : 'clock-3'}"></i>
                 ${isCompleted ? 'Đã hoàn thành' : 'Đang lên kế hoạch'}
               </span>
